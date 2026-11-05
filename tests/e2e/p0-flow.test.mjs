@@ -13,7 +13,7 @@ async function setup(t,options={}){
  const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
  const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage();page.setDefaultTimeout(7000);
  await context.addInitScript(()=>localStorage.setItem('yeoun.reduced','true'));
- const calls=[],consents=[],jobs=new Map(),journals=new Map();const user={id:id(100),kind:'guest',locale:'ko-KR',timezone:'Asia/Seoul',preferences:{tone:'warm',reduced_motion:false,voice_mode:'device'}};let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active';
+ const calls=[],consents=[],jobs=new Map(),journals=new Map();const user={id:id(100),kind:'guest',locale:'ko-KR',timezone:'Asia/Seoul',preferences:{tone:'warm',reduced_motion:false,voice_mode:'device'}};let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active',releaseDataRequest;
  const asset={id:id(1),url:'/api/mock-card',sha256:'a'.repeat(64),width:825,height:1429,source_page:'https://commons.wikimedia.org/wiki/File:RWS1909_-_00_Fool.jpeg',license_name:'Public domain',license_url:'https://creativecommons.org/publicdomain/mark/1.0/'};
  const deck={id:id(2),code:'fixture-rws',version:'test-20261105',name:'기존 그림 후보 덱',card_count:78,status:'candidate',back_asset:asset};
  const card=n=>({id:n,code:'major_'+n,name_ko:'카드 '+n,name_en:'Card '+n,arcana:'major',suit:null,basic_meaning:'현재 마음을 다른 시선으로 살펴봐요.',image_asset:asset});
@@ -62,7 +62,7 @@ async function setup(t,options={}){
   if(path==='/v2/conversations/'+id(50)+'/turns'&&request.method()==='GET')return json({items:[historyTurn],next_cursor:null});
   if(path==='/v2/conversations/'+id(50)+'/turns/'+id(52))return json(historyTurn);
   if(path==='/v2/conversations/'+id(50)+'/turns'&&request.method()==='POST')return json(accepted(id(51),id(52)),202);
-  if(path==='/v2/me/data-requests'){receipt={id:id(70),kind:body.kind,state:'queued',receipt:'status-only-receipt',expires_at:'2026-11-07T00:00:00Z'};return json(receipt,202);}
+  if(path==='/v2/me/data-requests'){if(options.delayDataRequest)await new Promise(resolve=>{releaseDataRequest=resolve;});receipt={id:id(70),kind:body.kind,state:'queued',receipt:'status-only-receipt',expires_at:'2026-11-07T00:00:00Z'};return json(receipt,202);}
   if(path==='/v2/data-requests/'+id(70)){if(receipt.kind==='erase')erased=true;return json({id:id(70),kind:receipt.kind,state:'completed',download_available:receipt.kind==='export'&&!!request.headers().authorization&&!request.headers()['x-data-receipt'],expires_at:receipt.expires_at});}
   if(path==='/v2/data-requests/'+id(70)+'/download'){if(!request.headers().authorization||request.headers()['x-data-receipt'])return json({error:{code:'UNAUTHORIZED',message:'파일 다운로드는 유효한 기기 연결이 필요해요.',retryable:false}},401);return route.fulfill({status:200,contentType:'application/zip',body:Buffer.from('504b0506000000000000000000000000000000000000','hex')});}
   if(path==='/v2/feedback')return json({id:id(80),created_at:at},201);
@@ -70,7 +70,7 @@ async function setup(t,options={}){
   if(path==='/v2/transcriptions/'+id(61))return request.method()==='DELETE'?route.fulfill({status:204}):json({id:id(61),state:'ready',transcript:'server transcript',expires_at:'2026-11-06T01:00:00Z'});
   return json({error:{code:'FIXTURE_NOT_DEFINED',message:'미정의 테스트 경로 '+path,retryable:false}},404);
  });
- return {page,context,calls,consents,reading};
+ return {page,context,calls,consents,reading,releaseDataRequest:()=>releaseDataRequest?.()};
 }
 
 test('explicit onboarding, owned context, hidden slots and an explicit AI retry form one reviewable flow',{timeout:45000},async t=>{
@@ -213,4 +213,12 @@ test('changing reduced motion keeps the settings scroll position',{timeout:30000
  const scrollTop=()=>toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement){if(p.scrollHeight>p.clientHeight+5&&['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollTop;}throw new Error('Scrollable settings surface not found');});
  const before=await scrollTop();assert.ok(before>100);await toggle.click();await page.waitForFunction(()=>localStorage.getItem('yeoun.reduced')==='true');
  const after=await scrollTop();assert.ok(Math.abs(after-before)<=2,'motion preference must retain the current scroll position');
+});
+
+
+test('a busy action retains its accessible operation name before and after acknowledgement',{timeout:30000},async t=>{
+ const {page,releaseDataRequest}=await setup(t,{delayDataRequest:true});await page.goto(base);await enterGuest(page);await page.getByRole('tab',{name:'내 공간',exact:true}).click();await page.getByRole('button',{name:'내 기록과 데이터',exact:true}).click();
+ const sent=page.waitForRequest('**/api/v2/me/data-requests');await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).click();await sent;
+ assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).isDisabled(),true);
+ releaseDataRequest();await page.getByText('접수',{exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).isEnabled(),true);
 });
