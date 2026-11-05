@@ -41,12 +41,16 @@ export class P0Api{
  async card(id:number,deck:string){return decodeCard(await this.http.request('/v2/cards/'+id+'?deck_version_id='+pathId(deck)));}
  async createReading(input:ReadingInput,key:string){return decodeReading(await this.http.request('/v2/readings',mutation(input,key)));}
  async reading(id:string){return decodeReading(await this.http.request('/v2/readings/'+pathId(id)));}
+ async deleteReading(id:string){await this.http.request('/v2/readings/'+pathId(id),{method:'DELETE'});}
  async readings(cursor?:string){return page(await this.http.request('/v2/readings?limit=50'+(cursor?'&cursor='+encodeURIComponent(cursor):'')),decodeReading);}
  async shuffle(id:string,version:number,key:string){return decodeReading(await this.http.request('/v2/readings/'+pathId(id)+'/shuffle',mutation({expected_version:version},key)));}
  async selectReading(id:string,version:number,slots:string[],key:string){return decodeReading(await this.http.request('/v2/readings/'+pathId(id)+'/selection',mutation({expected_version:version,slot_ids:slots},key)));}
  async basic(id:string):Promise<BasicReading>{const v=obj(await this.http.request('/v2/readings/'+pathId(id)+'/basic'));if(v.source!=='basic')throw invalid();return {reading_id:uuid(v.reading_id),source:'basic',summary:str(v.summary),cards:arr(v.cards,selected),advice:str(v.advice),action:str(v.action)};}
  async interpret(id:string,input:InterpretationInput,key:string){return accepted(await this.http.request('/v2/readings/'+pathId(id)+'/interpretations',mutation(input,key)));}
  async createConversation(topic:Topic,tone:'warm'|'giga',key:string){return conversation(await this.http.request('/v2/conversations',mutation({topic,tone},key)));}
+ async conversation(id:string){return conversation(await this.http.request('/v2/conversations/'+pathId(id)));}
+ async closeConversation(id:string,key:string){return conversation(await this.http.request('/v2/conversations/'+pathId(id)+'/close',mutation(undefined,key)));}
+ async deleteConversation(id:string){await this.http.request('/v2/conversations/'+pathId(id),{method:'DELETE'});}
  async conversations(){return page(await this.http.request('/v2/conversations?limit=50'),conversation);}
  async createTurn(id:string,input:TurnInput,key:string){return accepted(await this.http.request('/v2/conversations/'+pathId(id)+'/turns',mutation(input,key)));}
  async turns(id:string){return page(await this.http.request('/v2/conversations/'+pathId(id)+'/turns?limit=50'),turn);}

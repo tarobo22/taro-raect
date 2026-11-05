@@ -13,7 +13,7 @@ import {useSubmit} from '../features/experience/useSubmit';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {DeckChoice,DrawV2,StartThree} from './P0Tarot';
+import {DeckChoice,DrawV2,StartThree,ResourceDelete} from './P0Tarot';
 
 function shuffled(ids:number[]){const result=[...ids];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
 function LoadingConfig(){const store=useStore();return <View style={s.stack}><Notice error={!!store.error}>{store.error||'카드와 이야기를 준비하고 있어요.'}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></View>;}
@@ -81,6 +81,6 @@ export function ReadingResult({nav,reading}:{nav:Nav;reading:Reading}){
   {reading.cards.map(card=><Panel key={card.id}><Copy kind="label" muted>{card.position}</Copy><Copy kind="subtitle" style={{marginTop:6,marginBottom:10}}>{card.name} · {card.keyword}</Copy><Copy>{card.message}</Copy></Panel>)}
   <Panel tone={color.sage}><Copy kind="subtitle">지금의 조언</Copy><Copy style={{marginTop:10}}>{reading.advice}</Copy></Panel><Panel tone={color.peach}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy style={{marginTop:10}}>{reading.action}</Copy></Panel>
   <Button icon="edit" onPress={()=>nav.push({name:'journal',sourceReadingId:reading.id,initialText:reading.question+'\n\n오늘의 힌트: '+reading.summary+'\n작은 행동: '+reading.action+'\n\n지금 내 마음은 '})}>이 마음을 기록으로 남기기</Button><Button secondary onPress={()=>nav.tab('records')}>내 기록 보러 가기</Button>
-  <Copy kind="small" muted style={{textAlign:'center'}}>카드 해석은 선택을 돕는 참고로 만나 주세요.</Copy>
+  {reading.id?<ResourceDelete kind="legacy-reading" id={reading.id} nav={nav}/>:null}<Copy kind="small" muted style={{textAlign:'center'}}>카드 해석은 선택을 돕는 참고로 만나 주세요.</Copy>
  </View>;
 }

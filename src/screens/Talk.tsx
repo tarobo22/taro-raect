@@ -11,7 +11,7 @@ import {useSubmit} from '../features/experience/useSubmit';
 import {useStore,Counsel} from '../state/store';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
-import {AIConversationSubmit} from './P0Tarot';
+import {AIConversationSubmit,ResourceDelete} from './P0Tarot';
 
 export function Talk({nav,route}:{nav:Nav;route?:Route}){
  const store=useStore(),config=store.config;
@@ -60,7 +60,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
    <Button secondary onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'talk'})}>클라우드 음성 파일로 이야기 쓰기</Button>
    <Panel style={{gap:8}}><View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View><Copy kind="small" muted>{config.aiAvailable?'이야기 방식을 고른 뒤 목적별 동의와 전송 범위를 확인하고 직접 보내 주세요.':'현재 기본 가이드로 대화할 수 있어요. GPT 연결은 준비 중이에요.'}</Copy></Panel>
    {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">내 이야기 보내기</Button>}{voice?<Notice>{voice}</Notice>:null}
-  </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button icon="edit" secondary onPress={()=>nav.push({name:'journal',sourceTurnId:response.id,initialText:response.question+'\n\n지금의 조언: '+response.advice+'\n작은 행동: '+response.action+'\n\n내 마음은 '})}>마음기록으로 이어가기</Button><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');setExpression('welcome');}}>새로운 이야기 시작</Button></>}
+  </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button icon="edit" secondary onPress={()=>nav.push({name:'journal',sourceTurnId:response.id,initialText:response.question+'\n\n지금의 조언: '+response.advice+'\n작은 행동: '+response.action+'\n\n내 마음은 '})}>마음기록으로 이어가기</Button><ResourceDelete kind="legacy-counsel" id={response.id} nav={nav}/><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');setExpression('welcome');}}>새로운 이야기 시작</Button></>}
   {error?<Notice error>{error}</Notice>:null}
  </View>;
 }
