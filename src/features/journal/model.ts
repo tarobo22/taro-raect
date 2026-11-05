@@ -5,11 +5,13 @@ export interface JournalEntry {
   body: string;
   createdAt: string;
   updatedAt: string;
+  version?:number;
 }
 
 export interface JournalDraft {
   id?: string;
   requestId?: string;
+  version?:number;
   day: string;
   mood: string;
   body: string;
@@ -19,6 +21,12 @@ export interface JournalAttempt {fingerprint:string;id:string;}
 export interface JournalRetryStore {
   read():Promise<JournalAttempt|null>;
   write(attempt:JournalAttempt):Promise<void>;
+  clear():Promise<void>;
+}
+
+export interface JournalDraftStore {
+  read():Promise<JournalDraft|null>;
+  write(draft:JournalDraft):Promise<void>;
   clear():Promise<void>;
 }
 

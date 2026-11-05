@@ -10,11 +10,13 @@ export function decodeEntry(value: unknown): JournalEntry {
       !Number.isFinite(Date.parse(value.day)) || new Date(value.day).toISOString().slice(0, 10) !== value.day ||
       typeof value.mood !== 'string' || typeof value.body !== 'string' ||
       typeof value.created_at !== 'string' || !Number.isFinite(Date.parse(value.created_at)) ||
-      typeof value.updated_at !== 'string' || !Number.isFinite(Date.parse(value.updated_at))) {
+       typeof value.updated_at !== 'string' || !Number.isFinite(Date.parse(value.updated_at)) ||
+       (value.version!==undefined&&(!Number.isInteger(value.version)||Number(value.version)<1))) {
     throw new Error('저장한 기록을 확인하지 못했어요. 입력한 내용은 유지됩니다.');
   }
   return {id: value.id, day: value.day, mood: value.mood, body: value.body,
-    createdAt: value.created_at, updatedAt: value.updated_at};
+    createdAt: value.created_at, updatedAt: value.updated_at,
+    ...(typeof value.version==='number'?{version:value.version}:{})};
 }
 
 export class JournalApi implements JournalRepository {
@@ -33,7 +35,7 @@ export class JournalApi implements JournalRepository {
 
   async update(id: string, draft: JournalDraft): Promise<JournalEntry> {
     return decodeEntry(await this.http.request(`${this.paths.entries}/${encodeURIComponent(id)}`, {method: 'PUT',
-      body: JSON.stringify({mood: draft.mood, body: draft.body})}));
+      body: JSON.stringify({mood: draft.mood, body: draft.body,expectedVersion:draft.version})}));
   }
 
   async delete(id: string): Promise<boolean> {
