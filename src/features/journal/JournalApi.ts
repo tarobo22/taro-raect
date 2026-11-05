@@ -28,7 +28,7 @@ export class JournalApi implements JournalRepository {
 
   async create(draft: JournalDraft): Promise<JournalEntry> {
     return decodeEntry(await this.http.request(this.paths.entries, {method: 'POST',
-      body: JSON.stringify({day: draft.day, mood: draft.mood, body: draft.body})}));
+      body: JSON.stringify({day: draft.day, mood: draft.mood, body: draft.body, requestId:draft.requestId})}));
   }
 
   async update(id: string, draft: JournalDraft): Promise<JournalEntry> {

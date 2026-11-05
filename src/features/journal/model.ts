@@ -9,9 +9,17 @@ export interface JournalEntry {
 
 export interface JournalDraft {
   id?: string;
+  requestId?: string;
   day: string;
   mood: string;
   body: string;
+}
+
+export interface JournalAttempt {fingerprint:string;id:string;}
+export interface JournalRetryStore {
+  read():Promise<JournalAttempt|null>;
+  write(attempt:JournalAttempt):Promise<void>;
+  clear():Promise<void>;
 }
 
 export interface JournalPolicy {
