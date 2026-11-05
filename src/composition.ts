@@ -19,7 +19,7 @@ export const session: GuestSession = new GuestSession({read: readSession, write:
   () => http.request('/v2/sessions', {method: 'POST',body:JSON.stringify({platform:Platform.OS==='web'?'web':Platform.OS==='ios'?'ios':'android',locale:'ko-KR',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul'})}, false),true);
 export const http: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
   () => session.token(), (url, options) => fetch(url, options));
-export const journalRepository = new JournalApi(http, runtime.paths.journal);
+export const journalRepository = new JournalApi(http, runtime.paths.journal,'/v2/journal-entries');
 export const getJournalEntry=(id:string)=>journalRepository.get(id);
 export const createJournalSaver = () => new SaveJournal(journalRepository,undefined,journalRetries);
 export const createJournalDraft=(initial:JournalDraft)=>new JournalDraftSession(initial,journalDraftStore(initial));
