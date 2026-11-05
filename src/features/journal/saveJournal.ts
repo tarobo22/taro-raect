@@ -18,7 +18,7 @@ export class SaveJournal {
   }
 
   private identity(draft:JournalDraft,previous:JournalAttempt|null):JournalAttempt {
-    const fingerprint=JSON.stringify({day:draft.day,mood:draft.mood,body:draft.body});
+    const fingerprint=JSON.stringify({day:draft.day,mood:draft.mood,body:draft.body,...(draft.sourceReadingId?{sourceReadingId:draft.sourceReadingId}:{}),...(draft.sourceTurnId?{sourceTurnId:draft.sourceTurnId}:{})});
     return previous?.fingerprint===fingerprint?previous:{fingerprint,id:draft.requestId??this.newId()};
   }
 

@@ -1,4 +1,5 @@
 export interface JournalEntry {
+  sourceReadingId?:string;sourceTurnId?:string;apiVersion?:2;
   id: string;
   day: string;
   mood: string;
@@ -9,6 +10,7 @@ export interface JournalEntry {
 }
 
 export interface JournalDraft {
+  sourceReadingId?:string;sourceTurnId?:string;apiVersion?:2;
   id?: string;
   requestId?: string;
   version?:number;
@@ -18,6 +20,7 @@ export interface JournalDraft {
 }
 
 export interface JournalAttempt {fingerprint:string;id:string;}
+export function journalDraftKey(initial:JournalDraft){return 'yeoun.journal.draft.'+(initial.id??(initial.sourceReadingId?'reading.'+initial.sourceReadingId:initial.sourceTurnId?'turn.'+initial.sourceTurnId:'new'));}
 export interface JournalRetryStore {
   read():Promise<JournalAttempt|null>;
   write(attempt:JournalAttempt):Promise<void>;
