@@ -55,8 +55,8 @@ async function setup(t){
   if(path==='/v2/conversations')return request.method()==='POST'?json({id:id(50),topic:body.topic,tone:body.tone,state:'active',created_at:at,updated_at:at},201):json({items:[],next_cursor:null});
   if(path==='/v2/conversations/'+id(50)+'/turns'&&request.method()==='POST')return json(accepted(id(51),id(52)),202);
   if(path==='/v2/me/data-requests'){receipt={id:id(70),kind:body.kind,state:'queued',receipt:'status-only-receipt',expires_at:'2026-11-07T00:00:00Z'};return json(receipt,202);}
-  if(path==='/v2/data-requests/'+id(70)){if(receipt.kind==='erase')erased=true;return json({id:id(70),kind:receipt.kind,state:'completed',download_available:receipt.kind==='export',expires_at:receipt.expires_at});}
-  if(path==='/v2/data-requests/'+id(70)+'/download')return route.fulfill({status:200,contentType:'application/zip',body:Buffer.from('504b0506000000000000000000000000000000000000','hex')});
+  if(path==='/v2/data-requests/'+id(70)){if(receipt.kind==='erase')erased=true;return json({id:id(70),kind:receipt.kind,state:'completed',download_available:receipt.kind==='export'&&!!request.headers().authorization&&!request.headers()['x-data-receipt'],expires_at:receipt.expires_at});}
+  if(path==='/v2/data-requests/'+id(70)+'/download'){if(!request.headers().authorization||request.headers()['x-data-receipt'])return json({error:{code:'UNAUTHORIZED',message:'파일 다운로드는 유효한 기기 연결이 필요해요.',retryable:false}},401);return route.fulfill({status:200,contentType:'application/zip',body:Buffer.from('504b0506000000000000000000000000000000000000','hex')});}
   if(path==='/v2/feedback')return json({id:id(80),created_at:at},201);
   if(path==='/v2/transcriptions')return json(accepted(id(60),id(61)),202);
   if(path==='/v2/transcriptions/'+id(61))return request.method()==='DELETE'?route.fulfill({status:204}):json({id:id(61),state:'ready',transcript:'server transcript',expires_at:'2026-11-06T01:00:00Z'});
@@ -131,6 +131,8 @@ test('export ZIP download uses the bearer while app feedback sends only the expl
  await page.getByRole('button',{name:'내 기록과 데이터',exact:true}).click();
  await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).click();await page.getByText('접수',{exact:true}).waitFor();
  await page.getByRole('button',{name:'처리 상태 다시 조회',exact:true}).click();
+ await page.getByText('완료',{exact:true}).waitFor();
+ const status=calls.find(c=>c.path==='/v2/data-requests/'+id(70));assert.ok(status.headers.authorization);assert.equal(status.headers['x-data-receipt'],undefined);
  const download=page.waitForEvent('download');await page.getByRole('button',{name:'내보내기 파일 내려받기',exact:true}).click();
  assert.equal((await download).suggestedFilename(),'yeoun-export-'+id(70)+'.zip');
  const request=calls.find(c=>c.path.endsWith('/download'));assert.ok(request.headers.authorization);assert.equal(request.headers['x-data-receipt'],undefined);
