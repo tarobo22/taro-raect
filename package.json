@@ -15,20 +15,21 @@
     "doctor": "node tools/doctor.mjs"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-native-web": "0.21.2",
-    "@react-native-async-storage/async-storage": "2.2.0",
-    "react-native-safe-area-context": "5.7.0"
+    "react-native-safe-area-context": "5.7.0",
+    "react-native-web": "0.21.2"
   },
   "devDependencies": {
+    "@types/node": "^24.0.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "@types/node": "^24.0.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "playwright": "1.62.0",
     "react-native": "0.85.3",
-    "typescript": "~5.9.3",
     "tsx": "^4.20.0",
+    "typescript": "~5.9.3",
     "vite": "8.3.5"
   }
 }

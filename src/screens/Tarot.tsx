@@ -8,7 +8,7 @@ import {VoiceButton} from '../components/VoiceButton';
 import {localDay} from '../domain/content';
 import {color} from '../design/tokens';
 import {useStore,Reading} from '../state/store';
-import {submitReading,submitDaily} from '../composition';
+import {submitReading,submitDaily,readingRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
@@ -36,10 +36,10 @@ export function Topics({nav}:{nav:Nav}){
 export function Draw({nav,route}:{nav:Nav;route:Route}){
  const store=useStore(),config=store.config,width=Math.min(useWindowDimensions().width,430)-48;
  const [shuffling,setShuffling]=useState(false);const shift=useRef(new Animated.Value(0)).current;
- const {submit,busy,error}=useSubmit(submitReading);const selected=route.selected||[],deck=route.deck||[];
+ const {submit,busy,error,acknowledge}=useSubmit(submitReading,readingRetries);const selected=route.selected||[],deck=route.deck||[];
  const spread=config?.spreads[route.spreadId||'three'];if(!config||!spread)return <LoadingConfig/>;
  const count=spread.positions.length,cell=(width-24)/4;
- async function finish(){if(selected.length!==count||busy)return;const result=await submit({topic:route.topic||config!.topics[0],question:route.question||'',cardIds:selected,spreadId:route.spreadId||'three'});if(result){feedback('confirm');await store.refresh();nav.push({name:'reading',reading:result});}}
+ async function finish(){if(selected.length!==count||busy)return;const result=await submit({topic:route.topic||config!.topics[0],question:route.question||'',cardIds:selected,spreadId:route.spreadId||'three'});if(result){feedback('confirm');await store.refresh();nav.push({name:'reading',reading:result});await acknowledge().catch(()=>{});}}
  function shuffle(){
   if(busy||shuffling)return;setShuffling(true);feedback('shuffle');
   Animated.sequence([Animated.timing(shift,{toValue:7,duration:store.reduced?0:120,useNativeDriver:Platform.OS!=='web'}),Animated.timing(shift,{toValue:-7,duration:store.reduced?0:140,useNativeDriver:Platform.OS!=='web'}),Animated.timing(shift,{toValue:0,duration:store.reduced?0:120,useNativeDriver:Platform.OS!=='web'})]).start(()=>{

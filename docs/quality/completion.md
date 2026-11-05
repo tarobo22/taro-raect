@@ -16,3 +16,11 @@ Actual concurrent database behavior is tested in taro-back's journal retry integ
 The browser scenario first reached a 409 with the draft intact, then failed because the latest-entry action was missing.
 After implementation it passed: committed response lost, page reload, same request identity, exactly one record, stale edit rejected, explicit rebase preserving the local text, successful version 3.
 Both clients typecheck; the browser scenario exercises the shared screen, not native gesture/haptic behavior.
+
+## Durable reading/conversation requests and follow-up drafts
+
+RED: a remounted request generated a new identity, storage failure still sent a request, and successful transport cleared its receipt before screen acknowledgement.
+The browser also exposed that follow-up text was not persisted.
+GREEN: common client cases 23 (RN has 3 additional OTA cases), TypeScript, and isolated browser flows.
+Requests reserve their identity before sending and retain it until the active screen acknowledges the result.
+Follow-up drafts retain parentId across reload; AI consent is selected again by the user.

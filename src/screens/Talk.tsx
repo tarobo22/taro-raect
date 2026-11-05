@@ -6,7 +6,7 @@ import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {VoiceButton} from '../components/VoiceButton';
 import {color} from '../design/tokens';
 import type {Advice} from '../domain/content';
-import {submitCounsel} from '../composition';
+import {submitCounsel,counselRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {useStore,Counsel} from '../state/store';
 import {feedback} from '../services/feedback';
@@ -18,11 +18,11 @@ export function Talk({nav}:{nav:Nav}){
  const [response,setResponse]=useState<Counsel|null>(null),[parentId,setParent]=useState<string|undefined>(),[followup,setFollowup]=useState(false);
  const [useAI,setUseAI]=useState(false),[voice,setVoice]=useState(''),[preview,setPreview]=useState(0),[expression,setExpression]=useState<Expression>('listen');
  const [hydrated,setHydrated]=useState(false),[locked,setLocked]=useState(false);
- const {submit,busy,error}=useSubmit(submitCounsel);
+ const {submit,busy,error,acknowledge}=useSubmit(submitCounsel,counselRetries);
  const width=Math.min(useWindowDimensions().width,430)-48,profileWidth=Math.max(130,width-116);
  const move=useRef(new Animated.Value(0)).current,fade=useRef(new Animated.Value(1)).current;
- useEffect(()=>{let mounted=true;AsyncStorage.getItem('yeoun.talk.draft').then(v=>{if(v&&mounted)try{const d=JSON.parse(v);if(typeof d.question==='string')setQuestion(d.question);if(Array.isArray(d.answers)&&d.answers.every((x:unknown)=>typeof x==='boolean'))setAnswers(d.answers);if(typeof d.topic==='string')setTopic(d.topic);}catch{}}).catch(()=>{}).finally(()=>{if(mounted)setHydrated(true);});return()=>{mounted=false;};},[]);
- useEffect(()=>{if(hydrated&&!response)AsyncStorage.setItem('yeoun.talk.draft',JSON.stringify({question,answers,topic})).catch(()=>{});},[question,answers,topic,hydrated,response]);
+ useEffect(()=>{let mounted=true;AsyncStorage.getItem('yeoun.talk.draft').then(v=>{if(v&&mounted)try{const d=JSON.parse(v);if(typeof d.question==='string')setQuestion(d.question);if(Array.isArray(d.answers)&&d.answers.every((x:unknown)=>typeof x==='boolean'))setAnswers(d.answers);if(typeof d.topic==='string')setTopic(d.topic);if(typeof d.parentId==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(d.parentId)){setParent(d.parentId);setFollowup(true);}}catch{}}).catch(()=>{}).finally(()=>{if(mounted)setHydrated(true);});return()=>{mounted=false;};},[]);
+ useEffect(()=>{if(hydrated&&(!response||followup))AsyncStorage.setItem('yeoun.talk.draft',JSON.stringify({question,answers,topic,parentId})).catch(()=>{});},[question,answers,topic,parentId,hydrated,response,followup]);
  const choicesComplete=!!config&&answers.length>=config.questions.length;
  function choose(yes:boolean){
   if(locked||busy||response||choicesComplete||!config)return;setLocked(true);feedback('select');setExpression(yes?'encourage':'listen');
@@ -40,7 +40,7 @@ export function Talk({nav}:{nav:Nav}){
  async function ask(){
   if(busy||(!question.trim()&&!answers.length))return;
   const saved=await submit({topic:currentTopic,question,answers,tone:store.tone,useAI,consent:useAI,parentId});
-  if(saved){feedback('confirm');setResponse(saved);setFollowup(false);setExpression(saved.expression);await AsyncStorage.removeItem('yeoun.talk.draft').catch(()=>{});await store.refresh();}
+  if(saved){feedback('confirm');setResponse(saved);setFollowup(false);setExpression(saved.expression);try{await AsyncStorage.removeItem('yeoun.talk.draft');await acknowledge();}catch{}await store.refresh();}
  }
  const canChoose=!busy&&!locked&&!response&&!choicesComplete;
  return <View style={s.stack}>
