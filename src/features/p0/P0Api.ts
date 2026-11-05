@@ -1,3 +1,4 @@
+import {validateContext} from './selection';
 import type {JsonTransport} from '../../infrastructure/http/FetchClient';
 import type {AIResult,Asset,BasicReading,Bootstrap,CatalogCard,Consent,ConsentKind,ContextEntry,Conversation,DataReceipt,DataRequest,Deck,FeedbackInput,InterpretationInput,Job,JobAccepted,Me,PreferencePatch,Page,ReadingInput,SelectedCard,Topic,Transcription,Turn,TurnInput,V2Reading} from './model';
 
@@ -27,6 +28,7 @@ function page<T>(value:unknown,decode:(v:unknown)=>T):Page<T>{const v=obj(value)
 function conversation(value:unknown):Conversation{const v=obj(value);return {id:uuid(v.id),topic:topic(v.topic),tone:one(v.tone,['warm','giga']),state:one(v.state,['active','closed']),created_at:date(v.created_at),updated_at:date(v.updated_at)};}
 function turn(value:unknown):Turn{const v=obj(value);return {id:uuid(v.id),conversation_id:uuid(v.conversation_id),turn_index:num(v.turn_index),text:str(v.text),answers:arr(v.answers,raw=>{const a=obj(raw);return {question_id:one(a.question_id,['control','support','action']),answer:bool(a.answer)};}),input_source:str(v.input_source),state:one(v.state,['accepted','generating','ready','failed','cancelled']),assistant_result:nullable(v.assistant_result,decodeResult),version:num(v.version,1),created_at:date(v.created_at)};}
 function data(value:unknown):DataRequest{const v=obj(value);return {id:uuid(v.id),kind:one(v.kind,['export','erase']),state:one(v.state,['queued','running','completed','failed']),download_available:bool(v.download_available),expires_at:date(v.expires_at)};}
+function decodeContextEntry(raw:unknown):ContextEntry{const v=obj(raw);return {id:uuid(v.id),local_day:str(v.local_day),mood:str(v.mood),body:str(v.body),version:num(v.version,1),created_at:date(v.created_at),updated_at:date(v.updated_at),source_reading_id:nullable(v.source_reading_id,uuid),source_turn_id:nullable(v.source_turn_id,uuid)};}
 function decodeMe(value:unknown):Me{const v=obj(value),p=obj(v.preferences);return {id:uuid(v.id),kind:one(v.kind,['guest']),locale:str(v.locale),timezone:str(v.timezone),preferences:{tone:one(p.tone,['warm','giga']),reduced_motion:bool(p.reduced_motion),voice_mode:one(p.voice_mode,['device','cloud'])}};}
 const pathId=(id:string)=>encodeURIComponent(id);
 function mutation(body:unknown,key:string):RequestInit{return {method:'POST',headers:{'X-Idempotency-Key':key},...(body===undefined?{}:{body:JSON.stringify(body)})};}
@@ -48,14 +50,14 @@ export class P0Api{
  async shuffle(id:string,version:number,key:string){return decodeReading(await this.http.request('/v2/readings/'+pathId(id)+'/shuffle',mutation({expected_version:version},key)));}
  async selectReading(id:string,version:number,slots:string[],key:string){return decodeReading(await this.http.request('/v2/readings/'+pathId(id)+'/selection',mutation({expected_version:version,slot_ids:slots},key)));}
  async basic(id:string):Promise<BasicReading>{const v=obj(await this.http.request('/v2/readings/'+pathId(id)+'/basic'));if(v.source!=='basic')throw invalid();return {reading_id:uuid(v.reading_id),source:'basic',summary:str(v.summary),cards:arr(v.cards,selected),advice:str(v.advice),action:str(v.action)};}
- async interpret(id:string,input:InterpretationInput,key:string){return accepted(await this.http.request('/v2/readings/'+pathId(id)+'/interpretations',mutation(input,key)));}
+ async interpret(id:string,input:InterpretationInput,key:string){return accepted(await this.http.request('/v2/readings/'+pathId(id)+'/interpretations',mutation({...input,context_entry_versions:validateContext(input.context_entry_ids,input.context_entry_versions)},key)));}
  async createConversation(topic:Topic,tone:'warm'|'giga',key:string){return conversation(await this.http.request('/v2/conversations',mutation({topic,tone},key)));}
  async conversation(id:string){return conversation(await this.http.request('/v2/conversations/'+pathId(id)));}
  async closeConversation(id:string,key:string){return conversation(await this.http.request('/v2/conversations/'+pathId(id)+'/close',mutation(undefined,key)));}
  async deleteConversation(id:string){await this.http.request('/v2/conversations/'+pathId(id),{method:'DELETE'});}
- async conversations(){return page(await this.http.request('/v2/conversations?limit=50'),conversation);}
- async createTurn(id:string,input:TurnInput,key:string){return accepted(await this.http.request('/v2/conversations/'+pathId(id)+'/turns',mutation(input,key)));}
- async turns(id:string){return page(await this.http.request('/v2/conversations/'+pathId(id)+'/turns?limit=50'),turn);}
+ async conversations(cursor?:string){return page(await this.http.request('/v2/conversations?limit=50'+(cursor?'&cursor='+encodeURIComponent(cursor):'')),conversation);}
+ async createTurn(id:string,input:TurnInput,key:string){return accepted(await this.http.request('/v2/conversations/'+pathId(id)+'/turns',mutation({...input,context_entry_versions:validateContext(input.context_entry_ids,input.context_entry_versions)},key)));}
+ async turns(id:string,cursor?:string){return page(await this.http.request('/v2/conversations/'+pathId(id)+'/turns?limit=50'+(cursor?'&cursor='+encodeURIComponent(cursor):'')),turn);}
  async turn(conversationId:string,id:string){return turn(await this.http.request('/v2/conversations/'+pathId(conversationId)+'/turns/'+pathId(id)));}
  async job(id:string){return decodeJob(await this.http.request('/v2/ai/jobs/'+pathId(id)));}
  async cancel(id:string,key:string){return decodeJob(await this.http.request('/v2/ai/jobs/'+pathId(id)+'/cancel',mutation(undefined,key)));}
@@ -63,7 +65,8 @@ export class P0Api{
  async transcribe(audio:Blob|{uri:string;name:string;type:string},duration:number,consent:string,key:string){const body=new FormData();body.append('audio',audio as Blob);body.append('duration_ms',String(duration));body.append('consent_event_id',consent);return accepted(await this.http.request('/v2/transcriptions',{method:'POST',body,headers:{'X-Idempotency-Key':key}}));}
  async transcription(id:string):Promise<Transcription>{const v=obj(await this.http.request('/v2/transcriptions/'+pathId(id)));return {id:uuid(v.id),state:one(v.state,['queued','running','ready','failed','deleted']),transcript:nullable(v.transcript,str),expires_at:date(v.expires_at)};}
  async deleteTranscription(id:string){await this.http.request('/v2/transcriptions/'+pathId(id),{method:'DELETE'});}
- async journals(cursor?:string){return page(await this.http.request('/v2/journal-entries?limit=50'+(cursor?'&cursor='+encodeURIComponent(cursor):'')),raw=>{const v=obj(raw);return {id:uuid(v.id),local_day:str(v.local_day),mood:str(v.mood),body:str(v.body),version:num(v.version,1)} satisfies ContextEntry;});}
+ async journals(cursor?:string,filters:{from?:string;to?:string;mood?:string}={}){const query=new URLSearchParams({limit:'50',...(cursor?{cursor}:{}),...filters});return page(await this.http.request('/v2/journal-entries?'+query.toString()),decodeContextEntry);}
+ async journal(id:string){return decodeContextEntry(await this.http.request('/v2/journal-entries/'+pathId(id)));}
  async createDataRequest(input:{kind:'export'|'erase';confirmation?:string},key:string):Promise<DataReceipt>{const v=obj(await this.http.request('/v2/me/data-requests',mutation(input,key)));return {id:uuid(v.id),kind:one(v.kind,['export','erase']),state:one(v.state,['queued','running','completed','failed']),receipt:str(v.receipt),expires_at:date(v.expires_at)};}
  async dataRequest(id:string,receipt?:string){return data(await this.http.request('/v2/data-requests/'+pathId(id),receipt?{headers:{'X-Data-Receipt':receipt}}:{},!receipt));}
  async feedback(input:FeedbackInput,key:string){const v=obj(await this.http.request('/v2/feedback',mutation(input,key)));return {id:uuid(v.id),created_at:date(v.created_at)};}
