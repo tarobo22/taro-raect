@@ -12,19 +12,19 @@ import type {Nav} from '../navigation';
 
 export function Settings({nav}:{nav:Nav}){
  const store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
- useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>setStatus(getUpdateNotice()));},[]);
+ useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>{setStatus(getUpdateNotice());setDownloaded(isUpdateReady());});},[]);
  async function update(){
   if(Platform.OS==='web'){setStatus('업데이트 확인은 Android 앱에서 사용할 수 있어요.');return;}
   setBusy(true);setStatus('새로운 내용을 확인하고 있어요.');
-  try{const found=await checkAndDownload();setDownloaded(found);setStatus(found?'새로운 내용이 준비됐어요. 다시 열면 적용돼요.':'지금 최신 내용을 사용하고 있어요.');}
-  catch{setStatus('업데이트에 연결하지 못했어요. 기존 내용은 계속 사용할 수 있어요.');}
+  try{await store.reloadConsents();const found=await checkAndDownload();setDownloaded(found);setStatus(found?'새로운 내용이 준비됐어요. 다시 열면 적용돼요.':'지금 최신 내용을 사용하고 있어요.');}
+  catch(e){setStatus(e instanceof Error?e.message:'업데이트에 연결하지 못했어요. 기존 내용은 계속 사용할 수 있어요.');}
   finally{setBusy(false);}
  }
  async function apply(){
   if(busy)return;
   setBusy(true);setStatus('새로운 내용을 적용하고 있어요.');
-  try{await applyUpdate();setDownloaded(false);}
-  catch{setStatus('다시 열지 못했어요. 잠시 뒤 다시 시도해 주세요.');}
+  try{await store.reloadConsents();await applyUpdate();setDownloaded(false);}
+  catch(e){setStatus(e instanceof Error?e.message:'다시 열지 못했어요. 잠시 뒤 다시 시도해 주세요.');}
   finally{setBusy(false);}
  }
  return <View style={s.stack}><Copy kind="hero">나에게 편한 방식으로.</Copy>{store.preferenceBusy?<Notice>설정을 서버에 저장하고 있어요.</Notice>:null}{store.preferenceError?<><Notice error>{store.preferenceError}</Notice><Button secondary onPress={()=>void store.retryPreferences()}>설정 저장 다시 시도</Button></>:null}

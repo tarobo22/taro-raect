@@ -9,6 +9,7 @@ import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
 import {configureFeedback,SensoryPreferences} from '../services/feedback';
+import {configureUpdatePolicy} from '../services/updates';
 import {DashboardLoader} from '../features/dashboard/DashboardLoader';
 export type Entry=JournalEntry;
 export type {Reading,Counsel} from '../features/experience/model';
@@ -47,15 +48,15 @@ export function Store({children}:{children:React.ReactNode}){
  const dashboard=useMemo(()=>new DashboardLoader(journalRepository,experienceRepository),[]);
  async function completeErasure(receipt:DataReceipt){
   if(receipt.device_cleanup_complete===true)return;
-  setSessionState('checking');dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;bootstrapReady.current=false;
+  setSessionState('checking');configureUpdatePolicy(null);dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;bootstrapReady.current=false;
   await eraseCurrentDeviceData(AsyncStorage,session,receipt);
   setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIdsState([]);setContextVersions({});setContextError('');contextRevision.current++;setRecordFilterState('전체');setRecordDateState('');setSelectedDeckState('');
   setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({sound:true,haptics:true,music:false});setError('');setLoading(false);
   setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
  }
- async function recover(){setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();bootstrapReady.current=true;applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}}
+ async function recover(){setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}}
  async function connect(){setSessionState('checking');setSessionError('');try{const raw=await AsyncStorage.getItem('yeoun.p0.data-receipt');if(raw){const receipt=JSON.parse(raw) as DataReceipt;if(receipt.kind==='erase'&&receipt.state==='completed'&&receipt.device_cleanup_complete!==true)await completeErasure(receipt);}await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}}
- async function reloadConsents(){const next=await p0Repository.bootstrap();bootstrapReady.current=true;applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);}
+ async function reloadConsents(){const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);}
  const setSelectedDeck=(id:string)=>{setSelectedDeckState(id);AsyncStorage.setItem('yeoun.deck',id).catch(()=>{});};
  async function refresh(){
   setLoading(true);
