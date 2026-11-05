@@ -96,8 +96,8 @@ test('explicit onboarding, owned context, hidden slots and an explicit AI retry 
  for(let i=0;i<3;i++)await page.getByRole('button',{name:'이 기록 선택',exact:true}).nth(0).click();
  assert.equal(await page.getByRole('button',{name:'이 기록 선택',exact:true}).isDisabled(),true);
  await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();
- await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();
- await page.getByText('이전 처리 결과를 확인할 수 없어요.',{exact:false}).waitFor();
+ const jobReply=page.waitForResponse(response=>response.url().endsWith('/v2/ai/jobs/'+id(40)));await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();assert.equal((await (await jobReply).json()).error.code,'UNKNOWN_PROVIDER_OUTCOME');
+ await page.getByText('이전 요청이 처리됐는지 확인할 수 없어요.',{exact:false}).waitFor();assert.equal(await page.getByText('UNKNOWN_PROVIDER_OUTCOME',{exact:true}).count(),0);
  const sent=calls.find(c=>c.path.endsWith('/interpretations'));assert.deepEqual(sent.body.context_entry_ids,[id(300),id(301),id(302)]);assert.deepEqual(sent.body.context_entry_versions,{[id(300)]:1,[id(301)]:1,[id(302)]:1});assert.equal('body' in sent.body,false);assert.ok(sent.headers['x-idempotency-key']);
  assert.equal(calls.filter(c=>c.path.endsWith('/retry')).length,0);
  await page.getByRole('button',{name:'확인하고 새 작업으로 재시도',exact:true}).click();
@@ -232,7 +232,7 @@ test('changed context is rejected with its old version until the user reviews th
  await page.getByRole('button',{name:'AI 이용 동의 설정',exact:true}).click();await page.getByRole('button',{name:'이 목적만 허용',exact:true}).nth(0).click();await page.getByText('허용됨 · 2026-11-06',{exact:true}).waitFor();await page.getByRole('button',{name:'이 목적만 허용',exact:true}).nth(0).click();await page.getByRole('button',{name:'뒤로가기',exact:true}).click();await page.getByRole('button',{name:'참고할 마음기록 선택 · 0개',exact:true}).click();await page.getByRole('button',{name:'이 기록 선택',exact:true}).nth(0).click();await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();
  bumpContext();await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();await page.getByText('참고한 기록이 수정됐어요. 내용을 다시 확인해 주세요.',{exact:true}).waitFor();
  const old=calls.find(c=>c.path.endsWith('/interpretations'));assert.deepEqual(old.body.context_entry_versions,{[id(300)]:1});
- await page.getByRole('button',{name:'참고할 마음기록 선택 · 1개',exact:true}).click();await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).isDisabled(),true);await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).click();await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();await page.getByText('이전 처리 결과를 확인할 수 없어요.',{exact:false}).waitFor();
+ await page.getByRole('button',{name:'참고할 마음기록 선택 · 1개',exact:true}).click();await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).isDisabled(),true);await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).click();await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();await page.getByText('이전 요청이 처리됐는지 확인할 수 없어요.',{exact:false}).waitFor();
  const retried=calls.filter(c=>c.path.endsWith('/interpretations'));assert.equal(retried.length,2);assert.deepEqual(retried[1].body.context_entry_versions,{[id(300)]:2});
 });
 
@@ -241,4 +241,11 @@ test('record filters apply to every history and cursor pages and journal date qu
  await page.getByRole('button',{name:'대화',exact:true}).click();await page.getByRole('button',{name:'이전 대화 기록 더 보기',exact:true}).click();await page.getByRole('button',{name:/2026-11-04.*일과 진로.*대화 보기/}).waitFor();assert.equal(await page.getByRole('button',{name:'2026-11-05 · 카드 0',exact:true}).count(),0);
  await page.getByRole('button',{name:'마음',exact:true}).click();await page.getByRole('button',{name:'이전 마음기록 더 보기',exact:true}).click();await page.getByText('page 2 journal',{exact:true}).waitFor();await page.getByLabel('기록 날짜 필터').fill('2026-11-04');await page.getByRole('button',{name:'이 날짜의 기록 보기',exact:true}).click();await page.getByText('page 2 journal',{exact:true}).waitFor();await page.waitForFunction(()=>localStorage.getItem('yeoun.records.date')==='2026-11-04');assert.ok(calls.some(c=>c.path==='/v2/journal-entries'&&c.query.from==='2026-11-04'&&c.query.to==='2026-11-04'));
  await page.getByText('page 2 journal',{exact:true}).click();await page.getByRole('button',{name:'뒤로가기',exact:true}).click();assert.equal(await page.getByRole('button',{name:'마음',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.getByLabel('기록 날짜 필터').inputValue(),'2026-11-04');
+});
+
+
+test('dial and side-choice controls expose at least 48dp targets and profile drag stays bounded',{timeout:30000},async t=>{
+ const {page}=await setup(t);await page.goto(base);await enterGuest(page);await page.getByRole('button',{name:/고민 타로/}).click();for(const name of ['타로 주제 이전','타로 주제 다음']){const box=await page.getByRole('button',{name,exact:true}).boundingBox();assert.ok(box.width>=48&&box.height>=48);}
+ await page.getByRole('button',{name:'뒤로가기',exact:true}).click();await page.getByRole('button',{name:'마음 이야기 시작하기',exact:true}).click();for(const name of ['예 선택','아니요 선택']){const box=await page.getByRole('button',{name,exact:true}).boundingBox();assert.ok(box.width>=48&&box.height>=48);}
+ const profile=page.getByTestId('choice-profile'),box=await profile.boundingBox();const x=box.x+box.width/2,y=box.y+box.height/2;await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+90,y,{steps:5});const offset=await profile.evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el).transform).m41);assert.ok(Math.abs(offset)<=6);assert.ok(offset>0);await page.mouse.up();
 });

@@ -11,6 +11,7 @@ import {useSubmit} from '../features/experience/useSubmit';
 import {useStore,Counsel} from '../state/store';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
+import {profilePreviewOffset} from '../features/experience/motion';
 import {AIConversationSubmit,ResourceDelete} from './P0Tarot';
 
 export function Talk({nav,route}:{nav:Nav;route?:Route}){
@@ -32,10 +33,10 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
  }
  const chooseRef=useRef(choose);chooseRef.current=choose;
  const pan=useMemo(()=>PanResponder.create({onStartShouldSetPanResponder:()=>false,onMoveShouldSetPanResponder:(_,g)=>Math.abs(g.dx)>10&&Math.abs(g.dx)>Math.abs(g.dy)*1.3,
-  onPanResponderMove:(_,g)=>{move.setValue(Math.max(-8,Math.min(8,g.dx/10)));setPreview(Math.abs(g.dx)>24?(g.dx>0?1:-1):0);},
+  onPanResponderMove:(_,g)=>{move.setValue(profilePreviewOffset(g.dx,store.reduced));setPreview(Math.abs(g.dx)>24?(g.dx>0?1:-1):0);},
   onPanResponderRelease:(_,g)=>{if(Math.abs(g.dx)>width*.18&&Math.abs(g.dx)>Math.abs(g.dy)*1.3)chooseRef.current(g.dx>0);move.setValue(0);setPreview(0);},
   onPanResponderTerminate:()=>{move.setValue(0);setPreview(0);}
- }),[move,width]);
+ }),[move,width,store.reduced]);
  if(!config)return <View style={s.stack}><Notice error={!!store.error}>{store.error||'이야기를 준비하고 있어요.'}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></View>;
  const currentTopic=config.topics.includes(topic)?topic:config.topics[0];
  async function ask(){
@@ -48,13 +49,13 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
   <View style={s.wrap}><Chip selected={store.tone==='warm'} onPress={()=>store.setTone('warm')}>다정하게</Chip><Chip selected={store.tone==='giga'} onPress={()=>store.setTone('giga')}>기가차드 모드</Chip></View>
   {!parentId?<View style={s.wrap}>{config.topics.map(t=><Chip key={t} selected={currentTopic===t} onPress={()=>setTopic(t)}>{t}</Chip>)}</View>:null}
   <View style={{width,alignItems:'center',justifyContent:'center',paddingVertical:10}}>
-   <Pressable accessibilityRole="button" accessibilityLabel="아니요 선택" disabled={!canChoose} onPress={()=>choose(false)} style={{position:'absolute',left:0,zIndex:2,alignItems:'center',gap:6,opacity:canChoose?1:.45}}><View style={{width:44,height:48,borderRadius:17,backgroundColor:preview<0?color.pink:color.surface,borderWidth:1,borderColor:color.line,alignItems:'center',justifyContent:'center'}}><Copy style={{fontSize:24}}>←</Copy></View><Copy kind="label">아니요</Copy></Pressable>
-   <Animated.View {...(canChoose?pan.panHandlers:{})} style={{width:profileWidth,alignItems:'center',backgroundColor:color.mint,borderRadius:26,paddingVertical:14,opacity:fade,transform:[{translateX:move}]}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={Math.min(198,profileWidth-18)}/></Animated.View>
-   <Pressable accessibilityRole="button" accessibilityLabel="예 선택" disabled={!canChoose} onPress={()=>choose(true)} style={{position:'absolute',right:0,zIndex:2,alignItems:'center',gap:6,opacity:canChoose?1:.45}}><View style={{width:44,height:48,borderRadius:17,backgroundColor:preview>0?color.mintDeep:color.surface,borderWidth:1,borderColor:color.line,alignItems:'center',justifyContent:'center'}}><Copy style={{fontSize:24}}>→</Copy></View><Copy kind="label">예</Copy></Pressable>
+   <Pressable accessibilityRole="button" accessibilityLabel="아니요 선택" disabled={!canChoose} onPress={()=>choose(false)} style={{position:'absolute',left:0,zIndex:2,minWidth:48,minHeight:48,alignItems:'center',gap:6,opacity:canChoose?1:.45}}><View style={{width:48,height:48,borderRadius:17,backgroundColor:preview<0?color.pink:color.surface,borderWidth:1,borderColor:color.line,alignItems:'center',justifyContent:'center'}}><Copy style={{fontSize:24}}>←</Copy></View><Copy kind="label">아니요</Copy></Pressable>
+   <Animated.View testID="choice-profile" {...(canChoose?pan.panHandlers:{})} style={{width:profileWidth,alignItems:'center',backgroundColor:color.mint,borderRadius:26,paddingVertical:14,opacity:fade,transform:[{translateX:move}]}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={Math.min(198,profileWidth-18)}/></Animated.View>
+   <Pressable accessibilityRole="button" accessibilityLabel="예 선택" disabled={!canChoose} onPress={()=>choose(true)} style={{position:'absolute',right:0,zIndex:2,minWidth:48,minHeight:48,alignItems:'center',gap:6,opacity:canChoose?1:.45}}><View style={{width:48,height:48,borderRadius:17,backgroundColor:preview>0?color.mintDeep:color.surface,borderWidth:1,borderColor:color.line,alignItems:'center',justifyContent:'center'}}><Copy style={{fontSize:24}}>→</Copy></View><Copy kind="label">예</Copy></Pressable>
   </View>
   {response?<><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<><Copy kind="label" muted style={{textAlign:'center'}}>{Math.min(answers.length+1,config.questions.length)} / {config.questions.length} · 왼쪽 아니요, 오른쪽 예</Copy><Copy kind="subtitle" style={{textAlign:'center'}}>{choicesComplete?'선택을 확인하고, 준비되면 보내 주세요.':config.questions[answers.length]}</Copy>
    <View style={{height:3,backgroundColor:color.line,borderRadius:3}}><View style={{height:3,width:`${answers.length/config.questions.length*100}%`,backgroundColor:color.action,borderRadius:3}}/></View>
-   {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}</>:null}
+   {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}</>:null}
   {!response||followup?<><TextInput accessibilityLabel="상담 내용 입력" editable={!busy} multiline maxLength={config.maxCounselQuestion} value={question} onChangeText={value=>{setQuestion(value);setInputSource('text');}} placeholder={parentId?'조금 더 이야기해 주세요.':'선택 대신, 하고 싶은 이야기를 직접 적어도 좋아요.'} placeholderTextColor={color.muted} style={s.input}/>
    <View style={[s.row,{justifyContent:'space-between'}]}><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'talk'})} value={question} onText={value=>{setQuestion(value);setInputSource('voice');}} onStatus={setVoice}/><Copy kind="small" muted>{question.length} / {config.maxCounselQuestion}</Copy></View>
    <Button secondary onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'talk'})}>클라우드 음성 파일로 이야기 쓰기</Button>

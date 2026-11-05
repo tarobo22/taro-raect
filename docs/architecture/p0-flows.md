@@ -16,4 +16,17 @@ Cloud voice selects a file and explicitly submits multipart audio after independ
 
 All mutations use `X-Idempotency-Key` UUID headers. V2 schemas use snake_case. AI provider availability currently comes from existing `experience-config.aiAvailable`, since the exact bootstrap contract has no provider-capabilities property. The backend owns policy enforcement, final resource versions, cancellation races and result validation.
 
-Verification: new contract and transcript draft tests, the unchanged existing unit suites, TypeScript checks for both apps, and web production build. Four isolated browser contract flows also pass, including transcription review and erase receipt restoration. Android compileReleaseKotlin passes with the real native bridge. Actual backend browser integration and final APK baseline verification run after the backend branches are merged.
+Verification: new contract and transcript draft tests, the unchanged existing unit suites, TypeScript checks for both apps, and web production build. Thirteen isolated browser contract flows also pass, including transcription review and erase receipt restoration. Android compileReleaseKotlin passes with the real native bridge. Actual backend browser integration and final APK baseline verification run after the backend branches are merged.
+
+
+## Completed P0 audit follow-up
+
+Source-linked journal drafts include the originating reading or turn ID in their durable retry identity and use separate temporary draft keys. V2 metadata is read before editing; linked creation/PATCH preserves source ownership and the original optimistic version. Ordinary v1 saves and conflict/retry behavior stay compatible.
+
+Reading and conversation results have explicit deletion confirmation, including legacy one/five-card and local counsel routes. Closed conversations offer a deliberate new-conversation choice; neither viewing a result nor choosing that continuation sends AI input. Server preferences restore tone, reduced motion and voice mode; writes are serialized and stale acknowledgements cannot overwrite later input.
+
+Journal, reading, conversation and turn history follows each cursor. Record type filters apply to all visible history. Journal dates are sent as server from/to filters, and other dates are compared in the captured user timezone. Context selection persists only chosen IDs and their reviewed versions. Each AI request sends an exact context_entry_versions map. Changed/deleted records must be reviewed or deselected explicitly, without silently upgrading their versions.
+
+OTA checks and prepared-bundle applies refresh bootstrap policy first and use the installed SDK getAppVersion value. Unknown policy/version, disabled updates, and a baseline below min_native_version prevent SDK work. Channel comes from the server policy. Numeric version comparison handles 1.10.0 correctly; policy changes invalidate prepared work. Native activation and final APK/OTA execution are verified by the integration owner.
+
+Chips, dial controls and side choices expose at least 48dp touch targets. Profile preview movement is limited to six dp per direction and stops with reduced motion. Changing motion settings retains the current scroll position. Busy buttons keep a stable accessible action name. Known job errors explain uncertainty, additional request cost where relevant, or the need to choose changed context again; internal codes are kept out of visible copy.
