@@ -23,6 +23,11 @@ export class DashboardLoader {
 
   get snapshot():DashboardSnapshot {return this.value;}
 
+  clear(){
+    this.generation++;
+    this.value={entries:[],readings:[],counsels:[],journalPolicy:null,config:null,errors:{}};
+  }
+
   async load():Promise<DashboardSnapshot|null> {
     const generation=++this.generation;
     const results=await Promise.allSettled([

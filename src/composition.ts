@@ -5,7 +5,7 @@ import {JournalApi} from './features/journal/JournalApi';
 import {SaveJournal} from './features/journal/saveJournal';
 import {ExperienceApi} from './features/experience/ExperienceApi';
 import type {ReadingDraft,CounselDraft} from './features/experience/model';
-import {readSession, writeSession} from './services/secure';
+import {readSession, writeSession,clearSession} from './services/secure';
 import {journalRetries} from './infrastructure/storage/JournalRetryStore';
 import {journalDraftStore} from './infrastructure/storage/JournalDraftStore';
 import {JournalDraftSession} from './features/journal/JournalDraftSession';
@@ -15,8 +15,8 @@ import {Platform} from 'react-native';
 import {P0Api} from './features/p0/P0Api';
 import {downloadPrivate} from './services/files';
 
-export const session: GuestSession = new GuestSession({read: readSession, write: writeSession},
-  () => http.request('/v2/sessions', {method: 'POST',body:JSON.stringify({platform:Platform.OS==='web'?'web':Platform.OS==='ios'?'ios':'android'})}, false),true);
+export const session: GuestSession = new GuestSession({read: readSession, write: writeSession,clear:clearSession},
+  () => http.request('/v2/sessions', {method: 'POST',body:JSON.stringify({platform:Platform.OS==='web'?'web':Platform.OS==='ios'?'ios':'android',locale:'ko-KR',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul'})}, false),true);
 export const http: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
   () => session.token(), (url, options) => fetch(url, options));
 export const journalRepository = new JournalApi(http, runtime.paths.journal);

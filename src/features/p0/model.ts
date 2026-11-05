@@ -23,7 +23,7 @@ export interface Transcription{id:string;state:'queued'|'running'|'ready'|'faile
 export interface ContextEntry{id:string;local_day:string;mood:string;body:string;version:number;}
 export interface Page<T>{items:T[];next_cursor:string|null;}
 export interface DataRequest{id:string;kind:'export'|'erase';state:'queued'|'running'|'completed'|'failed';download_available:boolean;expires_at:string;}
-export interface DataReceipt{id:string;kind:'export'|'erase';state:DataRequest['state'];receipt:string;expires_at:string;}
+export interface DataReceipt{id:string;kind:'export'|'erase';state:DataRequest['state'];receipt:string;expires_at:string;device_cleanup_complete?:boolean;}
 export interface FeedbackInput{reading_id?:string;turn_id?:string;rating:'helpful'|'unhelpful';reason:string;comment:string;}
 export function currentConsent(consents:Consent[],kind:ConsentKind,policy:string):Consent|undefined{
  const event=consents.filter(c=>c.kind===kind).sort((a,b)=>b.occurred_at.localeCompare(a.occurred_at))[0];

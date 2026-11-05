@@ -1,7 +1,8 @@
 import React,{createContext,useContext,useEffect,useMemo,useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {experienceRepository,journalRepository,p0Repository,session} from '../composition';
-import type {Bootstrap,Consent} from '../features/p0/model';
+import type {Bootstrap,Consent,DataReceipt} from '../features/p0/model';
+import {eraseCurrentDeviceData} from '../features/p0/eraseCurrentDeviceData';
 import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
@@ -12,6 +13,7 @@ export type {Reading,Counsel} from '../features/experience/model';
 interface State{
  sessionState:'checking'|'welcome'|'ready'|'blocked';sessionError:string;bootstrap:Bootstrap|null;connect:()=>Promise<void>;recover:()=>Promise<void>;reloadConsents:()=>Promise<void>;consents:Consent[];
  selectedDeck:string;setSelectedDeck:(id:string)=>void;contextIds:string[];setContextIds:(ids:string[])=>void;
+ completeErasure:(receipt:DataReceipt)=>Promise<void>;
  journalPolicy:JournalPolicy|null;config:ExperienceConfig|null;entries:Entry[];readings:Reading[];counsels:Counsel[];
  loading:boolean;error:string;refresh:()=>Promise<void>;tone:Tone;setTone:(v:Tone)=>void;
  reduced:boolean;setReduced:(v:boolean)=>void;draft:string;setDraft:(v:string)=>void;
@@ -27,8 +29,16 @@ export function Store({children}:{children:React.ReactNode}){
  const [reduced,setReducedState]=useState(false),[draft,setDraftState]=useState('');
  const [sensory,setSensoryState]=useState<SensoryPreferences>({sound:true,haptics:true,music:false});
  const dashboard=useMemo(()=>new DashboardLoader(journalRepository,experienceRepository),[]);
+ async function completeErasure(receipt:DataReceipt){
+  if(receipt.device_cleanup_complete===true)return;
+  setSessionState('checking');dashboard.clear();
+  await eraseCurrentDeviceData(AsyncStorage,session,receipt);
+  setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIds([]);setSelectedDeckState('');
+  setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setSensoryState({sound:true,haptics:true,music:false});setError('');setLoading(false);
+  setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
+ }
  async function recover(){setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}}
- async function connect(){setSessionState('checking');setSessionError('');try{await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}}
+ async function connect(){setSessionState('checking');setSessionError('');try{const raw=await AsyncStorage.getItem('yeoun.p0.data-receipt');if(raw){const receipt=JSON.parse(raw) as DataReceipt;if(receipt.kind==='erase'&&receipt.state==='completed'&&receipt.device_cleanup_complete!==true)await completeErasure(receipt);}await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}}
  async function reloadConsents(){const next=await p0Repository.bootstrap();setBootstrap(next);setConsents(next.consents);}
  const setSelectedDeck=(id:string)=>{setSelectedDeckState(id);AsyncStorage.setItem('yeoun.deck',id).catch(()=>{});};
  async function refresh(){
@@ -55,6 +65,6 @@ export function Store({children}:{children:React.ReactNode}){
  const setReduced=(v:boolean)=>{setReducedState(v);AsyncStorage.setItem('yeoun.reduced',String(v)).catch(()=>{});};
  const setDraft=(v:string)=>{setDraftState(v);AsyncStorage.setItem('yeoun.draft',v).catch(()=>{});};
  const setSensory=(v:SensoryPreferences)=>{configureFeedback(v);setSensoryState(v);AsyncStorage.setItem('yeoun.sensory',JSON.stringify(v)).catch(()=>{});};
- return <Context.Provider value={{sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
+ return <Context.Provider value={{sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,completeErasure,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store provider is required');return value;}
