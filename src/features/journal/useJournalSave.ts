@@ -1,9 +1,11 @@
-import {useMemo, useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {createJournalSaver, journalRepository} from '../../composition';
 import {RemoveJournal} from './removeJournal';
 import type {JournalDraft} from './model';
 
 export function useJournalSave() {
+  const active=useRef(true);
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
   const saver = useMemo(createJournalSaver, []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -12,15 +14,16 @@ export function useJournalSave() {
     setBusy(true);
     setError('');
     try {
-      return await saver.save(draft);
+      const saved=await saver.save(draft);
+      return active.current?saved:null;
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '저장하지 못했어요. 내용은 그대로 유지돼요.');
+      if(active.current)setError(cause instanceof Error ? cause.message : '저장하지 못했어요. 내용은 그대로 유지돼요.');
       return null;
     } finally {
-      setBusy(false);
+      if(active.current)setBusy(false);
     }
   }
-  return {save, busy, error};
+  return {save, busy, error,clearError:()=>setError('')};
 }
 
 export function useJournalDelete() {

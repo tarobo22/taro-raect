@@ -244,6 +244,63 @@
           }
         }
       },
+      "get": {
+        "tags": [
+          "journal"
+        ],
+        "summary": "Detail",
+        "operationId": "detail_v1_entries__entry_id__get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Entry Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "journal"
@@ -538,6 +595,15 @@
               }
             }
           },
+          "409": {
+            "description": "Request is in progress or request identity conflicts"
+          },
+          "429": {
+            "description": "Owner or application daily attempt limit reached"
+          },
+          "503": {
+            "description": "AI provider unavailable"
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -807,6 +873,18 @@
             "type": "string",
             "title": "Body",
             "default": ""
+          },
+          "requestId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requestid"
           }
         },
         "type": "object",
@@ -920,6 +998,11 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "default": 1
           }
         },
         "type": "object",
@@ -1191,6 +1274,18 @@
             "type": "string",
             "title": "Body",
             "default": ""
+          },
+          "expectedVersion": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedversion"
           }
         },
         "type": "object",

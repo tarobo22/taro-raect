@@ -1,2 +1,2 @@
-import settings from './runtime.json';
+import settings from './endpoints.json';
 export const runtime = {...settings, apiBaseUrl: '/api'};
