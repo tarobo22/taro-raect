@@ -1,10 +1,11 @@
-import React,{createContext,useContext,useEffect,useRef,useState} from 'react';
+import React,{createContext,useContext,useEffect,useMemo,useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {experienceRepository,journalRepository} from '../composition';
 import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
 import {configureFeedback,SensoryPreferences} from '../services/feedback';
+import {DashboardLoader} from '../features/dashboard/DashboardLoader';
 export type Entry=JournalEntry;
 export type {Reading,Counsel} from '../features/experience/model';
 interface State{
@@ -20,15 +21,14 @@ export function Store({children}:{children:React.ReactNode}){
  const [loading,setLoading]=useState(true),[error,setError]=useState(''),[tone,setToneState]=useState<Tone>('warm');
  const [reduced,setReducedState]=useState(false),[draft,setDraftState]=useState('');
  const [sensory,setSensoryState]=useState<SensoryPreferences>({sound:true,haptics:true,music:false});
- const generation=useRef(0);
+ const dashboard=useMemo(()=>new DashboardLoader(journalRepository,experienceRepository),[]);
  async function refresh(){
-  const request=++generation.current;setLoading(true);
-  try{
-   const [e,r,c,p,settings]=await Promise.all([journalRepository.list(),experienceRepository.readings(),experienceRepository.counsels(),journalRepository.policy(),experienceRepository.config()]);
-   if(request!==generation.current)return;
-   setEntries(e);setReadings(r);setCounsels(c);setJournalPolicy(p);setConfig(settings);setError('');
-  }catch(e){if(request===generation.current)setError(e instanceof Error?e.message:'기록을 불러오지 못했어요.');}
-  finally{if(request===generation.current)setLoading(false);}
+  setLoading(true);
+  const next=await dashboard.load();
+  if(!next)return;
+  setEntries(next.entries);setReadings(next.readings);setCounsels(next.counsels);
+  setJournalPolicy(next.journalPolicy);setConfig(next.config);
+  setError(Object.values(next.errors).join('\n'));setLoading(false);
  }
  useEffect(()=>{
   AsyncStorage.multiGet(['yeoun.tone','yeoun.reduced','yeoun.draft','yeoun.sensory']).then(pairs=>{
