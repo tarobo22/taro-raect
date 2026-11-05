@@ -8,8 +8,9 @@ import {useStore} from '../state/store';
 import {release} from '../domain/content';
 import {voiceAvailable} from '../services/voice';
 import {checkAndDownload,applyUpdate,getUpdateNotice,subscribeUpdateNotice,isUpdateReady} from '../services/updates';
+import type {Nav} from '../navigation';
 
-export function Settings(){
+export function Settings({nav}:{nav:Nav}){
  const store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
  useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>setStatus(getUpdateNotice()));},[]);
  async function update(){
@@ -35,6 +36,7 @@ export function Settings(){
    <View style={[s.row,{justifyContent:'space-between'}]}><View style={{flex:1}}><Copy style={{fontWeight:'600'}}>움직임 줄이기</Copy><Copy kind="small" muted>숨쉬기·뒤집기·전환을 간결하게</Copy></View><Switch accessibilityLabel="움직임 줄이기" value={store.reduced} onValueChange={store.setReduced} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>
   </Panel>
   <BreathingDial/>
+  <Panel style={{gap:12}}><Copy kind="subtitle">내가 관리하는 여운</Copy><Button secondary onPress={()=>nav.push({name:'consents'})}>AI 이용 설정과 동의</Button><Button secondary onPress={()=>nav.push({name:'data'})}>내 기록과 데이터</Button><Button secondary onPress={()=>nav.push({name:'decks'})}>외부 덱 선택</Button><Button secondary onPress={()=>nav.push({name:'sources'})}>에셋 출처</Button><Button secondary onPress={()=>nav.push({name:'feedback'})}>의견 남기기</Button></Panel>
   <Panel style={{gap:8}}><Copy kind="subtitle">음성으로 이야기하기</Copy><Copy kind="small" muted>{voice===null?'기기의 음성 입력을 확인하고 있어요.':voice?'마이크를 누를 때만 시작해요. 글로 옮겨진 내용을 확인한 뒤 직접 보내 주세요.':'이 기기에서는 글로 이야기할 수 있어요. 음성인식 서비스가 있는 기기에서 음성 입력을 지원해요.'}</Copy></Panel>
   <Panel style={{gap:10}}><Copy kind="subtitle">내 이야기와 GPT</Copy><Copy kind="small" muted>{store.config?.aiAvailable?'GPT 전송은 대화 화면에서 직접 켤 때만 이뤄져요. 질문·선택·이전 대화만 전송하고, 마음기록은 보내지 않아요.':'현재 기본 가이드를 이용할 수 있어요. GPT 연결이 준비되면 대화 화면에서 직접 선택할 수 있어요.'}</Copy><Copy kind="small" muted>여운의 이야기는 진단이나 치료를 대신하지 않아요.</Copy></Panel>
   <Panel style={{gap:12}}><Copy kind="subtitle">여운의 새로운 이야기</Copy><Copy kind="small" muted>앱을 다시 설치하지 않고 새로운 화면과 이야기를 받을 수 있어요.</Copy>{status?<Notice>{status}</Notice>:null}<Button secondary busy={busy} onPress={downloaded?apply:update}>{downloaded?'지금 다시 열어 적용하기':'업데이트 확인'}</Button></Panel>
