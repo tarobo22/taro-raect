@@ -13,7 +13,7 @@ export class JournalDraftSession {
   async restore():Promise<void>{
     const revision=this.sequence;
     const saved=await this.storage.read();
-    if(saved&&revision===this.sequence&&saved.id===this.value.id)this.value={...saved};
+    if(saved&&revision===this.sequence&&saved.id===this.value.id&&saved.sourceReadingId===this.value.sourceReadingId&&saved.sourceTurnId===this.value.sourceTurnId)this.value={...saved};
   }
 
   change(patch:Partial<JournalDraft>):Promise<void>{

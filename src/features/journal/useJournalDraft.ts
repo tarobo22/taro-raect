@@ -3,7 +3,7 @@ import {createJournalDraft} from '../../composition';
 import type {JournalDraft} from './model';
 
 export function useJournalDraft(initial:JournalDraft){
-  const session=useMemo(()=>createJournalDraft(initial),[initial.id]);
+  const session=useMemo(()=>createJournalDraft(initial),[initial.id,initial.sourceReadingId,initial.sourceTurnId]);
   const [draft,setDraft]=useState(()=>session.snapshot),[error,setError]=useState('');
   useEffect(()=>{
     let active=true;
