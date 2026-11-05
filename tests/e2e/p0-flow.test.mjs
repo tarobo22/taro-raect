@@ -13,7 +13,7 @@ async function setup(t,options={}){
  const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
  const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage();page.setDefaultTimeout(7000);
  await context.addInitScript(()=>localStorage.setItem('yeoun.reduced','true'));
- const calls=[],consents=[],jobs=new Map(),journals=new Map();let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active';
+ const calls=[],consents=[],jobs=new Map(),journals=new Map();const user={id:id(100),kind:'guest',locale:'ko-KR',timezone:'Asia/Seoul',preferences:{tone:'warm',reduced_motion:false,voice_mode:'device'}};let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active';
  const asset={id:id(1),url:'/api/mock-card',sha256:'a'.repeat(64),width:825,height:1429,source_page:'https://commons.wikimedia.org/wiki/File:RWS1909_-_00_Fool.jpeg',license_name:'Public domain',license_url:'https://creativecommons.org/publicdomain/mark/1.0/'};
  const deck={id:id(2),code:'fixture-rws',version:'test-20261105',name:'기존 그림 후보 덱',card_count:78,status:'candidate',back_asset:asset};
  const card=n=>({id:n,code:'major_'+n,name_ko:'카드 '+n,name_en:'Card '+n,arcana:'major',suit:null,basic_meaning:'현재 마음을 다른 시선으로 살펴봐요.',image_asset:asset});
@@ -29,7 +29,8 @@ async function setup(t,options={}){
   const json=(value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
   if(path==='/mock-card')return route.fulfill({status:200,contentType:'image/jpeg',body:image});
   if(path==='/v2/sessions')return json({user_id:id(100),session_id:id(101),access_token:'a'.repeat(64),expires_at:'2027-05-05T00:00:00Z'},201);
-  if(path==='/v2/bootstrap')return erased?json({error:{code:'SESSION_EXPIRED',message:'기존 연결이 해제됐어요.',retryable:false}},401):json({api_version:'2.0',policy_version:'2026-11-05',server_time:at,user:{id:id(100)},consents,ota_policy:{channel:'test',min_native_version:'1.0.0',updates_enabled:false},limits:{daily_ai_requests:20,question_max_chars:500,journal_max_chars:4000,audio_max_seconds:60,audio_max_bytes:10485760}});
+  if(path==='/v2/bootstrap')return erased?json({error:{code:'SESSION_EXPIRED',message:'기존 연결이 해제됐어요.',retryable:false}},401):json({api_version:'2.0',policy_version:'2026-11-05',server_time:at,user,consents,ota_policy:{channel:'test',min_native_version:'1.0.0',updates_enabled:false},limits:{daily_ai_requests:20,question_max_chars:500,journal_max_chars:4000,audio_max_seconds:60,audio_max_bytes:10485760}});
+  if(path==='/v2/me/preferences'){user.preferences={...user.preferences,...body};return json(user);}
   if(path==='/v2/sessions/refresh')return json({session_id:id(101),expires_at:'2027-05-05T00:00:00Z'});
   if(path==='/v1/experience-config')return json({topics:['관계','일과 진로','나 자신','오늘 하루','마음 돌봄','새로운 시작'],questions:['지금 바꿀 수 있나요?','도움을 구할 수 있나요?','작게 움직일까요?'],spreads:{one:{name:'한 장',positions:['지금']},three:{name:'세 장',positions:['현재','마음','행동']},five:{name:'다섯 장',positions:['현재','배경','마음','조언','행동']}},cards:Array.from({length:12},(_,n)=>({id:n,name:'카드 '+n,keyword:'마음',message:'기본 의미',action:'작은 행동',art:'sun'})),aiAvailable:true,maxTarotQuestion:500,maxCounselQuestion:2000,deckPreviewSize:12});
   if(path==='/v1/journal-policy')return json({moods:['편안해요','기뻐요','생각이 많아요','차분해요','이야기하고 싶어요'],maxBodyLength:4000});
@@ -195,4 +196,12 @@ test('a closed owned conversation offers an explicit new conversation without au
  const {page,calls}=await setup(t,{conversationHistory:true});await page.goto(base);await enterGuest(page);await page.getByRole('tab',{name:'마음기록',exact:true}).click();await page.getByRole('button',{name:/대화 보기/}).click();await page.getByRole('button',{name:/owned conversation words/}).click();
  await page.getByRole('button',{name:'이 대화 종료',exact:true}).click();assert.equal(calls.filter(c=>c.path.endsWith('/close')).length,0);await page.getByRole('button',{name:'확인하고 대화 종료',exact:true}).click();await page.getByRole('button',{name:'새 대화로 이어가기',exact:true}).waitFor();
  await page.getByRole('button',{name:'새 대화로 이어가기',exact:true}).click();await page.getByLabel('상담 내용 입력').waitFor();assert.equal(calls.filter(c=>c.path==='/v2/conversations'&&c.method==='POST').length,0);assert.equal(calls.filter(c=>c.path.includes('/turns')&&c.method==='POST').length,0);
+});
+
+
+test('server preferences acknowledge tone, motion and voice and restore them after reload',{timeout:30000},async t=>{
+ const {page,calls}=await setup(t);await page.goto(base);await enterGuest(page);await page.getByRole('tab',{name:'내 공간',exact:true}).click();
+ const target=await page.getByRole('button',{name:'기가차드 모드',exact:true}).boundingBox();assert.ok(target.width>=48&&target.height>=48);await page.getByRole('button',{name:'기가차드 모드',exact:true}).click();await page.getByRole('switch',{name:'움직임 줄이기',exact:true}).click();await page.getByRole('button',{name:'클라우드 음성 파일',exact:true}).click();
+ await page.waitForFunction(()=>localStorage.getItem('yeoun.voice-mode')==='cloud');const writes=calls.filter(c=>c.path==='/v2/me/preferences');assert.ok(writes.every(c=>c.method==='PATCH'));assert.deepEqual(writes.map(c=>c.body),[{tone:'giga'},{reduced_motion:true},{voice_mode:'cloud'}]);
+ await page.reload();await page.getByRole('tab',{name:'내 공간',exact:true}).click();assert.equal(await page.getByRole('button',{name:'기가차드 모드',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.getByRole('switch',{name:'움직임 줄이기',exact:true}).isChecked(),true);assert.equal(await page.getByRole('button',{name:'클라우드 음성 파일',exact:true}).getAttribute('aria-pressed'),'true');
 });

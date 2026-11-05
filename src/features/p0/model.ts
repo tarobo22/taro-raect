@@ -2,7 +2,11 @@ export const topics=[['relationship','관계'],['work','일과 진로'],['self',
 export type Topic=typeof topics[number][0];
 export type ConsentKind='ai_processing'|'journal_context'|'cloud_transcription';
 export interface Consent{id:string;kind:ConsentKind;policy_version:string;granted:boolean;occurred_at:string;}
-export interface Bootstrap{api_version:string;policy_version:string;server_time:string;user:{id:string};consents:Consent[];limits:{daily_ai_requests:number;question_max_chars:number;journal_max_chars:number;audio_max_seconds:number;audio_max_bytes:number};}
+export interface Preferences{tone:'warm'|'giga';reduced_motion:boolean;voice_mode:'device'|'cloud';}
+export interface PreferencePatch{tone?:Preferences['tone'];reduced_motion?:boolean;voice_mode?:Preferences['voice_mode'];timezone?:string;}
+export interface Me{id:string;kind:'guest';locale:string;timezone:string;preferences:Preferences;}
+export interface OtaPolicy{channel:string;min_native_version:string;updates_enabled:boolean;}
+export interface Bootstrap{api_version:string;policy_version:string;server_time:string;user:Me;consents:Consent[];ota_policy:OtaPolicy;limits:{daily_ai_requests:number;question_max_chars:number;journal_max_chars:number;audio_max_seconds:number;audio_max_bytes:number};}
 export interface Asset{id:string;url:string;sha256:string;width:number;height:number;source_page:string|null;license_name:string;license_url:string|null;}
 export interface Deck{id:string;code:string;version:string;name:string;card_count:number;status:'candidate'|'published'|'retired';back_asset:Asset;}
 export interface CatalogCard{id:number;code:string;name_ko:string;name_en:string;arcana:'major'|'minor';suit:'wands'|'cups'|'swords'|'pentacles'|null;basic_meaning:string;image_asset:Asset|null;}

@@ -60,7 +60,7 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
     placeholderTextColor={color.muted} style={[s.input,{minHeight:210}]}/>
    <View style={[s.row,{justifyContent:'space-between',marginTop:10}]}>
     <Copy kind="small" muted>{body.length} / {policy?.maxBodyLength??'—'}</Copy>
-    <View pointerEvents={busy?'none':'auto'}><VoiceButton value={body} onText={change} onStatus={setVoice}/></View>
+    <View pointerEvents={busy?'none':'auto'}><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'journal'})} value={body} onText={change} onStatus={setVoice}/></View>
    </View>
   </View>
   {!policy?<Notice>{store.error||'마음기록 설정을 불러오고 있어요.'}</Notice>:null}
