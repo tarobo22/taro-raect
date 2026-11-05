@@ -51,7 +51,7 @@ test('AI requests use only explicitly chosen entry IDs and current consent',asyn
  await api.interpret(id,{expected_version:2,consent_event_id:id,context_entry_ids:[]},id);
  assert.equal(calls[0].path,'/v2/readings/'+id+'/interpretations');
  assert.deepEqual(JSON.parse(String(calls[0].options.body)).context_entry_ids,[]);
- await api.createTurn(id,{client_message_id:id,input_source:'text',text:'my words',answers:[],context_entry_ids:[id],consent_event_id:id},id);
+ await api.createTurn(id,{client_message_id:id,input_source:'text',text:'my words',answers:[],context_entry_ids:[id],context_entry_versions:{[id]:1},consent_event_id:id},id);
  assert.deepEqual(JSON.parse(String(calls[1].options.body)).context_entry_ids,[id]);
  assert.equal(calls[1].path,'/v2/conversations/'+id+'/turns');
 });

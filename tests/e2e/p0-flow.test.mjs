@@ -13,7 +13,7 @@ async function setup(t,options={}){
  const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
  const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage();page.setDefaultTimeout(7000);
  await context.addInitScript(()=>localStorage.setItem('yeoun.reduced','true'));
- const calls=[],consents=[],jobs=new Map(),journals=new Map();const user={id:id(100),kind:'guest',locale:'ko-KR',timezone:'Asia/Seoul',preferences:{tone:'warm',reduced_motion:false,voice_mode:'device'}};let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active',releaseDataRequest;
+ const calls=[],consents=[],jobs=new Map(),journals=new Map();const user={id:id(100),kind:'guest',locale:'ko-KR',timezone:'Asia/Seoul',preferences:{tone:'warm',reduced_motion:false,voice_mode:'device'}};let erased=false,receipt=null,event=0,readingDeleted=false,conversationDeleted=false,conversationState='active',releaseDataRequest,contextVersion=1;
  const asset={id:id(1),url:'/api/mock-card',sha256:'a'.repeat(64),width:825,height:1429,source_page:'https://commons.wikimedia.org/wiki/File:RWS1909_-_00_Fool.jpeg',license_name:'Public domain',license_url:'https://creativecommons.org/publicdomain/mark/1.0/'};
  const deck={id:id(2),code:'fixture-rws',version:'test-20261105',name:'기존 그림 후보 덱',card_count:78,status:'candidate',back_asset:asset};
  const card=n=>({id:n,code:'major_'+n,name_ko:'카드 '+n,name_en:'Card '+n,arcana:'major',suit:null,basic_meaning:'현재 마음을 다른 시선으로 살펴봐요.',image_asset:asset});
@@ -25,7 +25,7 @@ async function setup(t,options={}){
  await page.route('**/api/**',async route=>{
   const request=route.request(),url=new URL(request.url()),path=url.pathname.replace('/api','');let body=null;
   if(request.headers()['content-type']?.includes('application/json'))try{body=request.postDataJSON();}catch{}
-  calls.push({path,method:request.method(),body,headers:request.headers()});
+  calls.push({path,query:Object.fromEntries(url.searchParams),method:request.method(),body,headers:request.headers()});
   const json=(value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
   if(path==='/mock-card')return route.fulfill({status:200,contentType:'image/jpeg',body:image});
   if(path==='/v2/sessions')return json({user_id:id(100),session_id:id(101),access_token:'a'.repeat(64),expires_at:'2027-05-05T00:00:00Z'},201);
@@ -44,17 +44,20 @@ async function setup(t,options={}){
   if(path==='/v2/cards')return json({items:[0,1,2].map(card),next_cursor:null});
   if(path.startsWith('/v2/cards/'))return json(card(Number(path.split('/').at(-1))));
   if(path==='/v2/journal-entries'&&request.method()==='POST'){const saved={id:id(350),...body,version:1,source_reading_id:body.source_reading_id||null,source_turn_id:body.source_turn_id||null,created_at:at,updated_at:at};journals.set(saved.id,saved);return json(saved,201);}
-  if(path==='/v2/journal-entries')return json({items:[0,1,2,3].map(n=>({id:id(300+n),local_day:'2026-11-0'+(n+1),mood:'calm',body:'owned journal '+n,version:1,source_reading_id:null,source_turn_id:null,created_at:at,updated_at:at})),next_cursor:null});
+  if(path==='/v2/journal-entries'&&options.historyPages){const all=[{id:id(300),local_day:'2026-11-05',mood:'calm',body:'page 1 journal',version:1,source_reading_id:null,source_turn_id:null,created_at:at,updated_at:at},{id:id(301),local_day:'2026-11-04',mood:'happy',body:'page 2 journal',version:1,source_reading_id:null,source_turn_id:null,created_at:at,updated_at:at}];const filtered=all.filter(e=>!url.searchParams.get('from')||e.local_day===url.searchParams.get('from'));const index=url.searchParams.has('cursor')?1:0;return json({items:filtered.slice(index,index+1),next_cursor:index===0&&filtered.length>1?'journals-next':null});}
+  if(path==='/v2/journal-entries')return json({items:[0,1,2,3].map(n=>({id:id(300+n),local_day:'2026-11-0'+(n+1),mood:'calm',body:'owned journal '+n,version:contextVersion,source_reading_id:null,source_turn_id:null,created_at:at,updated_at:at})),next_cursor:null});
   if(path.startsWith('/v2/journal-entries/')){const saved=journals.get(path.split('/').at(-1));if(!saved)return json({error:'기록을 찾지 못했어요.'},404);if(request.method()==='PATCH'){if(body.expected_version!==saved.version)return json({error:'다른 곳에서 수정된 기록이에요.'},409);saved.body=body.body;saved.mood=body.mood;saved.version++;}return json(saved);}
+  if(path==='/v2/readings'&&request.method()==='GET'&&options.historyPages){const second=url.searchParams.has('cursor');return json({items:[{...reading,id:id(second?22:21),kind:'daily',state:'selected',local_day:second?'2026-11-04':'2026-11-05',slots:[],selected_cards:[{card_id:second?1:0,position:1,position_label:'오늘',orientation:'upright',card:card(second?1:0)}]}],next_cursor:second?null:'readings-next'});}
   if(path==='/v2/readings')return request.method()==='POST'?json(reading,201):json({items:reading.state==='draft'||readingDeleted?[]:[reading],next_cursor:null});
   if(path==='/v2/readings/'+reading.id+'/selection'){
    reading.selected_cards=body.slot_ids.map((slot,i)=>({card_id:i,position:i+1,position_label:['현재','살펴볼 마음','작은 행동'][i],orientation:'upright',card:card(i)}));reading.state='selected';reading.version++;return json(reading);
   }
   if(path==='/v2/readings/'+reading.id){if(request.method()==='DELETE'){readingDeleted=true;return route.fulfill({status:204});}return readingDeleted?json({error:'기록 없음'},404):json(reading);}
   if(path==='/v2/readings/'+reading.id+'/basic')return json({reading_id:reading.id,source:'basic',summary:'기본 카드 이야기',cards:reading.selected_cards,advice:'천천히 살펴봐요.',action:'작게 시작해요.'});
-  if(path==='/v2/readings/'+reading.id+'/interpretations'){jobs.set(id(40),makeJob(id(40),'tarot',reading.id,'failed'));return json(accepted(id(40),reading.id),202);}
+  if(path==='/v2/readings/'+reading.id+'/interpretations'){if(body.context_entry_ids?.some(entry=>body.context_entry_versions?.[entry]!==contextVersion))return json({error:{code:'CONTEXT_CHANGED',message:'참고한 기록이 수정됐어요. 내용을 다시 확인해 주세요.',retryable:false}},409);jobs.set(id(40),makeJob(id(40),'tarot',reading.id,'failed'));return json(accepted(id(40),reading.id),202);}
   if(path.endsWith('/retry')){jobs.set(id(41),makeJob(id(41),'tarot',reading.id,'succeeded'));reading.state='ready';reading.result=result;return json(accepted(id(41),reading.id),202);}
   if(path.startsWith('/v2/ai/jobs/'))return json(jobs.get(path.split('/')[4])||makeJob(id(60),'transcription',id(61),'succeeded'));
+  if(path==='/v2/conversations'&&request.method()==='GET'&&options.historyPages){const second=url.searchParams.has('cursor');return json({items:[{id:id(second?55:50),topic:second?'work':'self',tone:'warm',state:'active',created_at:second?'2026-11-04T00:00:00Z':'2026-11-05T00:00:00Z',updated_at:at}],next_cursor:second?null:'conversations-next'});}
   if(path==='/v2/conversations')return request.method()==='POST'?json({id:id(50),topic:body.topic,tone:body.tone,state:'active',created_at:at,updated_at:at},201):json({items:options.conversationHistory&&!conversationDeleted?[{id:id(50),topic:'self',tone:'warm',state:conversationState,created_at:at,updated_at:at}]:[],next_cursor:null});
   if(path==='/v2/conversations/'+id(50)+'/close'){conversationState='closed';return json({id:id(50),topic:'self',tone:'warm',state:conversationState,created_at:at,updated_at:at});}
   if(path==='/v2/conversations/'+id(50)){if(request.method()==='DELETE'){conversationDeleted=true;return route.fulfill({status:204});}return json({id:id(50),topic:'self',tone:'warm',state:conversationState,created_at:at,updated_at:at});}
@@ -70,7 +73,7 @@ async function setup(t,options={}){
   if(path==='/v2/transcriptions/'+id(61))return request.method()==='DELETE'?route.fulfill({status:204}):json({id:id(61),state:'ready',transcript:'server transcript',expires_at:'2026-11-06T01:00:00Z'});
   return json({error:{code:'FIXTURE_NOT_DEFINED',message:'미정의 테스트 경로 '+path,retryable:false}},404);
  });
- return {page,context,calls,consents,reading,releaseDataRequest:()=>releaseDataRequest?.()};
+ return {page,context,calls,consents,reading,releaseDataRequest:()=>releaseDataRequest?.(),bumpContext:()=>{contextVersion++;}};
 }
 
 test('explicit onboarding, owned context, hidden slots and an explicit AI retry form one reviewable flow',{timeout:45000},async t=>{
@@ -95,7 +98,7 @@ test('explicit onboarding, owned context, hidden slots and an explicit AI retry 
  await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();
  await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();
  await page.getByText('이전 처리 결과를 확인할 수 없어요.',{exact:false}).waitFor();
- const sent=calls.find(c=>c.path.endsWith('/interpretations'));assert.deepEqual(sent.body.context_entry_ids,[id(300),id(301),id(302)]);assert.equal('body' in sent.body,false);assert.ok(sent.headers['x-idempotency-key']);
+ const sent=calls.find(c=>c.path.endsWith('/interpretations'));assert.deepEqual(sent.body.context_entry_ids,[id(300),id(301),id(302)]);assert.deepEqual(sent.body.context_entry_versions,{[id(300)]:1,[id(301)]:1,[id(302)]:1});assert.equal('body' in sent.body,false);assert.ok(sent.headers['x-idempotency-key']);
  assert.equal(calls.filter(c=>c.path.endsWith('/retry')).length,0);
  await page.getByRole('button',{name:'확인하고 새 작업으로 재시도',exact:true}).click();
  await page.getByRole('button',{name:'완료된 결과 보기',exact:true}).click();
@@ -221,4 +224,21 @@ test('a busy action retains its accessible operation name before and after ackno
  const sent=page.waitForRequest('**/api/v2/me/data-requests');await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).click();await sent;
  assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).isDisabled(),true);
  releaseDataRequest();await page.getByText('접수',{exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'내 기록 내보내기 요청',exact:true}).isEnabled(),true);
+});
+
+
+test('changed context is rejected with its old version until the user reviews the edited journal',{timeout:30000},async t=>{
+ const {page,calls,bumpContext}=await setup(t);await page.goto(base);await enterGuest(page);await page.getByRole('button',{name:/고민 타로/}).click();await page.getByRole('button',{name:'3장의 카드 만나기',exact:true}).click();for(let n=1;n<=3;n++)await page.getByRole('button',{name:n+'번째 카드',exact:true}).click();await page.getByRole('button',{name:'선택한 카드의 이야기 듣기',exact:true}).click();
+ await page.getByRole('button',{name:'AI 이용 동의 설정',exact:true}).click();await page.getByRole('button',{name:'이 목적만 허용',exact:true}).nth(0).click();await page.getByText('허용됨 · 2026-11-06',{exact:true}).waitFor();await page.getByRole('button',{name:'이 목적만 허용',exact:true}).nth(0).click();await page.getByRole('button',{name:'뒤로가기',exact:true}).click();await page.getByRole('button',{name:'참고할 마음기록 선택 · 0개',exact:true}).click();await page.getByRole('button',{name:'이 기록 선택',exact:true}).nth(0).click();await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();
+ bumpContext();await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();await page.getByText('참고한 기록이 수정됐어요. 내용을 다시 확인해 주세요.',{exact:true}).waitFor();
+ const old=calls.find(c=>c.path.endsWith('/interpretations'));assert.deepEqual(old.body.context_entry_versions,{[id(300)]:1});
+ await page.getByRole('button',{name:'참고할 마음기록 선택 · 1개',exact:true}).click();await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).isDisabled(),true);await page.getByRole('button',{name:'수정된 기록 내용 확인',exact:true}).click();await page.getByRole('button',{name:'선택한 기록 확정',exact:true}).click();await page.getByRole('button',{name:'확인한 카드로 GPT 해석 요청',exact:true}).click();await page.getByText('이전 처리 결과를 확인할 수 없어요.',{exact:false}).waitFor();
+ const retried=calls.filter(c=>c.path.endsWith('/interpretations'));assert.equal(retried.length,2);assert.deepEqual(retried[1].body.context_entry_versions,{[id(300)]:2});
+});
+
+test('record filters apply to every history and cursor pages and journal date query preserve the selected view',{timeout:30000},async t=>{
+ const {page,calls}=await setup(t,{historyPages:true});await page.goto(base);await enterGuest(page);await page.getByRole('tab',{name:'마음기록',exact:true}).click();await page.getByRole('button',{name:'타로',exact:true}).click();await page.getByRole('button',{name:'2026-11-05 · 카드 0',exact:true}).waitFor();assert.equal(await page.getByText('page 1 journal',{exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:/대화 보기/}).count(),0);await page.getByRole('button',{name:'이전 타로 기록 더 보기',exact:true}).click();await page.getByRole('button',{name:'2026-11-04 · 카드 1',exact:true}).waitFor();assert.ok(calls.some(c=>c.path==='/v2/readings'&&c.query.cursor==='readings-next'));
+ await page.getByRole('button',{name:'대화',exact:true}).click();await page.getByRole('button',{name:'이전 대화 기록 더 보기',exact:true}).click();await page.getByRole('button',{name:/2026-11-04.*일과 진로.*대화 보기/}).waitFor();assert.equal(await page.getByRole('button',{name:'2026-11-05 · 카드 0',exact:true}).count(),0);
+ await page.getByRole('button',{name:'마음',exact:true}).click();await page.getByRole('button',{name:'이전 마음기록 더 보기',exact:true}).click();await page.getByText('page 2 journal',{exact:true}).waitFor();await page.getByLabel('기록 날짜 필터').fill('2026-11-04');await page.getByRole('button',{name:'이 날짜의 기록 보기',exact:true}).click();await page.getByText('page 2 journal',{exact:true}).waitFor();await page.waitForFunction(()=>localStorage.getItem('yeoun.records.date')==='2026-11-04');assert.ok(calls.some(c=>c.path==='/v2/journal-entries'&&c.query.from==='2026-11-04'&&c.query.to==='2026-11-04'));
+ await page.getByText('page 2 journal',{exact:true}).click();await page.getByRole('button',{name:'뒤로가기',exact:true}).click();assert.equal(await page.getByRole('button',{name:'마음',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.getByLabel('기록 날짜 필터').inputValue(),'2026-11-04');
 });
