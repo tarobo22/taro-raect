@@ -233,6 +233,7 @@ test('real server slots, selected journal context, explicit AI result, card prov
     const job = await jsonResponse(admission, 202);
     assert.deepEqual(admission.request().postDataJSON(), {
       expected_version: selected.version, consent_event_id: aiConsent.id, context_entry_ids: [contextEntry.id],
+      context_entry_versions: {[contextEntry.id]: contextEntry.version},
     });
     assert.match(admission.request().headers()['x-idempotency-key'], /^[\da-f-]{36}$/i);
     await page.getByRole('button', {name: '완료된 결과 보기', exact: true}).waitFor({timeout: 25000});
