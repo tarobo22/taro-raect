@@ -1,0 +1,3 @@
+declare const window:any;
+export async function voiceAvailable(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition);}
+export async function startVoice(onText:(v:string)=>void,onState:(v:string)=>void){const C=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition;if(!C){onState('이 브라우저에서는 음성 입력을 사용할 수 없어요. 글로 이어갈 수 있어요.');return ()=>{};}const r=new C();r.lang='ko-KR';r.interimResults=true;r.continuous=false;r.onstart=()=>onState('듣고 있어요. 편하게 이야기해 주세요.');r.onresult=(e:any)=>{let value='';for(let i=0;i<e.results.length;i++)value+=e.results[i][0].transcript;onText(value);};r.onerror=()=>onState('음성을 옮기지 못했어요. 다시 누르거나 글로 입력해 주세요.');r.onend=()=>onState('입력한 내용을 확인한 뒤 보내 주세요.');r.start();return ()=>{r.stop();onState('');};}
