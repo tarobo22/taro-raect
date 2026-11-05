@@ -44,6 +44,8 @@ export class ExperienceApi implements ExperienceRepository{
       maxTarotQuestion:integer(v.maxTarotQuestion),maxCounselQuestion:integer(v.maxCounselQuestion),deckPreviewSize:integer(v.deckPreviewSize)};
   }
   async readings(){const v=await this.http.request(this.paths.readings);if(!Array.isArray(v))throw new Error('기록을 불러오지 못했어요.');return v.map(decodeReading);}
+  async deleteReading(id:string){await this.http.request(this.paths.readings+'/'+encodeURIComponent(id),{method:'DELETE'});}
+  async deleteCounsel(id:string){await this.http.request(this.paths.counsel+'/'+encodeURIComponent(id),{method:'DELETE'});}
   async counsels(){const v=await this.http.request(this.paths.counsel);if(!Array.isArray(v))throw new Error('대화를 불러오지 못했어요.');return v.map(decodeCounsel);}
   async reading(draft:ReadingDraft,requestId:string){return decodeReading(await this.http.request(this.paths.readings,{method:'POST',body:JSON.stringify({...draft,requestId})}));}
   async daily(day:string,topic:string){return decodeReading(await this.http.request(this.paths.daily,{method:'POST',body:JSON.stringify({day,topic})}));}
