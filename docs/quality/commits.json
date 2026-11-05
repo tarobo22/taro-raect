@@ -1,0 +1,255 @@
+[
+  {
+    "commit": "1cbf6ac3dbb84941ca18965459337a62f7942412",
+    "message": "chore: initialize React web runtime and build configuration",
+    "files": [
+      ".env.example",
+      ".gitattributes",
+      ".gitignore",
+      "AGENTS.md",
+      "App.tsx",
+      "README.md",
+      "index.html",
+      "package-lock.json",
+      "package.json",
+      "src/config/runtime.json",
+      "src/config/runtime.web.ts",
+      "src/domain/content.ts",
+      "src/web/svg.tsx",
+      "tools/doctor.mjs",
+      "tools/use-env.ps1",
+      "tsconfig.json",
+      "vite.config.mjs",
+      "web-entry.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "8abee2f0e58d7334d4a048e5724c1a060ce6d1fb",
+    "message": "feat(http): add bounded requests and shared guest-session initialization",
+    "files": [
+      "src/infrastructure/http/FetchClient.ts",
+      "src/infrastructure/http/GuestSession.ts",
+      "tests/http.test.ts"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "2e01560f7c77bc1b6aca04ade5d653965127bb42",
+    "message": "feat(journal): add validated persistence ports and guarded save operations",
+    "files": [
+      "src/composition.ts",
+      "src/features/journal/JournalApi.ts",
+      "src/features/journal/model.ts",
+      "src/features/journal/removeJournal.ts",
+      "src/features/journal/saveJournal.ts",
+      "src/features/journal/useJournalSave.ts",
+      "src/services/secure.web.ts",
+      "tests/journal.test.ts"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "2b2c3498cf3af15650d408423da26e8758e22a06",
+    "message": "feat(experience): add typed tarot and counseling repositories with retry identities",
+    "files": [
+      "src/composition.ts",
+      "src/features/experience/ExperienceApi.ts",
+      "src/features/experience/model.ts",
+      "src/features/experience/submit.ts",
+      "src/features/experience/useSubmit.ts",
+      "tests/experience.test.ts"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "68fb8fd5d2f4fb30ce360186d00287081238cc87",
+    "message": "assets: bundle 78 external tarot faces, character art, audio and source licenses",
+    "files": [
+      "assets/audio/card_flip.wav",
+      "assets/audio/card_shuffle.wav",
+      "assets/audio/light_tap.wav",
+      "assets/audio/soft_confirm.wav",
+      "assets/audio/soft_select.wav",
+      "assets/audio/soft_tap.wav",
+      "assets/audio/tarot_room.ogg",
+      "assets/cards/cups_01.jpg",
+      "assets/cards/cups_02.jpg",
+      "assets/cards/cups_03.jpg",
+      "assets/cards/cups_04.jpg",
+      "assets/cards/cups_05.jpg",
+      "assets/cards/cups_06.jpg",
+      "assets/cards/cups_07.jpg",
+      "assets/cards/cups_08.jpg",
+      "assets/cards/cups_09.jpg",
+      "assets/cards/cups_10.jpg",
+      "assets/cards/cups_11.jpg",
+      "assets/cards/cups_12.jpg",
+      "assets/cards/cups_13.jpg",
+      "assets/cards/cups_14.jpg",
+      "assets/cards/major_00.jpg",
+      "assets/cards/major_01.jpg",
+      "assets/cards/major_02.jpg",
+      "assets/cards/major_03.jpg",
+      "assets/cards/major_04.jpg",
+      "assets/cards/major_05.jpg",
+      "assets/cards/major_06.jpg",
+      "assets/cards/major_07.jpg",
+      "assets/cards/major_08.jpg",
+      "assets/cards/major_09.jpg",
+      "assets/cards/major_10.jpg",
+      "assets/cards/major_11.jpg",
+      "assets/cards/major_12.jpg",
+      "assets/cards/major_13.jpg",
+      "assets/cards/major_14.jpg",
+      "assets/cards/major_15.jpg",
+      "assets/cards/major_16.jpg",
+      "assets/cards/major_17.jpg",
+      "assets/cards/major_18.jpg",
+      "assets/cards/major_19.jpg",
+      "assets/cards/major_20.jpg",
+      "assets/cards/major_21.jpg",
+      "assets/cards/pentacles_01.jpg",
+      "assets/cards/pentacles_02.jpg",
+      "assets/cards/pentacles_03.jpg",
+      "assets/cards/pentacles_04.jpg",
+      "assets/cards/pentacles_05.jpg",
+      "assets/cards/pentacles_06.jpg",
+      "assets/cards/pentacles_07.jpg",
+      "assets/cards/pentacles_08.jpg",
+      "assets/cards/pentacles_09.jpg",
+      "assets/cards/pentacles_10.jpg",
+      "assets/cards/pentacles_11.jpg",
+      "assets/cards/pentacles_12.jpg",
+      "assets/cards/pentacles_13.jpg",
+      "assets/cards/pentacles_14.jpg",
+      "assets/cards/swords_01.jpg",
+      "assets/cards/swords_02.jpg",
+      "assets/cards/swords_03.jpg",
+      "assets/cards/swords_04.jpg",
+      "assets/cards/swords_05.jpg",
+      "assets/cards/swords_06.jpg",
+      "assets/cards/swords_07.jpg",
+      "assets/cards/swords_08.jpg",
+      "assets/cards/swords_09.jpg",
+      "assets/cards/swords_10.jpg",
+      "assets/cards/swords_11.jpg",
+      "assets/cards/swords_12.jpg",
+      "assets/cards/swords_13.jpg",
+      "assets/cards/swords_14.jpg",
+      "assets/cards/wands_01.jpg",
+      "assets/cards/wands_02.jpg",
+      "assets/cards/wands_03.jpg",
+      "assets/cards/wands_04.jpg",
+      "assets/cards/wands_05.jpg",
+      "assets/cards/wands_06.jpg",
+      "assets/cards/wands_07.jpg",
+      "assets/cards/wands_08.jpg",
+      "assets/cards/wands_09.jpg",
+      "assets/cards/wands_10.jpg",
+      "assets/cards/wands_11.jpg",
+      "assets/cards/wands_12.jpg",
+      "assets/cards/wands_13.jpg",
+      "assets/cards/wands_14.jpg",
+      "assets/characters/README.md",
+      "assets/characters/asset-provenance.json",
+      "assets/characters/body-pastel-v1.png",
+      "assets/characters/giga-calm.svg",
+      "assets/characters/giga-concern.svg",
+      "assets/characters/giga-encourage.svg",
+      "assets/characters/giga-joy.svg",
+      "assets/characters/giga-listen.svg",
+      "assets/characters/giga-serious.svg",
+      "assets/characters/giga-welcome.svg",
+      "assets/characters/warm-calm.svg",
+      "assets/characters/warm-concern.svg",
+      "assets/characters/warm-encourage.svg",
+      "assets/characters/warm-joy.svg",
+      "assets/characters/warm-listen.svg",
+      "assets/characters/warm-serious.svg",
+      "assets/characters/warm-welcome.svg",
+      "assets/licenses/ASSET-SOURCES.md",
+      "assets/licenses/Kenney-Casino-CC0.txt",
+      "assets/licenses/audio-manifest.json",
+      "assets/licenses/sound-manifest.json",
+      "assets/licenses/tarot-source-manifest.json",
+      "src/components/assets.d.ts",
+      "src/components/cardImages.web.ts",
+      "src/components/characterBody.web.ts"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "64d222367071d46fd1346486f70d70ac55638107",
+    "message": "feat(sensory): add user-controlled sound, voice and browser feedback",
+    "files": [
+      "src/services/feedback.web.ts",
+      "src/services/updates.web.ts",
+      "src/services/voice.web.ts"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "38eb0695b41b35d86f7b88b91984929e792ee500",
+    "message": "feat(ui): connect the design system, application state and back navigation",
+    "files": [
+      "App.tsx",
+      "src/components/BreathingDial.tsx",
+      "src/components/Character.tsx",
+      "src/components/Icon.tsx",
+      "src/components/SelectionDial.tsx",
+      "src/components/TarotArt.tsx",
+      "src/components/UI.tsx",
+      "src/components/VoiceButton.tsx",
+      "src/design/tokens.ts",
+      "src/navigation.ts",
+      "src/screens/Home.tsx",
+      "src/screens/Journal.tsx",
+      "src/screens/Settings.tsx",
+      "src/screens/Talk.tsx",
+      "src/screens/Tarot.tsx",
+      "src/state/store.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "8f144201595c691daaf86daa171c0ade4aab8d6e",
+    "message": "feat(home): restore the entry flow and record summary",
+    "files": [
+      "src/screens/Home.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "bf9eaf1ddbb600b18806e459f5db3a58746fd39b",
+    "message": "feat(journal): connect mood dial, editing and confirmed deletion",
+    "files": [
+      "src/screens/Journal.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "52ec64776a6cc94bbfaa1f7ad3fbd89ddf1ca761",
+    "message": "feat(tarot): connect spreads, daily cards and flip animations",
+    "files": [
+      "src/screens/Tarot.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "bcb6ff73bfbca480d47e29733e8b6c2a82c4154a",
+    "message": "feat(counsel): connect manual submission, swipes and follow-up conversations",
+    "files": [
+      "src/screens/Talk.tsx"
+    ],
+    "remote_verified": true
+  },
+  {
+    "commit": "621868e33c445811ded019e7d44c782203903759",
+    "message": "feat(settings): connect sensory preferences and update controls",
+    "files": [
+      "src/screens/Settings.tsx"
+    ],
+    "remote_verified": true
+  }
+]

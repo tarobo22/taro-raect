@@ -1,0 +1,32 @@
+[
+  {
+    "label": "RED-http.test",
+    "exit": 1,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\010-RED-http.test.txt"
+  },
+  {
+    "label": "GREEN-http.test",
+    "exit": 0,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\011-GREEN-http.test.txt"
+  },
+  {
+    "label": "RED-journal.test",
+    "exit": 1,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\021-RED-journal.test.txt"
+  },
+  {
+    "label": "GREEN-journal.test",
+    "exit": 0,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\022-GREEN-journal.test.txt"
+  },
+  {
+    "label": "RED-experience.test",
+    "exit": 1,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\032-RED-experience.test.txt"
+  },
+  {
+    "label": "GREEN-experience.test",
+    "exit": 0,
+    "log": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\output\\taro-repartition-20261106-011214\\taro-raect\\verification\\033-GREEN-experience.test.txt"
+  }
+]
