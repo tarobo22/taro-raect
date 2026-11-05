@@ -24,3 +24,8 @@ The browser also exposed that follow-up text was not persisted.
 GREEN: common client cases 23 (RN has 3 additional OTA cases), TypeScript, and isolated browser flows.
 Requests reserve their identity before sending and retain it until the active screen acknowledges the result.
 Follow-up drafts retain parentId across reload; AI consent is selected again by the user.
+
+## Empty saved entries
+
+An additional browser RED showed an empty saved entry importing an unrelated new-entry draft.
+Explicit saved-entry initialization preserves an empty body. The four isolated browser scenarios now cover this regression as well.

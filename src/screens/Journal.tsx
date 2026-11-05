@@ -15,7 +15,7 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
  const store=useStore();
  const editor=useJournalDraft({id:route.entry?.id,version:route.entry?.version,
   day:route.entry?.day||localDay(),mood:route.entry?.mood||'',
-  body:route.entry?.body||route.initialText||store.draft});
+  body:route.entry?route.entry.body:(route.initialText??store.draft)});
  const {mood,body,day}=editor.draft;
  const [voice,setVoice]=useState(''),[notice,setNotice]=useState('');
  const {save:saveEntry,busy,error,clearError}=useJournalSave();
