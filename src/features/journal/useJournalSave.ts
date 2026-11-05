@@ -23,7 +23,7 @@ export function useJournalSave() {
       if(active.current)setBusy(false);
     }
   }
-  return {save, busy, error};
+  return {save, busy, error,clearError:()=>setError('')};
 }
 
 export function useJournalDelete() {

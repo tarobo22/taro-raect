@@ -10,3 +10,9 @@ New development on `codex/complete-core-flows-20261106`. Existing tests are pres
 
 The request receipt is persisted before sending and cleared only after a validated server acknowledgement.
 Actual concurrent database behavior is tested in taro-back's journal retry integration tests.
+
+## Explicit conflict resolution
+
+The browser scenario first reached a 409 with the draft intact, then failed because the latest-entry action was missing.
+After implementation it passed: committed response lost, page reload, same request identity, exactly one record, stale edit rejected, explicit rebase preserving the local text, successful version 3.
+Both clients typecheck; the browser scenario exercises the shared screen, not native gesture/haptic behavior.

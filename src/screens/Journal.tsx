@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {ActivityIndicator,Modal,Pressable,TextInput,View} from 'react-native';
+import {ActivityIndicator,Modal,Pressable,ScrollView,TextInput,View} from 'react-native';
 import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
 import {Icon} from '../components/Icon';
 import {VoiceButton} from '../components/VoiceButton';
@@ -9,6 +9,7 @@ import {localDay} from '../domain/content';
 import {Entry,useStore} from '../state/store';
 import {useJournalSave,useJournalDelete} from '../features/journal/useJournalSave';
 import {useJournalDraft} from '../features/journal/useJournalDraft';
+import {useJournalLatest} from '../features/journal/useJournalLatest';
 import {Nav,Route} from '../navigation';
 export function JournalForm({nav,route}:{nav:Nav;route:Route}){
  const store=useStore();
@@ -17,7 +18,8 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   body:route.entry?.body||route.initialText||store.draft});
  const {mood,body,day}=editor.draft;
  const [voice,setVoice]=useState(''),[notice,setNotice]=useState('');
- const {save:saveEntry,busy,error}=useJournalSave();
+ const {save:saveEntry,busy,error,clearError}=useJournalSave();
+ const latest=useJournalLatest();const [resolving,setResolving]=useState(false);
  const policy=store.journalPolicy;
  const change=(value:string)=>editor.change({body:value});
  async function save(){
@@ -32,6 +34,14 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
    if(!route.entry)store.setDraft('');
    nav.replace({name:'entry',entry});
   }catch{setNotice('기록은 저장됐어요. 임시 글 정리는 잠시 뒤 다시 시도해 주세요.');}
+ }
+ async function inspect(){
+  if(route.entry&&await latest.load(route.entry.id))setResolving(true);
+ }
+ function adopt(useSavedText:boolean){
+  if(!latest.entry?.version)return;
+  editor.change({version:latest.entry.version,...(useSavedText?{body:latest.entry.body,mood:latest.entry.mood}:{})});
+  clearError();setResolving(false);setNotice(useSavedText?'저장된 글을 불러왔어요.':'입력한 글을 유지했어요. 확인 후 저장해 주세요.');
  }
  return <View style={s.stack}>
   <Copy kind="label" muted>{day.replaceAll('-','. ')}</Copy>
@@ -56,8 +66,23 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   {voice?<Notice>{voice}</Notice>:null}
   {error||editor.error?<Notice error>{error||editor.error}</Notice>:null}
   {notice?<Notice>{notice}</Notice>:null}
+  {latest.error?<Notice error>{latest.error}</Notice>:null}
+  {route.entry&&(error||editor.draft.version!==route.entry.version)?<Button secondary busy={latest.busy} onPress={inspect}>최신 기록 확인</Button>:null}
+
   <Button disabled={!mood||!policy} busy={busy} icon="check" onPress={save}>{route.entry?'수정한 마음 저장하기':'이 마음 저장하기'}</Button>
   <Copy kind="small" muted>입력 중인 글과 마음은 뒤로 가도 기기에 임시로 남겨 둬요.</Copy>
+  <Modal transparent visible={resolving} animationType={store.reduced?'none':'fade'} onRequestClose={()=>setResolving(false)}>
+   <View style={{flex:1,backgroundColor:'rgba(32,44,36,.24)',justifyContent:'center',padding:24}}>
+    <Panel style={{gap:16}}>
+     <Copy kind="subtitle">지금 저장된 기록이에요.</Copy>
+     <ScrollView style={{maxHeight:280}}><Copy>{latest.entry?.body||'글 없이 마음만 남긴 기록이에요.'}</Copy></ScrollView>
+     <Copy kind="small" muted>입력한 글은 그대로 있어요. 어떤 글로 이어갈지 골라 주세요.</Copy>
+     <Button onPress={()=>adopt(false)}>내 글 유지하고 다시 편집</Button>
+     <Button secondary onPress={()=>adopt(true)}>저장된 글 불러오기</Button>
+     <Button secondary onPress={()=>setResolving(false)}>닫기</Button>
+    </Panel>
+   </View>
+  </Modal>
  </View>;
 }
 export function Records({nav}:{nav:Nav}){const store=useStore();const [filter,setFilter]=useState('전체');const rows=[...store.entries.map(e=>({kind:'마음',id:e.id,date:e.createdAt,title:e.mood,body:e.body,route:{name:'entry' as const,entry:e}})),...store.readings.map(r=>({kind:'타로',id:r.id||r.created_at||r.question,date:r.created_at||'',title:r.topic,body:r.summary,route:{name:'reading' as const,reading:r}})),...store.counsels.map(c=>({kind:'대화',id:c.id,date:c.created_at,title:c.topic,body:c.question,route:{name:'counsel' as const,counsel:c}}))].filter(r=>filter==='전체'||r.kind===filter).sort((a,b)=>b.date.localeCompare(a.date));return <View style={s.stack}><Copy kind="hero">나의 마음이{`\n`}차곡차곡.</Copy><View style={s.wrap}>{['전체','마음','타로','대화'].map(f=><Chip key={f} selected={filter===f} onPress={()=>setFilter(f)}>{f}</Chip>)}</View>{store.loading?<ActivityIndicator color={color.action}/>:null}{store.error?<><Notice error>{store.error}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></>:null}{!store.loading&&!rows.length?<Panel style={{alignItems:'center',paddingVertical:34,gap:14}}><Icon name="book" size={32}/><Copy kind="subtitle">첫 기록을 기다리고 있어요.</Copy><Copy kind="small" muted style={{textAlign:'center'}}>일기, 타로, 대화를{`\n`}여기서 다시 만날 수 있어요.</Copy><Button onPress={()=>nav.push({name:'journal'})}>지금 마음 남기기</Button></Panel>:rows.map(r=><Pressable key={`${r.kind}-${r.id}`} accessibilityRole="button" onPress={()=>nav.push(r.route)}><Panel style={{gap:9}}><View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="label" muted>{r.kind} · {new Date(r.date).toLocaleDateString('ko-KR')}</Copy><Icon name="arrow" size={17}/></View><Copy kind="subtitle">{r.title}</Copy><Copy kind="small" muted>{r.body.length>78?r.body.slice(0,78)+'…':r.body||'마음만 남겨도 괜찮아요.'}</Copy></Panel></Pressable>)}<Button secondary icon="edit" onPress={()=>nav.push({name:'journal'})}>새 마음기록 쓰기</Button></View>;}

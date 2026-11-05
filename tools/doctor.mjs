@@ -4,7 +4,7 @@ import path from 'node:path';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const pkg=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8'));
 const major=Number(process.versions.node.split('.')[0]);
-const checks=[['Node 24+',major>=24],['Installed dependencies',existsSync(path.join(root,'node_modules','react','package.json'))],['API runtime configuration',existsSync(path.join(root,'src','config','runtime.json'))]];
+const checks=[['Node 24+',major>=24],['Installed dependencies',existsSync(path.join(root,'node_modules','react','package.json'))],['API runtime configuration',existsSync(path.join(root,'src','config','endpoints.json'))]];
 if(pkg.name==='taro-mobile')checks.push(['Local Android SDK path',existsSync(path.join(root,'android','local.properties'))],['Local debug signing file',existsSync(path.join(root,'android','app','debug.keystore'))]);
 for(const [label,ok] of checks)console.log(`${ok?'OK':'MISSING'} ${label}`);
 if(checks.some(([,ok])=>!ok))process.exitCode=1;

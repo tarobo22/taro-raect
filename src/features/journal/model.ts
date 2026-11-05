@@ -42,3 +42,5 @@ export interface JournalRepository {
   delete(id: string): Promise<boolean>;
   policy(): Promise<JournalPolicy>;
 }
+
+export interface JournalDetailRepository {get(id:string):Promise<JournalEntry>;}

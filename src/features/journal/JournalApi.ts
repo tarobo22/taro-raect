@@ -1,5 +1,5 @@
 import type {JsonTransport} from '../../infrastructure/http/FetchClient';
-import type {JournalDraft, JournalEntry, JournalPolicy, JournalRepository} from './model';
+import type {JournalDetailRepository, JournalDraft, JournalEntry, JournalPolicy, JournalRepository} from './model';
 
 export interface JournalEndpoints {entries: string; policy: string;}
 
@@ -19,8 +19,12 @@ export function decodeEntry(value: unknown): JournalEntry {
     ...(typeof value.version==='number'?{version:value.version}:{})};
 }
 
-export class JournalApi implements JournalRepository {
+export class JournalApi implements JournalRepository,JournalDetailRepository {
   constructor(private readonly http: JsonTransport, private readonly paths: JournalEndpoints) {}
+
+  async get(id:string):Promise<JournalEntry> {
+    return decodeEntry(await this.http.request(this.paths.entries+'/'+encodeURIComponent(id)));
+  }
 
   async list(): Promise<JournalEntry[]> {
     const value = await this.http.request(this.paths.entries);
