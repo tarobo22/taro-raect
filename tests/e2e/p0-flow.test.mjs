@@ -205,3 +205,12 @@ test('server preferences acknowledge tone, motion and voice and restore them aft
  await page.waitForFunction(()=>localStorage.getItem('yeoun.voice-mode')==='cloud');const writes=calls.filter(c=>c.path==='/v2/me/preferences');assert.ok(writes.every(c=>c.method==='PATCH'));assert.deepEqual(writes.map(c=>c.body),[{tone:'giga'},{reduced_motion:true},{voice_mode:'cloud'}]);
  await page.reload();await page.getByRole('tab',{name:'내 공간',exact:true}).click();assert.equal(await page.getByRole('button',{name:'기가차드 모드',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.getByRole('switch',{name:'움직임 줄이기',exact:true}).isChecked(),true);assert.equal(await page.getByRole('button',{name:'클라우드 음성 파일',exact:true}).getAttribute('aria-pressed'),'true');
 });
+
+
+test('changing reduced motion keeps the settings scroll position',{timeout:30000},async t=>{
+ const {page}=await setup(t);await page.goto(base);await enterGuest(page);await page.getByRole('tab',{name:'내 공간',exact:true}).click();
+ const toggle=page.getByRole('switch',{name:'움직임 줄이기',exact:true});await toggle.scrollIntoViewIfNeeded();
+ const scrollTop=()=>toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement){if(p.scrollHeight>p.clientHeight+5&&['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollTop;}throw new Error('Scrollable settings surface not found');});
+ const before=await scrollTop();assert.ok(before>100);await toggle.click();await page.waitForFunction(()=>localStorage.getItem('yeoun.reduced')==='true');
+ const after=await scrollTop();assert.ok(Math.abs(after-before)<=2,'motion preference must retain the current scroll position');
+});
