@@ -5,6 +5,7 @@ import type {Bootstrap,Consent,DataReceipt,Preferences,PreferencePatch,RecordFil
 import {contextSnapshot,validateContext,validRecordDate} from '../features/p0/selection';
 import {PreferencesWriter} from '../features/p0/PreferencesWriter';
 import {eraseCurrentDeviceData} from '../features/p0/eraseCurrentDeviceData';
+import {reminderController} from '../features/reminders/composition';
 import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
@@ -49,7 +50,7 @@ export function Store({children}:{children:React.ReactNode}){
  async function completeErasure(receipt:DataReceipt){
   if(receipt.device_cleanup_complete===true)return;
   setSessionState('checking');configureUpdatePolicy(null);dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;bootstrapReady.current=false;
-  await eraseCurrentDeviceData(AsyncStorage,session,receipt);
+  await eraseCurrentDeviceData(AsyncStorage,session,receipt,()=>reminderController.reset());
   setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIdsState([]);setContextVersions({});setContextError('');contextRevision.current++;setRecordFilterState('전체');setRecordDateState('');setSelectedDeckState('');
   setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({sound:true,haptics:true,music:false});setError('');setLoading(false);
   setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
