@@ -1,3 +1,4 @@
+import {enterGuest} from './onboarding.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
@@ -15,7 +16,7 @@ test('three-card reading and manually submitted conversation retain a follow-up 
   const page=await context.newPage();page.setDefaultTimeout(7000);
   let authorization='';
   page.on('request',request=>{const value=request.headers().authorization;if(value)authorization=value;});
-  await page.goto(base);
+  await page.goto(base);await enterGuest(page);
   await page.getByRole('button',{name:/고민 타로/}).click();
   await page.getByRole('button',{name:'3장의 카드 만나기',exact:true}).click();
   for(let number=1;number<=3;number++)await page.getByRole('button',{name:number+'번째 카드',exact:true}).click();
@@ -52,7 +53,7 @@ test('a failed tarot-history request does not disable the journal form',async t=
   const context=await browser.newContext({viewport:{width:390,height:844}});
   const page=await context.newPage();page.setDefaultTimeout(7000);
   await page.route('**/api/v1/readings',route=>route.abort('failed'));
-  await page.goto(base);
+  await page.goto(base);await enterGuest(page);
   await page.getByRole('button',{name:/지금의 마음 남기기/}).click();
   const policy=await (await context.request.get(base+'/api/v1/journal-policy')).json();
   await page.getByRole('button',{name:policy.moods[0],exact:true}).waitFor();

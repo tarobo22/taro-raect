@@ -1,3 +1,4 @@
+import {enterGuest} from './onboarding.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
@@ -26,7 +27,7 @@ test('lost save response, page reload, retry and edit-conflict resolution preser
       {headers:{Authorization:authorization}}).catch(()=>{});
     await browser.close();
   });
-  await page.goto(base);
+  await page.goto(base);await enterGuest(page);
   await page.getByRole('button',{name:/지금의 마음 남기기/}).click();
   const policy=await (await context.request.get(base+'/api/v1/journal-policy')).json();
   await page.getByRole('button',{name:policy.moods[0],exact:true}).click();

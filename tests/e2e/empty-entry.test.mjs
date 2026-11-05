@@ -1,3 +1,4 @@
+import {enterGuest} from './onboarding.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 const {chromium}=await import(process.env.YEOUN_PLAYWRIGHT_MODULE||'playwright');
@@ -15,7 +16,7 @@ test('editing an empty saved entry never imports an unrelated new-entry draft',a
     await browser.close();
   });
   const loaded=page.waitForResponse(response=>response.url().endsWith('/api/v1/entries')&&response.request().method()==='GET');
-  await page.goto(base);await loaded;
+  await page.goto(base);await enterGuest(page);await loaded;
   const policy=await (await context.request.get(base+'/api/v1/journal-policy')).json();
   const saved=await context.request.post(base+'/api/v1/entries',{headers:{Authorization:authorization},
     data:{day:'2026-11-06',mood:policy.moods[0],body:''}});

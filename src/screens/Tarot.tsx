@@ -12,13 +12,17 @@ import {submitReading,submitDaily,readingRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {DeckChoice,DrawV2,StartThree} from './P0Tarot';
 
 function shuffled(ids:number[]){const result=[...ids];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
 function LoadingConfig(){const store=useStore();return <View style={s.stack}><Notice error={!!store.error}>{store.error||'카드와 이야기를 준비하고 있어요.'}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></View>;}
 
-export function Topics({nav}:{nav:Nav}){
+export function Topics({nav,route}:{nav:Nav;route?:Route}){
  const store=useStore(),config=store.config;
- const [topic,setTopic]=useState(''),[spreadId,setSpread]=useState('three'),[question,setQuestion]=useState(''),[voice,setVoice]=useState('');
+ const [topic,setTopic]=useState(route?.topic||''),[spreadId,setSpread]=useState(route?.spreadId||'three'),[question,setQuestion]=useState(route?.question||''),[voice,setVoice]=useState(''),[hydrated,setHydrated]=useState(false);
+ useEffect(()=>{let active=true;void AsyncStorage.getItem('yeoun.tarot.question').then(v=>{if(v&&active&&!route?.question)setQuestion(v);}).finally(()=>{if(active)setHydrated(true);});return()=>{active=false;};},[]);
+ useEffect(()=>{if(hydrated){nav.update({topic,spreadId,question});void AsyncStorage.setItem('yeoun.tarot.question',question);}},[topic,spreadId,question,hydrated]);
  if(!config)return <LoadingConfig/>;
  const selectedTopic=topic||config.topics[0],spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
  return <View style={s.stack}>
@@ -28,12 +32,15 @@ export function Topics({nav}:{nav:Nav}){
   <FieldLabel>카드로 살펴보는 깊이</FieldLabel><View style={s.wrap}>{Object.entries(config.spreads).map(([id,item])=><Chip key={id} selected={spreadId===id} onPress={()=>setSpread(id)}>{item.positions.length}장 · {item.name}</Chip>)}</View>
   <FieldLabel>나의 질문 · 선택 사항</FieldLabel><TextInput accessibilityLabel="타로 질문 입력" value={question} onChangeText={setQuestion} multiline maxLength={config.maxTarotQuestion} placeholder="내 마음을 어떻게 전하면 좋을까요?" placeholderTextColor={color.muted} style={s.input}/>
   <View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{question.length} / {config.maxTarotQuestion}</Copy><VoiceButton value={question} onText={setQuestion} onStatus={setVoice}/></View>
-  {voice?<Notice>{voice}</Notice>:null}<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>
+  {voice?<Notice>{voice}</Notice>:null}<DeckChoice nav={nav}/><Button secondary onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})}>클라우드 음성 파일로 질문 쓰기</Button>{spread.positions.length===3?<StartThree nav={nav} topic={selectedTopic} question={question}/>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
   <Panel tone={color.sage}><Copy kind="small" muted>미래를 정해 놓은 답 대신, 내 마음을 다른 시선으로 보는 힌트로 만나 주세요.</Copy></Panel>
  </View>;
 }
 
 export function Draw({nav,route}:{nav:Nav;route:Route}){
+ return route.readingV2?<DrawV2 nav={nav} route={route}/>:<ClassicDraw nav={nav} route={route}/>;
+}
+function ClassicDraw({nav,route}:{nav:Nav;route:Route}){
  const store=useStore(),config=store.config,width=Math.min(useWindowDimensions().width,430)-48;
  const [shuffling,setShuffling]=useState(false);const shift=useRef(new Animated.Value(0)).current;
  const {submit,busy,error,acknowledge}=useSubmit(submitReading,readingRetries);const selected=route.selected||[],deck=route.deck||[];
