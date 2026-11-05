@@ -1,0 +1,383 @@
+{
+  "version": "1.0.0",
+  "audio_assets": [
+    {
+      "id": "ui_tap",
+      "name": "버튼",
+      "kind": "sfx",
+      "file": "audio/sfx/ui_tap.wav",
+      "waveform": "audio/previews/ui_tap-wave.svg",
+      "recommended_gain": 0.65,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/ui_tap.wav"
+      ],
+      "duration_ms": 19,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -20.38,
+      "rms_dbfs": -33.68,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Interface Sounds",
+        "source_file": "click_003.wav",
+        "source_page": "https://kenney.nl/assets/interface-sounds",
+        "source_sha256": "b035afe3fe08b0fd3517c612bdfd362799bffe762d2cbf8f09e6a50322067358",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05",
+        "download_mirror": "https://github.com/Calinou/kenney-interface-sounds",
+        "mirror_note": "CC0 source converted to WAV by Calinou"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "card_shuffle",
+      "name": "카드 섞기",
+      "kind": "sfx",
+      "file": "audio/sfx/card_shuffle.wav",
+      "waveform": "audio/previews/card_shuffle-wave.svg",
+      "recommended_gain": 0.5,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/card_shuffle.wav"
+      ],
+      "duration_ms": 1200,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.0,
+      "rms_dbfs": -39.15,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Casino Audio",
+        "source_file": "card-shuffle.ogg",
+        "source_page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+        "source_sha256": "96c84883a30845ede723a4cf2e8369e9837e7dd4e0d4eb0212b0a7ed21b0f544",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "card_pick",
+      "name": "카드 선택",
+      "kind": "sfx",
+      "file": "audio/sfx/card_pick.wav",
+      "waveform": "audio/previews/card_pick-wave.svg",
+      "recommended_gain": 0.55,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/card_pick.wav"
+      ],
+      "duration_ms": 552,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.0,
+      "rms_dbfs": -32.93,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Casino Audio",
+        "source_file": "card-slide-2.ogg",
+        "source_page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+        "source_sha256": "e674a1679ec87b507047fe012d068ad2c412125f56186f0e732684705c2a6888",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "card_unpick",
+      "name": "선택 취소",
+      "kind": "sfx",
+      "file": "audio/sfx/card_unpick.wav",
+      "waveform": "audio/previews/card_unpick-wave.svg",
+      "recommended_gain": 0.48,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/card_unpick.wav"
+      ],
+      "duration_ms": 206,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.0,
+      "rms_dbfs": -33.41,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Casino Audio",
+        "source_file": "card-slide-5.ogg",
+        "source_page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+        "source_sha256": "8638ab0c17f029aded0e27a4f9b9bb9f8c621b19a6e9975e855cb40ea63e2201",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "card_flip",
+      "name": "카드 뒤집기",
+      "kind": "sfx",
+      "file": "audio/sfx/card_flip.wav",
+      "waveform": "audio/previews/card_flip-wave.svg",
+      "recommended_gain": 0.6,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/card_flip.wav"
+      ],
+      "duration_ms": 550,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.0,
+      "rms_dbfs": -27.32,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Casino Audio",
+        "source_file": "card-fan-1.ogg",
+        "source_page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+        "source_sha256": "7a9758ccad8899baef1b9f60b4064e4baa724a548293832fdaea07e6e07e638d",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "card_settle",
+      "name": "카드 내려놓기",
+      "kind": "sfx",
+      "file": "audio/sfx/card_settle.wav",
+      "waveform": "audio/previews/card_settle-wave.svg",
+      "recommended_gain": 0.5,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/card_settle.wav"
+      ],
+      "duration_ms": 159,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.0,
+      "rms_dbfs": -31.75,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Casino Audio",
+        "source_file": "card-place-1.ogg",
+        "source_page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+        "source_sha256": "d8f26c33a665dcbdcc6f632f6050bc9dd548feb0d4942d4547615926d3926810",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "choice_confirm",
+      "name": "예·아니요 공통 확인",
+      "kind": "sfx",
+      "file": "audio/sfx/choice_confirm.wav",
+      "waveform": "audio/previews/choice_confirm-wave.svg",
+      "recommended_gain": 0.5,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/choice_confirm.wav"
+      ],
+      "duration_ms": 24,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -16.37,
+      "rms_dbfs": -33.1,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Interface Sounds",
+        "source_file": "tick_001.wav",
+        "source_page": "https://kenney.nl/assets/interface-sounds",
+        "source_sha256": "fee217e21731da4be1f0347fd2632296259b8bfdca343c936fe60dc64bce280e",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05",
+        "download_mirror": "https://github.com/Calinou/kenney-interface-sounds",
+        "mirror_note": "CC0 source converted to WAV by Calinou"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "note_saved",
+      "name": "마음기록 저장",
+      "kind": "sfx",
+      "file": "audio/sfx/note_saved.wav",
+      "waveform": "audio/previews/note_saved-wave.svg",
+      "recommended_gain": 0.5,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/note_saved.wav"
+      ],
+      "duration_ms": 88,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.12,
+      "rms_dbfs": -28.02,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Interface Sounds",
+        "source_file": "pluck_001.wav",
+        "source_page": "https://kenney.nl/assets/interface-sounds",
+        "source_sha256": "7d676b0b09b56f7e5964ad274feb7e7307a4e552bed8cd98e1e3cecfb9c10c36",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05",
+        "download_mirror": "https://github.com/Calinou/kenney-interface-sounds",
+        "mirror_note": "CC0 source converted to WAV by Calinou"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "mic_start",
+      "name": "음성 입력 시작",
+      "kind": "sfx",
+      "file": "audio/sfx/mic_start.wav",
+      "waveform": "audio/previews/mic_start-wave.svg",
+      "recommended_gain": 0.4,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/mic_start.wav"
+      ],
+      "duration_ms": 147,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -11.6,
+      "rms_dbfs": -22.31,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Interface Sounds",
+        "source_file": "open_001.wav",
+        "source_page": "https://kenney.nl/assets/interface-sounds",
+        "source_sha256": "c69aab75d09d98363934c68cda0e9d050973eb5c3ab9987ce8fd5d336a8f7fbd",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05",
+        "download_mirror": "https://github.com/Calinou/kenney-interface-sounds",
+        "mirror_note": "CC0 source converted to WAV by Calinou"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "mic_stop",
+      "name": "음성 입력 종료",
+      "kind": "sfx",
+      "file": "audio/sfx/mic_stop.wav",
+      "waveform": "audio/previews/mic_stop-wave.svg",
+      "recommended_gain": 0.4,
+      "play_once_per_event": true,
+      "variants": [
+        "audio/sfx/mic_stop.wav"
+      ],
+      "duration_ms": 148,
+      "sample_rate": 48000,
+      "channels": 1,
+      "peak_dbfs": -10.15,
+      "rms_dbfs": -21.68,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kenney",
+        "pack": "Kenney Interface Sounds",
+        "source_file": "close_001.wav",
+        "source_page": "https://kenney.nl/assets/interface-sounds",
+        "source_sha256": "423ae3dd2981045649bed82653e43f9770c2baad6da7582d004f9161ef9b0439",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05",
+        "download_mirror": "https://github.com/Calinou/kenney-interface-sounds",
+        "mirror_note": "CC0 source converted to WAV by Calinou"
+      },
+      "processing": "mono 48kHz PCM16; silence trim; gentle bandwidth limit; peak matching; onset/tail ramps"
+    },
+    {
+      "id": "tarot_room",
+      "name": "카드 앞의 작은 여유",
+      "kind": "bgm",
+      "file": "audio/bgm/tarot_room.m4a",
+      "web_file": "audio/bgm/tarot_room.ogg",
+      "waveform": "audio/previews/tarot_room-wave.svg",
+      "preview": "audio/previews/tarot_room-preview.mp3",
+      "recommended_gain": 0.2,
+      "variants": [
+        "audio/bgm/tarot_room.m4a",
+        "audio/bgm/tarot_room.ogg"
+      ],
+      "loop": true,
+      "loop_crossfade_ms": 100,
+      "cycle_duration_ms": 24795,
+      "pcm_seam_step": 0.0005716,
+      "duration_ms": 74384,
+      "sample_rate": 48000,
+      "channels": 2,
+      "peak_dbfs": -8.08,
+      "rms_dbfs": -24.0,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Joth",
+        "pack": "OpenGameArt",
+        "source_file": "jrpg-piano.mp3",
+        "source_page": "https://opengameart.org/content/jrpg-piano",
+        "source_sha256": "87a99f62e901b8365f1b868cd53bc015d2bf9f887e4c8a89a4fad11a36a62c16",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "100ms cyclic overlap; constant gain; 48kHz stereo; AAC and Vorbis variants; player crossfade recommended"
+    },
+    {
+      "id": "journal_room",
+      "name": "마음을 적는 시간",
+      "kind": "bgm",
+      "file": "audio/bgm/journal_room.m4a",
+      "web_file": "audio/bgm/journal_room.ogg",
+      "waveform": "audio/previews/journal_room-wave.svg",
+      "preview": "audio/previews/journal_room-preview.mp3",
+      "recommended_gain": 0.2,
+      "variants": [
+        "audio/bgm/journal_room.m4a",
+        "audio/bgm/journal_room.ogg"
+      ],
+      "loop": true,
+      "loop_crossfade_ms": 100,
+      "cycle_duration_ms": 124000,
+      "pcm_seam_step": 0.0001145,
+      "duration_ms": 124000,
+      "sample_rate": 48000,
+      "channels": 2,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -24.02,
+      "clipped_samples": 0,
+      "source": {
+        "author": "Kistol",
+        "pack": "OpenGameArt",
+        "source_file": "forget-me-not.ogg",
+        "source_page": "https://opengameart.org/content/forget-me-not",
+        "source_sha256": "2b9b9fc512c34d52b999ed1fd7e01f960f830f3defc5d2241f6e02f8be81ef77",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "checked_at": "2026-11-05"
+      },
+      "processing": "100ms cyclic overlap; constant gain; 48kHz stereo; AAC and Vorbis variants; player crossfade recommended"
+    }
+  ],
+  "logical_count": 12,
+  "sfx_count": 10,
+  "bgm_count": 2,
+  "default_sfx_enabled": false,
+  "default_bgm_enabled": false,
+  "recording_policy": "start cue ends before microphone capture; suspend all playback during recording; stop recording before end cue",
+  "generated_music": false,
+  "actual_microphone_access": false
+}

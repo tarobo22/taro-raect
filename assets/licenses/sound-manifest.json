@@ -1,0 +1,123 @@
+{
+  "name": "여운 · 소프트 버튼 사운드",
+  "version": "1.0.0",
+  "date": "2026-11-05",
+  "direction": "Warm, rounded, quiet UI contacts; short tails and no musical notification melody.",
+  "source": "Original procedural sound design: damped resonant modes and band-limited texture.",
+  "source_code": "tools/make_button_sounds.py",
+  "third_party_audio_samples": [],
+  "logical_count": 4,
+  "audio_assets": [
+    {
+      "id": "soft_tap",
+      "name": "기본 탭",
+      "use": "주요 버튼",
+      "description": "짧고 둥근 중심음. 기본 버튼에 추천합니다.",
+      "file": "audio/wav/soft_tap.wav",
+      "waveform": "previews/soft_tap.svg",
+      "duration_ms": 72,
+      "audible_energy_99_percent_ms": 20.6,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bits": 16,
+      "peak_dbfs": -17.0,
+      "rms_dbfs": -32.68,
+      "clipped_samples": 0,
+      "starts_and_ends_at_zero": true,
+      "recommended_player_gain": 0.6,
+      "sha256": "98659af8be8715c90c6a5336e513bd936f868802244b4e163b25b50bb0fcfc3e",
+      "bytes": 6956
+    },
+    {
+      "id": "light_tap",
+      "name": "가벼운 탭",
+      "use": "보조 버튼·뒤로가기",
+      "description": "더 짧고 가벼운 접촉음입니다.",
+      "file": "audio/wav/light_tap.wav",
+      "waveform": "previews/light_tap.svg",
+      "duration_ms": 46,
+      "audible_energy_99_percent_ms": 14.8,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bits": 16,
+      "peak_dbfs": -20.0,
+      "rms_dbfs": -34.52,
+      "clipped_samples": 0,
+      "starts_and_ends_at_zero": true,
+      "recommended_player_gain": 0.55,
+      "sha256": "5a5b5d228b99cee005354c7ec494666e408277c118737ba430094e163c3544f6",
+      "bytes": 4460
+    },
+    {
+      "id": "soft_select",
+      "name": "선택",
+      "use": "탭·선택 확정",
+      "description": "조금 더 부드러운 잔향으로 선택을 구분합니다.",
+      "file": "audio/wav/soft_select.wav",
+      "waveform": "previews/soft_select.svg",
+      "duration_ms": 96,
+      "audible_energy_99_percent_ms": 24.8,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bits": 16,
+      "peak_dbfs": -18.0,
+      "rms_dbfs": -33.99,
+      "clipped_samples": 0,
+      "starts_and_ends_at_zero": true,
+      "recommended_player_gain": 0.55,
+      "sha256": "a7f2c1f760ef9a289f3d7841489631bd13b30b7e66eaf389749e2256a8c6723e",
+      "bytes": 9260
+    },
+    {
+      "id": "soft_confirm",
+      "name": "완료",
+      "use": "저장·완료 버튼",
+      "description": "두 번의 작은 접촉음으로 완료를 알립니다.",
+      "file": "audio/wav/soft_confirm.wav",
+      "waveform": "previews/soft_confirm.svg",
+      "duration_ms": 156,
+      "audible_energy_99_percent_ms": 70.6,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bits": 16,
+      "peak_dbfs": -18.0,
+      "rms_dbfs": -34.96,
+      "clipped_samples": 0,
+      "starts_and_ends_at_zero": true,
+      "recommended_player_gain": 0.55,
+      "sha256": "9e3106196e2275d0a54d99e1874eeb95be7c8873514812a0e648b2087666c13f",
+      "bytes": 15020
+    }
+  ],
+  "demo": "previews/buttons-demo.mp3",
+  "demo_cues": [
+    {
+      "id": "soft_tap",
+      "name": "기본 탭",
+      "at_ms": 280
+    },
+    {
+      "id": "light_tap",
+      "name": "가벼운 탭",
+      "at_ms": 1554
+    },
+    {
+      "id": "soft_select",
+      "name": "선택",
+      "at_ms": 2776
+    },
+    {
+      "id": "soft_confirm",
+      "name": "완료",
+      "at_ms": 4098
+    }
+  ],
+  "playback": {
+    "default_enabled": false,
+    "gain_control": "player volume",
+    "recording": "Pause UI sound playback during microphone capture.",
+    "event": "Play once per committed button press; never on pointer move.",
+    "yes_no": "Use the same neutral selection sound for both directions."
+  },
+  "implementation_status": "New audio assets and isolated audition gallery only; no product integration."
+}
