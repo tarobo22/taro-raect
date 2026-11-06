@@ -70,7 +70,7 @@ export function Daily({nav}:{nav:Nav}){
  const store=useStore(),config=store.config;const [topic,setTopic]=useState('');
  const {submit,busy,error}=useSubmit(submitDaily);if(!config)return <LoadingConfig/>;
  const current=topic||config.topics[0];
- async function draw(){const result=await submit({day:localDay(),topic:current});if(result){feedback('flip');await store.refresh();nav.push({name:'reading',reading:result});}}
+ async function draw(){const result=await submit({day:localDay(),topic:current});if(result){await store.refresh();nav.push({name:'reading',reading:result});}}
  return <View style={[s.stack,{alignItems:'center'}]}><Copy kind="label" muted>{localDay().replaceAll('-','. ')}</Copy><Copy kind="hero" style={{textAlign:'center'}}>오늘을 위한, 한 장.</Copy><Copy muted style={{textAlign:'center'}}>같은 날, 같은 주제의 카드를 간직해요.</Copy><View style={{paddingVertical:12}}><TarotArt back width={130}/></View>
   <SelectionDial label="오늘의 카드 주제" options={config.topics} value={current} onChange={setTopic}/>
   {error?<Notice error>{error}</Notice>:null}<Button busy={busy} onPress={draw} style={{alignSelf:'stretch'}}>오늘의 카드 열기</Button>
