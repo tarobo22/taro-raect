@@ -1,0 +1,19 @@
+✔ counseling sends only the explicit message contract and a stable idempotency key (15.5571ms)
+✔ account changes invalidate already captured response publishers (0.1848ms)
+✔ temporary drafts survive screen navigation in memory and disappear on account switch (0.2322ms)
+✔ runtime extra owner fields never enter an outgoing message (2.3783ms)
+✔ invalid version 0 is rejected before publishing (0.3874ms)
+✔ invalid version -1 is rejected before publishing (0.1168ms)
+✔ invalid version 1 is rejected before publishing (0.1147ms)
+✔ invalid version 1.5 is rejected before publishing (0.1201ms)
+✔ a card reference cannot masquerade as evidence for a factual claim (0.2264ms)
+✔ private reference URLs are rejected even when the JSON shape is otherwise valid (0.3485ms)
+✔ malformed capabilities cannot enable sending (0.2193ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 281.6013

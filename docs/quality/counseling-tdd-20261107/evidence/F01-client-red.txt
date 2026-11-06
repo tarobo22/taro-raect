@@ -1,0 +1,65 @@
+✖ counseling sends only the explicit message contract and a stable idempotency key (0.5238ms)
+✖ account changes invalidate already captured response publishers (0.0733ms)
+✖ temporary drafts survive screen navigation in memory and disappear on account switch (0.0674ms)
+✖ runtime extra owner fields never enter an outgoing message (1.0571ms)
+✔ invalid version 0 is rejected before publishing (0.7114ms)
+✔ invalid version -1 is rejected before publishing (0.1271ms)
+✔ invalid version 1 is rejected before publishing (0.2614ms)
+✔ invalid version 1.5 is rejected before publishing (0.2904ms)
+✔ a card reference cannot masquerade as evidence for a factual claim (0.1614ms)
+✔ private reference URLs are rejected even when the JSON shape is otherwise valid (0.0938ms)
+✔ malformed capabilities cannot enable sending (0.0967ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 7
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 442.6057
+
+✖ failing tests:
+
+test at tests\counseling-client.test.ts:1:325
+✖ counseling sends only the explicit message contract and a stable idempotency key (0.5238ms)
+  Error: F01 message
+      at CounselingApi.message (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\src\features\counseling\CounselingApi.ts:18:90)
+      at TestContext.<anonymous> (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\tests\counseling-client.test.ts:10:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tests\counseling-client.test.ts:1:1554
+✖ account changes invalidate already captured response publishers (0.0733ms)
+  Error: F01 owner fence
+      at OwnerFence.attach (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\src\features\counseling\CounselingApi.ts:27:29)
+      at TestContext.<anonymous> (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\tests\counseling-client.test.ts:19:37)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tests\counseling-client.test.ts:1:1887
+✖ temporary drafts survive screen navigation in memory and disappear on account switch (0.0674ms)
+  Error: F01 drafts
+      at DraftMemory.attach (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\src\features\counseling\DraftMemory.ts:3:29)
+      at TestContext.<anonymous> (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\tests\counseling-client.test.ts:25:40)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests\counseling-rebuild-api.test.ts:1:745
+✖ runtime extra owner fields never enter an outgoing message (1.0571ms)
+  Error: F01 message
+      at CounselingApi.message (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\src\features\counseling\CounselingApi.ts:18:90)
+      at TestContext.<anonymous> (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\tests\counseling-rebuild-api.test.ts:14:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
