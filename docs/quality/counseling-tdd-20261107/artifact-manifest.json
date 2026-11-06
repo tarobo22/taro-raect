@@ -1,0 +1,133 @@
+{
+  "created_at": "2026-11-06T20:12:13.760903+00:00",
+  "hash_basis": "Git index blob bytes after LF normalization; raw runtime hashes remain in evidence records",
+  "existing_tests_modified": false,
+  "secret_scan_matches": 0,
+  "files": [
+    {
+      "path": "docs/quality/counseling-tdd-20261107/README.md",
+      "bytes": 1273,
+      "sha256": "b425d70a6d32aae34da01a59770db5dc375a1e0a926989b2891c017d142b767f"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/browser-flow.json",
+      "bytes": 476,
+      "sha256": "9635534a110928633dc936680aed023c8ec8eceda2fefa711c4371ad71ee1895"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/build-verification.json",
+      "bytes": 400,
+      "sha256": "88acb34eefe77eac5125fff61d153f441bf9132e6c1b5081ab1ef2539912d812"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/changed-files.txt",
+      "bytes": 2557,
+      "sha256": "7416c667cd7a3756fc8184719bc88444c3a8bd09df31642ded4bbc9872d2cb75"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-green.json",
+      "bytes": 5873,
+      "sha256": "46cecab40c9d05023c2cbf95c55aca556fdeb86ad18e95e70fa2b44fe0abc840"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-green.txt",
+      "bytes": 957,
+      "sha256": "c4eb6a3e6a940d61cf11985f188ea776cf829d44c7c38004d0ddf983827cf4f6"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-red.json",
+      "bytes": 5871,
+      "sha256": "b24009350cd397a25d08402c57b780be9396cbbc6dcf6f27cbf38e4082ef572e"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-red.txt",
+      "bytes": 4165,
+      "sha256": "73be4ac6d0e9357742a728a8d444a412d12a408a19095f7232c44ec1b06dc845"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-regression.json",
+      "bytes": 5818,
+      "sha256": "00ded249a5c1ccb75f00d4e8801368a0d1bf7c4e6cf0d43b6169314283a44bdb"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F01-client-regression.txt",
+      "bytes": 14047,
+      "sha256": "04b4ceb99c15cb7b9f593c2b7c10328eb1ba2f4c733bb925e3d94c5928ac8fd4"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-green.json",
+      "bytes": 5950,
+      "sha256": "c8942da9f48e9661d62afaf27a2bd7dd49f88e83b31ee0f47a8b6498b55f6ce3"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-green.txt",
+      "bytes": 849,
+      "sha256": "efe3b72db8a332d8a5670b69faf8170ffa7ef620820232480b35aded7e13237d"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-red.json",
+      "bytes": 5948,
+      "sha256": "3296706feef7e45f7ff86c48989d0624a53503d7328a10b184ac65e06ed3a5ac"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-red.txt",
+      "bytes": 7932,
+      "sha256": "875f85fae2feba4c692d017e5c5240e7cca1d1f51f86f753dc0936614245c300"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-regression.json",
+      "bytes": 5935,
+      "sha256": "abd729a6583de3752f83b750e297c139646bd9a460f024372886d1b515044b5a"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F02-conversation-regression.txt",
+      "bytes": 14783,
+      "sha256": "c8b3878d934d5e39769fd568e660957c710c7f5ad177b7c13ace0c308056d33b"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-green.json",
+      "bytes": 6048,
+      "sha256": "d0ec2b6e004778ebf03e390204fe07a91e8f16dfdd4837812d660624f271f08f"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-green.txt",
+      "bytes": 218,
+      "sha256": "0e3812eeec0f2e1c5ea432f2884832e39485aa0294bce1e0fe7b3a4266a52edd"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-red.json",
+      "bytes": 6046,
+      "sha256": "a53638d6cc85bb33986d0f718fdfcaa868fa8d3142fefc0b3ceda13bd79dfb5b"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-red.txt",
+      "bytes": 896,
+      "sha256": "4714d2ada4adbcd74cbf96e1c7ad70d9afb924896b355f1729200948f21cd985"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-regression.json",
+      "bytes": 6038,
+      "sha256": "37d2f4a87fc8cacb6cfcef001361a5a1cfb0220698b18823c6ab262a8dc395bd"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/evidence/F03-new-story-regression.txt",
+      "bytes": 14889,
+      "sha256": "f5f5f7531314559030527d43efbd09d1368f85ffcff3ab970b98629dc571fc09"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/existing-tests-audit.json",
+      "bytes": 698,
+      "sha256": "5e27ae021c455039181e11068e1a27b256eef1fd0d5ddf2bcbde662f14a57eed"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/screens/cards-and-advice.png",
+      "bytes": 80489,
+      "sha256": "cffdb51b6fda803dfd900710875d3a97057c23e9121e547e8f4f166f8c3276b3"
+    },
+    {
+      "path": "docs/quality/counseling-tdd-20261107/screens/confirmation.png",
+      "bytes": 33387,
+      "sha256": "4f07871bb480c27ead1b4a835e4a44372b256a7e005c08d1bf51e642dc90f3ba"
+    }
+  ]
+}

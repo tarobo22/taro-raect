@@ -1,0 +1,17 @@
+{
+  "base": "baaef0e6c29d09165bd4990c7f3280df5cceeae4",
+  "backup": "9a0489fefe9438692fb95567140edc8a414dcb8f",
+  "implementation_head": "985a4d1378a4342b9bca66c55f570c43d119a03b",
+  "existing_test_files_preserved": 51,
+  "existing_test_files_changed": [],
+  "new_test_files": [
+    "tests/counseling-controller.test.ts",
+    "tests/counseling-rebuild-api.test.ts",
+    "tests/counseling-reset.test.ts"
+  ],
+  "commits": [
+    "a458d11 feat(counseling): rebuild validated client contracts and private drafts with TDD",
+    "5641eba feat(counseling): rebuild guarded conversation controller through TDD",
+    "985a4d1 feat(counseling): reconnect existing screens to tested conversation state"
+  ]
+}
