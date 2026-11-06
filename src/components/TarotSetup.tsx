@@ -1,12 +1,11 @@
+import {OptionRail} from './OptionRail';
 import React,{useEffect,useRef} from 'react';
 import {Animated,AppState,Platform,Pressable,View,useWindowDimensions} from 'react-native';
 import type {StyleProp,ViewStyle} from 'react-native';
 import {Copy} from './UI';
-import {Icon} from './Icon';
 import {TarotArt} from './TarotArt';
 import {color} from '../design/tokens';
 import {feedback} from '../services/feedback';
-import {dialKeyIndex} from '../features/motion/dial';
 import {useActivityEffect} from '../features/motion/useActivityEffect';
 import type {ExperienceConfig} from '../features/experience/model';
 
@@ -76,31 +75,8 @@ function SetupChoice({label,selected,reduced,onPress,style,children}:{label:stri
   </Animated.View>;
 }
 
-export function CompactTopicPicker({options,value,onChange,reduced}:{options:string[];value:string;onChange:(value:string)=>void;reduced:boolean}){
-  const index=Math.max(0,options.indexOf(value));
-  const largeText=useWindowDimensions().fontScale>1.3;
-  function step(next:number){const target=Math.max(0,Math.min(options.length-1,next));if(options[target]&&target!==index){feedback('tick');onChange(options[target]);}}
-  const keyboard=Platform.OS==='web'?{onKeyDown:(event:{nativeEvent:{key?:string};preventDefault:()=>void})=>{
-    const next=dialKeyIndex(event.nativeEvent.key||'',index,options.length,false);if(next!==null){event.preventDefault();step(next);}
-  }}:{};
-  return <View>
-    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-      <Copy kind="small" style={{fontWeight:'600'}}>주제</Copy>
-      <View style={{flexDirection:'row',alignItems:'center'}}>
-        <Pressable accessibilityRole="button" accessibilityLabel="타로 주제 이전" accessibilityState={{disabled:index===0}} disabled={index===0} onPress={()=>step(index-1)} style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',opacity:index===0?.35:1}}><Icon name="back" size={17}/></Pressable>
-        <View {...keyboard} accessible focusable accessibilityRole="adjustable" accessibilityLabel="타로 주제"
-          accessibilityValue={{min:0,max:Math.max(0,options.length-1),now:index,text:value+', '+(index+1)+' / '+options.length}}
-          aria-valuemin={0} aria-valuemax={Math.max(0,options.length-1)} aria-valuenow={index} aria-valuetext={value+', '+(index+1)+' / '+options.length}
-          accessibilityActions={[{name:'increment',label:'다음'},{name:'decrement',label:'이전'}]}
-          onAccessibilityAction={event=>step(index+(event.nativeEvent.actionName==='decrement'?-1:1))}
-          style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'}}><Copy kind="label" muted>{index+1} / {options.length}</Copy></View>
-        <Pressable accessibilityRole="button" accessibilityLabel="타로 주제 다음" accessibilityState={{disabled:index===options.length-1}} disabled={index===options.length-1} onPress={()=>step(index+1)} style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',opacity:index===options.length-1?.35:1}}><Icon name="arrow" size={17}/></Pressable>
-      </View>
-    </View>
-    <View style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>{options.map(option=><SetupChoice key={option} label={option} selected={value===option} reduced={reduced} onPress={()=>onChange(option)} style={{flexBasis:largeText?'47%':'31%',flexGrow:1}}>
-      <Copy kind="small" style={{fontWeight:value===option?'600':'400',color:value===option?color.action:color.muted,textAlign:'center'}}>{value===option?'✓ ':''}{option}</Copy>
-    </SetupChoice>)}</View>
-  </View>;
+export function CompactTopicPicker({options,value,onChange}:{options:string[];value:string;onChange:(value:string)=>void;reduced:boolean}){
+ return <View style={{gap:8}}><Copy kind="small" style={{fontWeight:'600'}}>주제</Copy><OptionRail options={options} value={value} onChange={onChange} label="타로 주제"/></View>;
 }
 
 export function TarotDepthPicker({spreads,value,onChange,reduced}:{spreads:ExperienceConfig['spreads'];value:string;onChange:(value:string)=>void;reduced:boolean}){
