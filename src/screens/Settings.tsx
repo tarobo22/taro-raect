@@ -9,9 +9,11 @@ import {release} from '../domain/content';
 import {voiceAvailable} from '../services/voice';
 import {checkAndDownload,applyUpdate,getUpdateNotice,subscribeUpdateNotice,isUpdateReady} from '../services/updates';
 import type {Nav} from '../navigation';
+import {useAdminEligibility} from '../features/admin/useAdmin';
 
 export function Settings({nav}:{nav:Nav}){
  const store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
+ const admin=useAdminEligibility(store.bootstrap?.user.id);
  useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>{setStatus(getUpdateNotice());setDownloaded(isUpdateReady());});},[]);
  async function update(){
   if(Platform.OS==='web'){setStatus('업데이트 확인은 Android 앱에서 사용할 수 있어요.');return;}
@@ -41,6 +43,7 @@ export function Settings({nav}:{nav:Nav}){
   <Panel style={{gap:8}}><Copy kind="subtitle">음성으로 이야기하기</Copy><View style={s.wrap}><Chip selected={store.voiceMode==='device'} onPress={()=>store.setVoiceMode('device')}>기기 음성 입력</Chip><Chip selected={store.voiceMode==='cloud'} onPress={()=>store.setVoiceMode('cloud')}>클라우드 음성 파일</Chip></View><Copy kind="small" muted>클라우드 선택은 별도 동의를 대신하지 않아요. 파일 선택과 전송은 입력 화면에서 직접 진행해요.</Copy><Copy kind="small" muted>{voice===null?'기기의 음성 입력을 확인하고 있어요.':voice?'마이크를 누를 때만 시작해요. 글로 옮겨진 내용을 확인한 뒤 직접 보내 주세요.':'이 기기에서는 글로 이야기할 수 있어요. 음성인식 서비스가 있는 기기에서 음성 입력을 지원해요.'}</Copy></Panel>
   <Panel style={{gap:10}}><Copy kind="subtitle">내 이야기와 GPT</Copy><Copy kind="small" muted>{store.config?.aiAvailable?'GPT에는 직접 보낸 질문·선택·최근 대화가 전달돼요. 마음기록은 별도 동의 후 직접 고른 기록만 요청에 포함해요.':'현재 기본 가이드를 이용할 수 있어요. GPT 연결이 준비되면 대화 화면에서 직접 선택할 수 있어요.'}</Copy><Copy kind="small" muted>여운의 이야기는 진단이나 치료를 대신하지 않아요.</Copy></Panel>
   <Panel style={{gap:12}}><Copy kind="subtitle">여운의 새로운 이야기</Copy><Copy kind="small" muted>앱을 다시 설치하지 않고 새로운 화면과 이야기를 받을 수 있어요.</Copy>{status?<Notice>{status}</Notice>:null}<Button secondary busy={busy} onPress={downloaded?apply:update}>{downloaded?'지금 다시 열어 적용하기':'업데이트 확인'}</Button></Panel>
+  {admin?.eligible?<Panel style={{gap:10}}><Copy kind="subtitle">운영 도구</Copy><Copy kind="small" muted>허용된 역할로만 짧은 운영 세션을 열어요.</Copy><Button secondary onPress={()=>nav.push({name:'admin'})}>운영관리</Button></Panel>:null}
   <Copy kind="small" muted style={{textAlign:'center'}}>여운 {release.version} · {release.label}</Copy>
   <Modal visible={faces} animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}><ScrollView style={{backgroundColor:color.paper}} contentContainerStyle={{padding:24,paddingTop:52,gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}><Copy kind="title">상황에 맞게, 따뜻하게.</Copy><Copy muted>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</Copy><View style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><View key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><Copy kind="label">{expressionNames[e]}</Copy></View>)}</View><Button onPress={()=>setFaces(false)}>닫기</Button></ScrollView></Modal>
  </View>;
