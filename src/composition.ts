@@ -2,6 +2,7 @@ import {runtime} from './config/runtime';
 import {FetchClient} from './infrastructure/http/FetchClient';
 import {GuestSession} from './infrastructure/http/GuestSession';
 import {JournalApi} from './features/journal/JournalApi';
+import {JournalSourceApi} from './features/journal/JournalSourceApi';
 import {SaveJournal} from './features/journal/saveJournal';
 import {ExperienceApi} from './features/experience/ExperienceApi';
 import type {ReadingDraft,CounselDraft} from './features/experience/model';
@@ -22,6 +23,8 @@ export const http: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.tim
   () => session.token(), (url, options) => fetch(url, options));
 export const journalRepository = new JournalApi(http, runtime.paths.journal,'/v2/journal-entries');
 export const getJournalEntry=(id:string)=>journalRepository.get(id);
+const journalSourceRepository=new JournalSourceApi(http);
+export const getJournalSource=(id:string)=>journalSourceRepository.get(id);
 export const createJournalSaver = () => new SaveJournal(journalRepository,undefined,journalRetries);
 export const createJournalDraft=(initial:JournalDraft)=>new JournalDraftSession(initial,journalDraftStore(initial));
 export const experienceRepository=new ExperienceApi(http,runtime.paths.experience);
