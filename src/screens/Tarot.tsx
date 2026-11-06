@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {Animated,Platform,Pressable,TextInput,View,useWindowDimensions} from 'react-native';
-import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
+import {Copy,Panel,Button,Notice,s} from '../components/UI';
 import {Icon} from '../components/Icon';
 import {TarotArt,FlippingCard} from '../components/TarotArt';
 import {SelectionDial} from '../components/SelectionDial';
@@ -15,6 +15,7 @@ import {Nav,Route} from '../navigation';
 import AsyncStorage from '../features/account/storage';
 import {DeckChoice,DrawV2,StartThree,ResourceDelete} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
+import {TarotSetupIntro,CompactTopicPicker,TarotDepthPicker} from '../components/TarotSetup';
 
 function shuffled(ids:number[]){const result=[...ids];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
 function LoadingConfig(){const store=useStore();return <View style={s.stack}><Notice error={!!store.error}>{store.error||'카드와 이야기를 준비하고 있어요.'}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></View>;}
@@ -30,15 +31,18 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
  useEffect(()=>{if(hydrated){nav.update({topic,spreadId,question});void draftSession.write(()=>AsyncStorage.multiSet([['yeoun.tarot.question',question],['yeoun.tarot.options',JSON.stringify({topic,spreadId})]])).catch(()=>setDraftError('질문을 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));}},[topic,spreadId,question,hydrated]);
  if(!config)return <LoadingConfig/>;
  const selectedTopic=topic||config.topics[0],spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
- return <View style={s.stack}>
-  <Copy kind="hero">마음이 가는 쪽으로.</Copy><Copy muted>질문을 떠올리고, 나에게 맞는 리딩을 골라요.</Copy>
-  <SelectionDial label="타로 주제" options={config.topics} value={selectedTopic} onChange={setTopic}/>
-  <View style={s.wrap}>{config.topics.map(t=><Chip key={t} selected={selectedTopic===t} onPress={()=>setTopic(t)}>{t}</Chip>)}</View>
-  <FieldLabel>카드로 살펴보는 깊이</FieldLabel><View style={s.wrap}>{Object.entries(config.spreads).map(([id,item])=><Chip key={id} selected={spreadId===id} onPress={()=>setSpread(id)}>{item.positions.length}장 · {item.name}</Chip>)}</View>
-  <FieldLabel>나의 질문 · 선택 사항</FieldLabel><TextInput accessibilityLabel="타로 질문 입력" value={question} onChangeText={setQuestion} multiline maxLength={config.maxTarotQuestion} placeholder="내 마음을 어떻게 전하면 좋을까요?" placeholderTextColor={color.muted} style={s.input}/>
-  <View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{question.length} / {config.maxTarotQuestion}</Copy><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})} value={question} onText={setQuestion} onStatus={setVoice}/></View>
-  {voice?<Notice>{voice}</Notice>:null}{draftError?<Notice error>{draftError}</Notice>:null}<DeckChoice nav={nav}/><Button secondary onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})}>클라우드 음성 파일로 질문 쓰기</Button>{spread.positions.length===3?<StartThree nav={nav} topic={selectedTopic} question={question}/>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
-  <Panel tone={color.sage}><Copy kind="small" muted>미래를 정해 놓은 답 대신, 내 마음을 다른 시선으로 보는 힌트로 만나 주세요.</Copy></Panel>
+ return <View testID="tarot-setup" style={{gap:12}}>
+  <TarotSetupIntro count={spread.positions.length} reduced={store.reduced}/>
+  <CompactTopicPicker options={config.topics} value={selectedTopic} onChange={setTopic} reduced={store.reduced}/>
+  <TarotDepthPicker spreads={config.spreads} value={spreadId} onChange={setSpread} reduced={store.reduced}/>
+  <View style={{gap:6}}>
+   <View style={{flexDirection:'row',alignItems:'center',gap:6,flexWrap:'wrap'}}><Copy kind="small" style={{flex:1,fontWeight:'600'}}>질문 (선택)</Copy><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})} value={question} onText={setQuestion} onStatus={setVoice}/><Pressable accessibilityRole="button" accessibilityLabel="클라우드 음성 파일로 질문 쓰기" onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})} style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',borderRadius:12,backgroundColor:color.sage}}><Icon name="book" size={17}/><Copy kind="label" muted>파일</Copy></Pressable></View>
+   <TextInput accessibilityLabel="타로 질문 입력" value={question} onChangeText={setQuestion} multiline maxLength={config.maxTarotQuestion} placeholder="지금 어떤 마음인가요?" placeholderTextColor={color.muted} style={[s.input,{height:64,minHeight:64,maxHeight:88,padding:12,fontSize:14,lineHeight:21}]}/>
+   <Copy kind="label" muted style={{textAlign:'right'}}>{question.length} / {config.maxTarotQuestion}</Copy>
+  </View>
+  {voice?<Notice>{voice}</Notice>:null}{draftError?<Notice error>{draftError}</Notice>:null}
+  <DeckChoice nav={nav} compact/>
+  {spread.positions.length===3?<StartThree nav={nav} topic={selectedTopic} question={question}/>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
  </View>;
 }
 
