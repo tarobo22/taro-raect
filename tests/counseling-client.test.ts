@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {CounselingApi,OwnerFence} from '../src/features/counseling/CounselingApi';
+import {DraftMemory} from '../src/features/counseling/DraftMemory';
 
 test('counseling sends only the explicit message contract and a stable idempotency key',async()=>{
  const calls:{path:string;options?:RequestInit}[]=[];
@@ -18,4 +19,10 @@ test('account changes invalidate already captured response publishers',()=>{
  const fence=new OwnerFence();fence.attach('A');const current=fence.capture();
  assert.equal(fence.valid(current),true);fence.attach('B');assert.equal(fence.valid(current),false);
  const next=fence.capture();fence.dispose();assert.equal(fence.valid(next),false);
+});
+
+test('temporary drafts survive screen navigation in memory and disappear on account switch',()=>{
+ const memory=new DraftMemory();memory.attach('A');memory.write('new',{text:'A_PRIVATE_DRAFT',sessionId:'a-session'});
+ assert.equal(memory.read()?.text,'A_PRIVATE_DRAFT');memory.attach('B');assert.equal(memory.read(),undefined);
+ memory.write('new',{text:'B draft'});memory.clear();assert.equal(memory.read(),undefined);
 });
