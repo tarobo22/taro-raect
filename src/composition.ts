@@ -15,6 +15,7 @@ import type {JournalDraft} from './features/journal/model';
 import {Platform} from 'react-native';
 import {P0Api} from './features/p0/P0Api';
 import {P1Api} from './features/p1/P1Api';
+import {StoryApi} from './features/story/StoryApi';
 import {downloadPrivate} from './services/files';
 
 export const session: GuestSession = new GuestSession({read: readSession, write: writeSession,clear:clearSession},
@@ -35,5 +36,6 @@ export const submitCounsel=(draft:CounselDraft,id:string)=>experienceRepository.
 export const submitDaily=(draft:{day:string;topic:string},_id:string)=>experienceRepository.daily(draft.day,draft.topic);
 export const p0Repository=new P0Api(http);
 export const p1Repository=new P1Api(http);
+export const storyRepository=new StoryApi(http);
 export const p0Receipts=(name:string)=>operationReceipts('yeoun.p0.attempt.'+name);
 export const downloadExport=async(id:string)=>downloadPrivate(runtime.apiBaseUrl+'/v2/data-requests/'+encodeURIComponent(id)+'/download',await session.token(),'yeoun-export-'+id+'.zip',64*1024*1024);
