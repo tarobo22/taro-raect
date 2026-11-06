@@ -31,8 +31,8 @@ export function CardReveal({owner,eventKey,ready,failed=false,reduced=false,dela
  },[ledger,eventKey,ready,failed,reduced,delay,turn],ready||failed);
  const staticFront=failed||!eventKey;
  if(staticFront)return <View style={{width}}>{front}</View>;
- return <View style={{width,height}}><Animated.View testID="card-reveal" style={{width,height,opacity:reduced?turn:1,transform:[{perspective:900},{rotateY:reduced?'180deg':turn.interpolate({inputRange:[0,1],outputRange:['0deg','180deg']})}]}}>
-  <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',backfaceVisibility:'hidden',width,height}}>{back}</View>
-  <View style={{backfaceVisibility:'hidden',transform:[{rotateY:'180deg'}],width,height}}>{front}</View>
- </Animated.View></View>;
+ return <View testID="card-reveal" style={{width,height}}>
+  <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',backfaceVisibility:'hidden',width,height,opacity:reduced?0:1,transform:[{perspective:900},{rotateY:turn.interpolate({inputRange:[0,1],outputRange:['0deg','180deg']})}]}}>{back}</Animated.View>
+  <Animated.View testID="card-reveal-front" style={{position:'absolute',backfaceVisibility:'hidden',width,height,opacity:turn.interpolate({inputRange:[0,1],outputRange:reduced?[0,1]:[1,1]}),transform:[{perspective:900},{rotateY:turn.interpolate({inputRange:[0,1],outputRange:reduced?['0deg','0deg']:['180deg','360deg']})}]}}>{front}</Animated.View>
+ </View>;
 }
