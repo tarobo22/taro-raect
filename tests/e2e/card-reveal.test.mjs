@@ -1,0 +1,25 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {enterGuest} from './onboarding.mjs';
+const {chromium}=await import(process.env.YEOUN_PLAYWRIGHT_MODULE||'playwright');
+test('confirmed daily card decodes a hash-matched bundled image without external assets; reentry stays revealed',{timeout:30000},async t=>{
+ const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
+ const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'no-preference'});page.setDefaultTimeout(7000);
+ const external=[];await page.route('https://**/*',route=>{external.push(route.request().url());return route.abort();});
+ await page.goto(process.env.YEOUN_WEB_URL||'http://127.0.0.1:8827');await enterGuest(page);
+ await page.getByRole('button',{name:/오늘의 한 장/}).click();await page.getByRole('button',{name:'오늘의 카드 열기',exact:true}).click();
+ const frame=page.getByTestId('card-reveal').first();await frame.waitFor();
+ await frame.locator('img').evaluate(image=>image.decode());
+ await page.waitForFunction(()=>document.querySelector('[data-testid="card-reveal"]')?.style.transform.includes('180deg'));
+ const imageURL=await frame.locator('img').getAttribute('src');assert.ok(imageURL.includes('/assets/'),imageURL);
+ assert.equal(external.length,0);
+ const stored=await page.evaluate(()=>Object.entries(localStorage).filter(([key])=>key.includes('revealed-cards')));
+ assert.ok(stored.length>0);
+ const card=page.getByRole('button',{name:/카드 상세$/}).first();await card.click();
+ await page.getByRole('button',{name:'뒤로가기',exact:true}).click();await frame.waitFor();
+ await frame.locator('img').evaluate(image=>image.decode());
+ await page.waitForFunction(()=>document.querySelector('[data-testid="card-reveal"]')?.style.transform.includes('180deg'));
+ assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage).filter(([key])=>key.includes('revealed-cards'))),stored);
+ const out=process.env.YEOUN_TEST_ARTIFACTS||'.local/card-reveal';await mkdir(out,{recursive:true});await page.waitForTimeout(250);await page.screenshot({path:out+'/card-reveal-bundled.png',fullPage:true});
+});

@@ -3,6 +3,10 @@ import {ActivityIndicator,Image,Linking,TextInput,View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
 import {Character} from '../components/Character';
+import {CardReveal} from '../components/CardReveal';
+import {TarotArt} from '../components/TarotArt';
+import {decodedImage} from '../services/imageReady';
+import {cardAssetSource} from '../components/cardAssetSource';
 import {color} from '../design/tokens';
 import {useStore} from '../state/store';
 import {downloadExport,p0Repository} from '../composition';
@@ -19,10 +23,17 @@ import type {AudioFile} from '../services/fileTypes';
 import type {Nav,Route} from '../navigation';
 
 export function LoadState({busy,error,reload}:{busy:boolean;error:string;reload:()=>void}){return <>{busy?<ActivityIndicator color={color.action}/>:null}{error?<><Notice error>{error}</Notice><Button secondary onPress={reload}>다시 조회</Button></>:null}</>;}
-export function AssetImage({asset,label,width=150}:{asset:Asset|null;label:string;width?:number}){
- const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0);
- useEffect(()=>{setFailed(false);setAttempt(0);},[asset?.id]);
- return <View style={{alignItems:'center',gap:8}}>{asset&&!failed?<Image key={attempt} source={{uri:asset.url}} accessibilityLabel={label} resizeMode="contain" onError={()=>setFailed(true)} style={{width,height:width*Math.min(2,asset.height/asset.width),maxHeight:400,borderRadius:12}}/>:<Notice>{asset?'카드 원본을 불러오지 못했어요.':'이 카드의 이미지가 아직 준비되지 않았어요.'}</Notice>}{failed?<Button secondary onPress={()=>{setFailed(false);setAttempt(v=>v+1);}}>이미지 다시 불러오기</Button>:null}</View>;
+export function AssetImage({asset,label,width=150,onReady,onFailure}:{asset:Asset|null;label:string;width?:number;onReady?:()=>void;onFailure?:()=>void}){
+ const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0),generation=useRef(0);
+ useEffect(()=>{generation.current++;setFailed(false);setAttempt(0);return()=>{generation.current++;};},[asset?.id]);
+ async function loaded(){if(!asset||!onReady)return;const current=generation.current;try{const source=cardAssetSource(asset),uri=source?.uri||Image.resolveAssetSource(source)?.uri;if(uri)await decodedImage(uri);if(current===generation.current)onReady();}catch{if(current===generation.current){setFailed(true);onFailure?.();}}}
+ return <View style={{alignItems:'center',gap:8}}>{asset&&!failed?<Image key={asset.id+':'+attempt} source={cardAssetSource(asset)} accessibilityLabel={label} resizeMode="contain" onLoad={()=>void loaded()} onError={()=>{setFailed(true);onFailure?.();}} style={{width,height:width*Math.min(2,asset.height/asset.width),maxHeight:400,borderRadius:12}}/>:<Notice>{asset?'카드 원본을 불러오지 못했어요.':'이 카드의 이미지가 아직 준비되지 않았어요.'}</Notice>}{failed?<Button secondary onPress={()=>{setFailed(false);setAttempt(v=>v+1);}}>이미지 다시 불러오기</Button>:null}</View>;
+}
+export function RevealingAssetImage({asset,label,eventKey,width=100,delay=0}:{asset:Asset|null;label:string;eventKey:string;width?:number;delay?:number}){
+ const store=useStore(),[ready,setReady]=useState(false),[failed,setFailed]=useState(false);
+ useEffect(()=>{setReady(false);setFailed(false);},[asset?.id]);
+ return <CardReveal owner={store.bootstrap?.user.id||'local'} eventKey={asset?eventKey:undefined} ready={ready} failed={failed||!asset} reduced={store.reduced} delay={delay} width={width} height={asset?width*Math.min(2,asset.height/asset.width):width*1.68}
+  back={<TarotArt back width={width}/>} front={<AssetImage asset={asset} label={label} width={width} onReady={()=>{setFailed(false);setReady(true);}} onFailure={()=>setFailed(true)}/>}/>;
 }
 function SourceLink({url,label}:{url:string|null;label:string}){const [error,setError]=useState('');return <>{url&&/^https?:\/\//i.test(url)?<Button secondary onPress={()=>{void Linking.openURL(url).catch(()=>setError('원본 링크를 열지 못했어요. 잠시 뒤 다시 시도해 주세요.'));}}>{label}</Button>:<Copy kind="small" muted>{label} · 원본 링크 없음</Copy>}{error?<Notice error>{error}</Notice>:null}</>;}
 
