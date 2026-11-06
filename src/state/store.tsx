@@ -23,7 +23,7 @@ interface State{
  contextVersions:Record<string,number>;contextError:string;setContextSelection:(entries:{id:string;version:number}[])=>void;recordFilter:RecordFilter;setRecordFilter:(filter:RecordFilter)=>void;recordDate:string;setRecordDate:(date:string)=>void;
  completeErasure:(receipt:DataReceipt)=>Promise<void>;
  journalPolicy:JournalPolicy|null;config:ExperienceConfig|null;entries:Entry[];readings:Reading[];counsels:Counsel[];
- loading:boolean;error:string;refresh:()=>Promise<void>;tone:Tone;setTone:(v:Tone)=>void;
+ recordsRevision:number;loading:boolean;error:string;refresh:()=>Promise<void>;tone:Tone;setTone:(v:Tone)=>void;
  reduced:boolean;setReduced:(v:boolean)=>void;draft:string;setDraft:(v:string)=>void;
  sensory:SensoryPreferences;setSensory:(v:SensoryPreferences)=>void;
 }
@@ -40,6 +40,7 @@ export function Store({children}:{children:React.ReactNode}){
  const [entries,setEntries]=useState<Entry[]>([]),[readings,setReadings]=useState<Reading[]>([]),[counsels,setCounsels]=useState<Counsel[]>([]);
  const [journalPolicy,setJournalPolicy]=useState<JournalPolicy|null>(null),[config,setConfig]=useState<ExperienceConfig|null>(null);
  const [loading,setLoading]=useState(true),[error,setError]=useState(''),[tone,setToneState]=useState<Tone>('warm');
+ const [recordsRevision,setRecordsRevision]=useState(0);
  const [reduced,setReducedState]=useState(false),[draft,setDraftState]=useState('');
  const [sensory,setSensoryState]=useState<SensoryPreferences>({...defaultSensory});
  const [voiceMode,setVoiceModeState]=useState<'device'|'cloud'>('device'),[preferenceBusy,setPreferenceBusy]=useState(false),[preferenceError,setPreferenceError]=useState('');
@@ -67,7 +68,7 @@ export function Store({children}:{children:React.ReactNode}){
   setLoading(true);
   const next=await dashboard.load();
   if(!next)return;
-  setEntries(next.entries);setReadings(next.readings);setCounsels(next.counsels);
+  setEntries(next.entries);setReadings(next.readings);setCounsels(next.counsels);setRecordsRevision(value=>value+1);
   setJournalPolicy(next.journalPolicy);setConfig(next.config);
   setError(Object.values(next.errors).join('\n'));setLoading(false);
  }
@@ -94,6 +95,6 @@ export function Store({children}:{children:React.ReactNode}){
  const setDraft=(v:string)=>{setDraftState(v);AsyncStorage.setItem('yeoun.draft',v).catch(()=>{});};
  const setSensory=(v:SensoryPreferences)=>{configureFeedback(v);setSensoryState(v);AsyncStorage.setItem('yeoun.sensory',JSON.stringify(v)).catch(()=>{});};
  useEffect(()=>()=>{dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;contextRevision.current++;},[dashboard,preferenceWriter]);
- return <Context.Provider value={{contextVersions,contextError,setContextSelection,recordFilter,setRecordFilter,recordDate,setRecordDate,voiceMode,setVoiceMode,preferenceBusy,preferenceError,retryPreferences,sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,completeErasure,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
+ return <Context.Provider value={{recordsRevision,contextVersions,contextError,setContextSelection,recordFilter,setRecordFilter,recordDate,setRecordDate,voiceMode,setVoiceMode,preferenceBusy,preferenceError,retryPreferences,sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,completeErasure,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store provider is required');return value;}

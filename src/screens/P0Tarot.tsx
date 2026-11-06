@@ -9,6 +9,7 @@ import {CardSlotDial} from '../components/CardSlotDial';
 import {useStore} from '../state/store';
 import {p0Repository,experienceRepository} from '../composition';
 import {useP0Pages} from '../features/p0/useP0Pages';
+import {usePageExpansion} from '../features/p0/PageMemoryCache';
 import {recordDay} from '../features/p0/selection';
 import {useP0Mutation,useP0Read} from '../features/p0/useP0';
 import {currentConsent,topics} from '../features/p0/model';
@@ -52,17 +53,17 @@ export function ResourceDelete({kind,id,nav,onDeleted}:{kind:'reading'|'conversa
 }
 export function V2Records({nav,filter='전체',date=''}:{nav:Nav;filter?:RecordFilter;date?:string}){return <View style={s.stack}>{filter==='전체'||filter==='마음'?<JournalHistory nav={nav} date={date}/>:null}{filter==='전체'||filter==='타로'?<ReadingHistory nav={nav} date={date}/>:null}{filter==='전체'||filter==='대화'?<ConversationHistory nav={nav} date={date}/>:null}</View>;}
 function ReadingHistory({nav,date}:{nav:Nav;date:string}){
- const store=useStore(),pages=useP0Pages(cursor=>p0Repository.readings(cursor),[date]);
+ const store=useStore(),pages=useP0Pages(cursor=>p0Repository.readings(cursor),[date],'readings');
  const items=pages.items.filter(r=>!date||recordDay(r.created_at,store.bootstrap!.user.timezone,r.local_day)===date);
  return <View style={s.stack}><LoadState {...pages} reload={pages.reload}/>{items.map(r=><Panel key={r.id} style={{gap:10}}><Button secondary onPress={()=>nav.push(r.state==='draft'?{name:'draw',readingV2:r}:{name:'reading-v2',readingId:r.id})}>{r.local_day||recordDay(r.created_at,store.bootstrap!.user.timezone)} · {r.selected_cards.map(c=>c.card.name_ko).join(' · ')||'이어갈 타로'}</Button><ResourceDelete kind="reading" id={r.id} nav={nav} onDeleted={pages.reload}/></Panel>)}{!pages.busy&&!items.length?<Notice>이 날짜에 표시할 타로 기록이 없어요.</Notice>:null}{pages.next_cursor?<Button secondary busy={pages.busy} onPress={pages.more}>이전 타로 기록 더 보기</Button>:null}</View>;
 }
 function ConversationHistory({nav,date}:{nav:Nav;date:string}){
- const store=useStore(),pages=useP0Pages(cursor=>p0Repository.conversations(cursor),[date]);const items=pages.items.filter(c=>!date||recordDay(c.created_at,store.bootstrap!.user.timezone)===date);
+ const store=useStore(),pages=useP0Pages(cursor=>p0Repository.conversations(cursor),[date],'conversations');const items=pages.items.filter(c=>!date||recordDay(c.created_at,store.bootstrap!.user.timezone)===date);
  return <View style={s.stack}><LoadState {...pages} reload={pages.reload}/>{items.map(c=><Panel key={c.id} style={{gap:10}}><ConversationRecord id={c.id} label={recordDay(c.created_at,store.bootstrap!.user.timezone)+' · '+(topics.find(t=>t[0]===c.topic)?.[1]||'대화')+(c.state==='closed'?' · 종료됨':'')} nav={nav}/><ResourceDelete kind="conversation" id={c.id} nav={nav} onDeleted={pages.reload}/></Panel>)}{!pages.busy&&!items.length?<Notice>이 날짜에 표시할 대화 기록이 없어요.</Notice>:null}{pages.next_cursor?<Button secondary busy={pages.busy} onPress={pages.more}>이전 대화 기록 더 보기</Button>:null}</View>;
 }
-function ConversationRecord({id,label,nav}:{id:string;label:string;nav:Nav}){const [open,setOpen]=useState(false),pages=useP0Pages(cursor=>open?p0Repository.turns(id,cursor):Promise.resolve({items:[],next_cursor:null}),[open,id]);return <><Button secondary onPress={()=>setOpen(v=>!v)}>{label} · 대화 보기</Button>{open?<><LoadState {...pages} reload={pages.reload}/>{pages.items.map(turn=><Button key={turn.id} secondary onPress={()=>nav.push({name:'turn',conversationId:id,turnId:turn.id})}>{turn.text.slice(0,50)||'선택으로 전한 마음'} · {turn.state}</Button>)}{pages.next_cursor?<Button secondary busy={pages.busy} onPress={pages.more}>이 대화의 이전 답변 더 보기</Button>:null}</>:null}</>;}
+function ConversationRecord({id,label,nav}:{id:string;label:string;nav:Nav}){const [open,setOpen]=usePageExpansion('conversation:'+id),pages=useP0Pages(cursor=>open?p0Repository.turns(id,cursor):Promise.resolve({items:[],next_cursor:null}),[open,id],'turns');return <><Button secondary onPress={()=>setOpen(v=>!v)}>{label} · 대화 보기</Button>{open?<><LoadState {...pages} reload={pages.reload}/>{pages.items.map(turn=><Button key={turn.id} secondary onPress={()=>nav.push({name:'turn',conversationId:id,turnId:turn.id})}>{turn.text.slice(0,50)||'선택으로 전한 마음'} · {turn.state}</Button>)}{pages.next_cursor?<Button secondary busy={pages.busy} onPress={pages.more}>이 대화의 이전 답변 더 보기</Button>:null}</>:null}</>;}
 function JournalHistory({nav,date}:{nav:Nav;date:string}){
- const store=useStore(),pages=useP0Pages(cursor=>p0Repository.journals(cursor,date?{from:date,to:date}:{}),[date]);
+ const store=useStore(),pages=useP0Pages(cursor=>p0Repository.journals(cursor,date?{from:date,to:date}:{}),[date],'journals');
  const rows=pages.error?store.entries.filter(e=>!date||e.day===date):pages.items.map(e=>({id:e.id,day:e.local_day,mood:journalMoodLabel(e.mood,store.journalPolicy),body:e.body,version:e.version,createdAt:e.created_at,updatedAt:e.updated_at,...(e.source_reading_id?{sourceReadingId:e.source_reading_id,apiVersion:2 as const}:{}),...(e.source_turn_id?{sourceTurnId:e.source_turn_id,apiVersion:2 as const}:{})}));
  return <View style={s.stack}><LoadState {...pages} reload={pages.reload}/>{rows.map(e=><Pressable key={e.id} accessibilityRole="button" onPress={()=>nav.push({name:'entry',entry:e})}><Panel style={{gap:8}}><Copy kind="label" muted>마음 · {e.day}</Copy><Copy kind="subtitle">{e.mood}</Copy><Copy kind="small" muted>{e.body.slice(0,78)||'마음만 남겨도 괜찮아요.'}</Copy></Panel></Pressable>)}{!pages.busy&&!rows.length?<Notice>이 날짜에 표시할 마음기록이 없어요.</Notice>:null}{pages.next_cursor?<Button secondary busy={pages.busy} onPress={pages.more}>이전 마음기록 더 보기</Button>:null}</View>;
 }
