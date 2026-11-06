@@ -44,6 +44,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
  }
  const canChoose=!busy&&!response&&!choicesComplete;
  return <View style={s.stack}>
+  <Button secondary onPress={()=>nav.push({name:'counseling',initialText:question})}>타로와 함께 마음 이야기</Button>
   <OptionRail options={['다정하게','기가차드 모드']} value={store.tone==='warm'?'다정하게':'기가차드 모드'} onChange={value=>store.setTone(value==='다정하게'?'warm':'giga')} label="대화 말투"/>
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
   {response?<><View style={{alignItems:'center'}}><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={150} framed={false}/></View><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>

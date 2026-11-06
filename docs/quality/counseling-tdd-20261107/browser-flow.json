@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-06T20:04:56.133Z",
+  "provider": "explicit synthetic fixture, not GPT",
+  "environment": "React production build -> FastAPI worker -> isolated PostgreSQL",
+  "checks": [
+    "guest and explicit test consent",
+    "message queued then understanding confirmation",
+    "zero drawn cards before confirmation",
+    "three server-drawn cards with advice",
+    "new story clears old state"
+  ],
+  "page_errors": [],
+  "real_gpt_calls": 0,
+  "layout_tests": 0
+}

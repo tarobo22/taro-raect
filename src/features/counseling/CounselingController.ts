@@ -109,5 +109,10 @@ export class CounselingController{
    this.patch({value:null,text:'',pending:false,busy:false,error:''});return true;}
   catch(error){if(this.fence.valid(epoch))this.patch({error:message(error)});return false;}
  }
+ startNew(){
+  this.fence.dispose();this.fence.attach(this.owner);this.attempt=undefined;this.restore=undefined;
+  this.drafts.reset('new');this.draftKey='new';this.creation=this.nextId();
+  this.patch({...empty(),caps:this.state.caps});
+ }
  dispose(){this.fence.dispose();this.attempt=undefined;this.listeners.clear();}
 }

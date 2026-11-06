@@ -1,0 +1,19 @@
+✖ starting a new story invalidates an in-flight response and allocates a fresh creation key (1.4297ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 250.3006
+
+✖ failing tests:
+
+test at tests\counseling-reset.test.ts:1:328
+✖ starting a new story invalidates an in-flight response and allocates a fresh creation key (1.4297ms)
+  Error: F03 new conversation
+      at CounselingController.startNew (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\src\features\counseling\CounselingController.ts:112:19)
+      at TestContext.<anonymous> (C:\Users\chang\Documents\ChatGPT\0915 2\output\yeoun-counseling-tdd-20261107\web\tests\counseling-reset.test.ts:19:4)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
