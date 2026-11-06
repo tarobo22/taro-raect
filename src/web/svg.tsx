@@ -5,3 +5,7 @@ export const Path=(props:any)=>React.createElement('path',props);
 export const Circle=(props:any)=>React.createElement('circle',props);
 export const Ellipse=(props:any)=>React.createElement('ellipse',props);
 export const Rect=(props:any)=>React.createElement('rect',props);
+
+export const Defs=(props:any)=>React.createElement("defs",props);
+export const ClipPath=(props:any)=>React.createElement("clipPath",props);
+export const Image=(props:any)=>React.createElement("image",{...props,href:typeof props.href==='object'?props.href.uri:props.href});

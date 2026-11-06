@@ -1,0 +1,12 @@
+import React,{useEffect,useMemo,useRef,useState} from 'react';
+import {Animated,Modal,PanResponder,Platform,Pressable,View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {color} from '../design/tokens';
+import {useStore} from '../state/store';
+export function BottomSheet({visible,onClose,children,label}:{visible:boolean;onClose:()=>void;children:React.ReactNode;label:string}){
+ const {reduced}=useStore(),insets=useSafeAreaInsets(),[mounted,setMounted]=useState(visible),y=useRef(new Animated.Value(500)).current,opacity=useRef(new Animated.Value(0)).current;
+ const latest=useRef({onClose,visible,reduced});latest.current={onClose,visible,reduced};
+ useEffect(()=>{let alive=true;if(visible){setMounted(true);y.setValue(500);opacity.setValue(0);}const animation=Animated.parallel([Animated.timing(y,{toValue:visible?0:500,duration:reduced?0:visible?280:180,useNativeDriver:Platform.OS!=='web'}),Animated.timing(opacity,{toValue:visible?1:0,duration:reduced?0:180,useNativeDriver:Platform.OS!=='web'})]);animation.start(({finished})=>{if(alive&&finished&&!visible)setMounted(false);});return()=>{alive=false;animation.stop();};},[visible,reduced]);
+ const pan=useMemo(()=>PanResponder.create({onMoveShouldSetPanResponder:(_,g)=>g.dy>7&&Math.abs(g.dy)>Math.abs(g.dx),onPanResponderMove:(_,g)=>y.setValue(Math.max(0,g.dy)),onPanResponderRelease:(_,g)=>{if(g.dy>80||g.vy>.7)latest.current.onClose();else Animated.spring(y,{toValue:0,damping:25,stiffness:260,useNativeDriver:Platform.OS!=='web'}).start();},onPanResponderTerminate:()=>Animated.spring(y,{toValue:0,useNativeDriver:Platform.OS!=='web'}).start()}),[]);
+ return <Modal transparent visible={mounted} animationType="none" onRequestClose={onClose}><View style={{flex:1,justifyContent:'flex-end'}}><Animated.View style={{position:'absolute',inset:0,backgroundColor:'rgba(32,44,36,.24)',opacity}}><Pressable accessibilityRole="button" accessibilityLabel="시트 닫기" onPress={onClose} style={{flex:1}}/></Animated.View><Animated.View accessibilityViewIsModal accessibilityLabel={label} style={{maxWidth:430,width:'100%',alignSelf:'center',backgroundColor:color.surface,borderTopLeftRadius:28,borderTopRightRadius:28,paddingHorizontal:24,paddingBottom:Math.max(24,insets.bottom+12),transform:[{translateY:y}]}}><View {...pan.panHandlers} style={{height:38,alignItems:'center',justifyContent:'center'}}><View style={{width:32,height:4,borderRadius:2,backgroundColor:color.line}}/></View><View style={{gap:16}}>{children}</View></Animated.View></View></Modal>;
+}

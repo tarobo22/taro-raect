@@ -1,13 +1,14 @@
-import React,{useRef,useState} from 'react';
+import React,{useId,useRef,useState} from 'react';
 import {Animated,Image,Platform,View} from 'react-native';
-import Svg,{Path,Ellipse,Circle} from 'react-native-svg';
+import Svg,{Path,Ellipse,Circle,Defs,ClipPath,Image as SvgImage} from 'react-native-svg';
 import {color,motion} from '../design/tokens';
 import {characterBody} from './characterBody';
 import {useActivityEffect} from '../features/motion/useActivityEffect';
 export type Expression='calm'|'welcome'|'listen'|'encourage'|'joy'|'concern'|'serious';
 export const expressionNames:Record<Expression,string>={calm:'편안함',welcome:'반가움',listen:'경청',encourage:'응원',joy:'기쁨',concern:'걱정',serious:'진지함'};
 
-export function Character({expression='calm',giga=false,reduced=false,size=230}:{expression?:Expression;giga?:boolean;reduced?:boolean;size?:number}){
+export function Character({expression='calm',giga=false,reduced=false,size=230,framed=true}:{expression?:Expression;giga?:boolean;reduced?:boolean;size?:number;framed?:boolean}){
+ const clipId=useId().replace(/:/g,'');
  const breath=useRef(new Animated.Value(0)).current;
  const [blink,setBlink]=useState(false);
  useActivityEffect(current=>{breath.setValue(0);setBlink(false);const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:motion.breath,useNativeDriver:Platform.OS!=='web'}),Animated.timing(breath,{toValue:0,duration:motion.breath,useNativeDriver:Platform.OS!=='web'})]));loop.start();let close:ReturnType<typeof setTimeout>|undefined;const timer=setInterval(()=>{if(!current())return;setBlink(true);close=setTimeout(()=>{if(current())setBlink(false);},150);},motion.blink);return()=>{loop.stop();clearInterval(timer);clearTimeout(close);breath.setValue(0);setBlink(false);};},[breath],!reduced);
@@ -15,9 +16,10 @@ export function Character({expression='calm',giga=false,reduced=false,size=230}:
  const mouth=expression==='serious'?'M129 124 Q140 125 151 124':expression==='concern'?'M130 124 Q140 126 150 124':happy?'M127 121 Q140 134 153 121':'M129 122 Q140 129 151 122';
  const face=giga?'M98 62 C98 42 182 42 182 62 L182 99 C182 115 172 132 160 139 L140 145 L120 139 C108 132 98 115 98 99 Z':'M104 62 C104 42 176 42 176 62 L176 96 C176 119 162 139 140 142 C118 139 104 119 104 96 Z';
  return <View accessible accessibilityRole="image" accessibilityLabel={`${giga?'기가차드 모드, ':''}${expressionNames[expression]} 표정의 안내자`} style={{width:size,height:size*1.25,alignItems:'center',justifyContent:'center'}}>
-  <Animated.View style={{width:size,height:size*1.25,backgroundColor:'#D4E5D9',borderRadius:16,transform:[{translateY:breath.interpolate({inputRange:[0,1],outputRange:[0,-1.5]})}]}}>
-   <Image source={characterBody} accessible={false} resizeMode="contain" style={{position:'absolute',left:size*.1,top:size*(123/280),width:size*.8,height:size*.8}}/>
+  <Animated.View style={{width:size,height:size*1.25,backgroundColor:framed?'#D4E5D9':'transparent',borderRadius:16,transform:[{translateY:breath.interpolate({inputRange:[0,1],outputRange:[0,-1.5]})}]}}>
+   {framed?<Image source={characterBody} accessible={false} resizeMode="contain" style={{position:'absolute',left:size*.1,top:size*(123/280),width:size*.8,height:size*.8}}/>:null}
    <Svg width="100%" height="100%" viewBox="0 0 280 350" style={{position:'absolute',top:0,left:0,zIndex:1}}>
+    <Defs><ClipPath id={clipId}><Path d="M545 53 L710 53 C712 98 719 121 752 138 L960 219 C1020 248 1050 317 1060 391 L1093 527 L1080 534 C1091 598 1098 715 1087 766 C1080 789 1018 843 959 880 L909 913 L933 1177 C864 1217 379 1215 309 1177 C307 1125 321 1007 334 917 C251 871 178 812 161 782 C143 754 148 655 153 608 L167 534 L157 527 C185 443 190 399 199 351 C214 288 239 247 286 219 L503 138 C533 120 542 99 545 53 Z M329 578 C320 623 300 673 286 708 L355 768 C358 691 347 629 341 574 Z M908 578 C922 626 940 680 954 710 L887 770 C885 694 896 628 901 575 Z" fillRule="evenodd" transform="translate(28 123) scale(0.178628389)"/></ClipPath></Defs>{!framed?<SvgImage href={characterBody} x={28} y={123} width={224} height={224} clipPath={'url(#'+clipId+')'}/>:null}
     <Ellipse cx={giga?98:103} cy="96" rx="6" ry="11" fill={color.skin}/><Ellipse cx={giga?182:177} cy="96" rx="6" ry="11" fill={color.skin}/>
     <Path d={face} fill={color.skin}/>
     <Path d="M103 91 C95 80 96 65 100 55 C104 39 116 29 132 29 C142 21 158 24 166 30 C184 33 191 47 190 62 C191 76 185 88 177 96 L172 76 C158 75 147 68 140 56 C135 72 122 79 108 80 Z" fill={color.hair}/>
