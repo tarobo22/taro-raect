@@ -1,0 +1,16 @@
+✔ double tap creates one session and one message while the first request is pending (2.3257ms)
+✔ manual retry preserves the original request and keeps text edited after an uncertain response (0.6494ms)
+✔ switching owner discards the old response and private drafts (0.1902ms)
+✔ card confirmation is sent only after the server enters confirmation phase (0.236ms)
+✔ refreshing a failed server job never silently submits another paid operation (0.2147ms)
+✔ voice review text takes precedence over an older navigation draft (0.1326ms)
+✔ an uncertain session creation reuses its creation key on the next explicit send (0.6825ms)
+✔ deleting the current conversation clears its navigation draft and displayed result (0.4987ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 248.6361
