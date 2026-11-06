@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import {Modal,Pressable,View,useWindowDimensions} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../features/account/storage';
 import {Copy,Panel,Button,Notice,s} from '../components/UI';
 import {TarotArt} from '../components/TarotArt';
 import {Character} from '../components/Character';

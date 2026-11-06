@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../features/account/storage';
 import type {JournalAttempt,JournalRetryStore} from '../../features/journal/model';
 
 const key='yeoun.journal.pending-create';

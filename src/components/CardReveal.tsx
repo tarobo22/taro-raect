@@ -1,6 +1,6 @@
 import React,{useRef} from 'react';
 import {Animated,Platform,View} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../features/account/storage';
 import {RevealLedger} from '../features/motion/RevealLedger';
 import {useActivityEffect} from '../features/motion/useActivityEffect';
 import {feedback} from '../services/feedback';

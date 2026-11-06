@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {Animated,PanResponder,Platform,Pressable,Switch,TextInput,View,useWindowDimensions} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../features/account/storage';
 import {Character,Expression} from '../components/Character';
 import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {VoiceButton} from '../components/VoiceButton';
