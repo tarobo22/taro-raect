@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../account/storage';
 import {p1Repository} from '../../composition';
 import {SummaryLoader} from './SummaryLoader';
 import {insightSelection} from './selection';

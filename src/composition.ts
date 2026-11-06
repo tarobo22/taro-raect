@@ -16,11 +16,23 @@ import {Platform} from 'react-native';
 import {P0Api} from './features/p0/P0Api';
 import {P1Api} from './features/p1/P1Api';
 import {downloadPrivate} from './services/files';
+import {AccountApi} from './features/account/AccountApi';
+import {AccountTransport} from './features/account/AccountTransport';
+import {AccountRuntime} from './features/account/AccountRuntime';
+import {AccountFlow} from './features/account/AccountFlow';
+import {accountCache} from './features/account/storage';
+import {guestVault,pendingSocial} from './features/account/vault';
+import {social} from './services/social';
+import {uuid as accountOwnerId} from './features/account/contracts';
 
 export const session: GuestSession = new GuestSession({read: readSession, write: writeSession,clear:clearSession},
   () => http.request('/v2/sessions', {method: 'POST',body:JSON.stringify({platform:Platform.OS==='web'?'web':Platform.OS==='ios'?'ios':'android',locale:'ko-KR',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul'})}, false),true);
-export const http: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
+const rawHttp: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
   () => session.token(), (url, options) => fetch(url, options));
+export const http=new AccountTransport(rawHttp);
+export const accountApi=new AccountApi(rawHttp);
+export const accountRuntime:AccountRuntime=new AccountRuntime(accountApi,session,accountCache,http,guestVault,async()=>{const value=await rawHttp.request('/v2/bootstrap') as {user?:{id?:unknown}};return accountOwnerId(value?.user?.id);},owner=>accountFlow.eraseOwner(owner));
+export const accountFlow:AccountFlow=new AccountFlow(accountApi,pendingSocial,social,(grant,previous)=>accountRuntime.apply(grant,previous));
 export const journalRepository = new JournalApi(http, runtime.paths.journal,'/v2/journal-entries');
 export const getJournalEntry=(id:string)=>journalRepository.get(id);
 const journalSourceRepository=new JournalSourceApi(http);

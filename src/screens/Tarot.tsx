@@ -12,7 +12,7 @@ import {submitReading,submitDaily,readingRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../features/account/storage';
 import {DeckChoice,DrawV2,StartThree,ResourceDelete} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 

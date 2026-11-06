@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../features/account/storage';
 import type {Attempt,AttemptStore} from '../../features/experience/submit';
 
 export function operationReceipts(key:string):AttemptStore{

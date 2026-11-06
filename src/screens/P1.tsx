@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import {Pressable,ScrollView,TextInput,View} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../features/account/storage';
 import {Button,Chip,Copy,FieldLabel,Notice,Panel,s} from '../components/UI';
 import {color} from '../design/tokens';
 import {getJournalEntry,p0Repository,p1Repository} from '../composition';
