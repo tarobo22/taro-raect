@@ -49,7 +49,7 @@ export function RotarySurface(props:RotaryProps){
     <div style={{position:'absolute',inset:21,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:600,pointerEvents:'none'}}>{index+1}<span style={{color:color.muted,fontWeight:400,whiteSpace:'pre'}}> / {count}</span></div>
    </div>
    <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',gap:6}}><span style={{fontSize:12,color:color.muted}}>{label}</span>
-    <div style={{height:32,overflow:'hidden',containerType:'inline-size'}}><div ref={strip} style={{willChange:'transform'}}>{(circular?[...options,...options,...options]:options).map((option,i)=><div key={i} style={{height:32,lineHeight:'32px',fontSize:'clamp(14px,10cqi,19px)',fontWeight:600,whiteSpace:'nowrap',letterSpacing:'-.5px'}}>{option}</div>)}</div></div>
+    <div aria-hidden style={{height:32,overflow:'hidden',containerType:'inline-size'}}><div ref={strip} style={{willChange:'transform'}}>{(circular?[...options,...options,...options]:options).map((option,i)=><div key={i} style={{height:32,lineHeight:'32px',fontSize:'clamp(14px,10cqi,19px)',fontWeight:600,whiteSpace:'nowrap',letterSpacing:'-.5px'}}>{option}</div>)}</div></div>
     <span style={{fontSize:11,color:color.muted,whiteSpace:'nowrap'}}>{hint?'테두리를 돌려 골라요':'천천히, 내 마음이 가는 쪽으로'}</span>
    </div>
    <div style={{display:'flex',flexDirection:'column',gap:2}}><button aria-label={label+' 이전'} disabled={disabled} onClick={()=>choose(index-1)} style={button}>−</button><button aria-label={label+' 다음'} disabled={disabled} onClick={()=>choose(index+1)} style={button}>+</button></div>
