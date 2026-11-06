@@ -30,7 +30,7 @@ export function BillingScreen({nav}:{nav:Nav}){
   finally{if(alive.current)setBusy(false);}
  }
  async function restore(){if(!catalog||busy)return;setBusy(true);setError('');setMessage('');
-  try{const result=await controller.restore(catalog),e=await api.entitlements();if(alive.current){setItems(e.items);setMessage(result.verified?'스토어 구매와 이용 권한을 다시 확인했어요.':'이 스토어 계정에 복원할 등록 상품이 없어요.');}}
+  try{const result=await controller.restore(catalog),e=await api.entitlements();if(alive.current){setItems(e.items);setMessage((result.verified?'스토어 구매와 이용 권한을 다시 확인했어요.':'이 계정에서 확인된 구매가 없어요.')+(result.pending?' 결제가 대기 중인 구매가 있어요.':'')+(result.rejected?' 일부 구매는 이 계정에서 확인되지 않았어요. 처음 구매한 앱 계정도 확인해 주세요.':''));}}
   catch(e){if(alive.current){setItems([]);setError(e instanceof Error?e.message:'구매를 복원하지 못했어요.');}}
   finally{if(alive.current)setBusy(false);}
  }

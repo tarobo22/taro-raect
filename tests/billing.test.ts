@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BillingCoordinator} from '../src/features/billing/BillingCoordinator';
+import {HttpError} from '../src/infrastructure/http/FetchClient';
 
 function context(){
  let owner='first',verification=0,resolvePurchase:(v:any)=>void=()=>{};
@@ -31,4 +32,12 @@ test('restore verifies known store receipts and duplicate taps do not launch a s
  await assert.rejects(c.coordinator.buy(c.catalog,'test.deck','offer'),/진행/);
  c.finish({state:'cancelled',purchases:[]});await pending;
  const restored=await c.coordinator.restore(c.catalog);assert.equal(restored.verified,1);assert.equal(c.verifications(),1);
+});
+test('restore continues after a foreign receipt while preserving account denial and reports partial rejection',async()=>{
+ const attempted:string[]=[];
+ const api:any={verify:async(_id:string,token:string)=>{attempted.push(token);if(token==='foreign')throw new HttpError('거절',403);return {state:'active',entitlements:[],acknowledged:true};}};
+ const native:any={restore:async()=>['foreign','owned'].map(purchase_token=>({product_id:'test.deck',purchase_token,state:'purchased'}))};
+ const coordinator=new BillingCoordinator(api,native,()=>'owner'),catalog:any={can_purchase:true,products:[{product_id:'test.deck',kind:'inapp'}]};
+ assert.deepEqual(await coordinator.restore(catalog),{verified:1,rejected:1,pending:0});assert.deepEqual(attempted,['foreign','owned']);
+ api.verify=async()=>{throw new HttpError('만료',401);};await assert.rejects(coordinator.restore(catalog),/만료/);
 });
