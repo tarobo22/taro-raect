@@ -1,0 +1,100 @@
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 476 modules transformed.
+rendering chunks...
+computing gzip size...
+web-dist/index.html                              0.64 kB │ gzip:   0.48 kB
+web-dist/assets/light_tap-CVlWDKQf.wav           4.46 kB
+web-dist/assets/soft_tap-CanLCEMm.wav            6.95 kB
+web-dist/assets/soft_select-BjjLETjS.wav         9.26 kB
+web-dist/assets/soft_confirm-BE2MrCcS.wav       15.02 kB
+web-dist/assets/card_flip-VkQwxvnx.wav          52.84 kB
+web-dist/assets/card_shuffle-BUP2Dwpx.wav      115.24 kB
+web-dist/assets/swords_03-CbxQrrV_.jpg         159.73 kB
+web-dist/assets/cups_05-DBO7NejU.jpg           159.91 kB
+web-dist/assets/pentacles_12-DxX9GNFG.jpg      167.06 kB
+web-dist/assets/major_08-CJz3yNoO.jpg          167.80 kB
+web-dist/assets/wands_04-CStztuab.jpg          168.06 kB
+web-dist/assets/major_01-DtXokL1c.jpg          168.51 kB
+web-dist/assets/swords_07-DtrCVdqe.jpg         169.16 kB
+web-dist/assets/pentacles_04-CGYjCScu.jpg      171.62 kB
+web-dist/assets/major_09-DruPVDG8.jpg          172.30 kB
+web-dist/assets/pentacles_11-CiXm9pKI.jpg      172.66 kB
+web-dist/assets/wands_08-CBh1M0-k.jpg          173.76 kB
+web-dist/assets/swords_04-DA_ceXug.jpg         175.02 kB
+web-dist/assets/swords_02-bD1lQX9P.jpg         175.22 kB
+web-dist/assets/wands_01-C9vry-j1.jpg          176.35 kB
+web-dist/assets/pentacles_06-BLgRFD5G.jpg      177.31 kB
+web-dist/assets/swords_06-CdnnQX7W.jpg         178.50 kB
+web-dist/assets/swords_01-7jmZQxiI.jpg         178.64 kB
+web-dist/assets/wands_02-CoGFfsRw.jpg          179.20 kB
+web-dist/assets/pentacles_01-CEQwvAm_.jpg      179.34 kB
+web-dist/assets/cups_09-MMBci-_p.jpg           181.70 kB
+web-dist/assets/swords_10-BIJmY_lS.jpg         182.69 kB
+web-dist/assets/wands_06-BSwg6Ms6.jpg          183.14 kB
+web-dist/assets/major_00-Dg44YZuv.jpg          183.39 kB
+web-dist/assets/pentacles_08-Bx3F7Hvw.jpg      183.64 kB
+web-dist/assets/cups_08-DifT0LYO.jpg           184.43 kB
+web-dist/assets/pentacles_09-2YEzILR7.jpg      186.02 kB
+web-dist/assets/swords_11-IYP3J0t4.jpg         186.71 kB
+web-dist/assets/swords_08-CiNtWPmh.jpg         186.96 kB
+web-dist/assets/pentacles_02-D0p76h5J.jpg      187.88 kB
+web-dist/assets/wands_07-CCoNjVkP.jpg          188.12 kB
+web-dist/assets/swords_12-DbLIo7tH.jpg         188.31 kB
+web-dist/assets/wands_10-CXW5070U.jpg          189.98 kB
+web-dist/assets/wands_05-OlTlS7CJ.jpg          191.45 kB
+web-dist/assets/major_12-B7BDSfFS.jpg          191.76 kB
+web-dist/assets/major_17-uM-rbFpS.jpg          191.99 kB
+web-dist/assets/cups_12-B-PZTfZa.jpg           192.22 kB
+web-dist/assets/swords_13-Nl_K80kw.jpg         192.76 kB
+web-dist/assets/cups_14-ByM4FORj.jpg           193.13 kB
+web-dist/assets/cups_01-WBfaFuH7.jpg           193.58 kB
+web-dist/assets/cups_02-B0rgbtff.jpg           193.61 kB
+web-dist/assets/cups_07-Bzoo_Y7G.jpg           193.68 kB
+web-dist/assets/swords_14-f61uSRHV.jpg         195.27 kB
+web-dist/assets/major_07-C0w_CWW1.jpg          195.53 kB
+web-dist/assets/cups_04-q9rqimPO.jpg           195.96 kB
+web-dist/assets/pentacles_14-C8wgYlB9.jpg      196.77 kB
+web-dist/assets/cups_10-CV1hYDCK.jpg           197.03 kB
+web-dist/assets/wands_03-Di40NsIw.jpg          197.31 kB
+web-dist/assets/major_11-DrVxfaRR.jpg          199.33 kB
+web-dist/assets/major_03-1mvDzFz2.jpg          199.45 kB
+web-dist/assets/cups_11-BgtxTBpz.jpg           201.37 kB
+web-dist/assets/cups_13-CaptR-Hs.jpg           201.53 kB
+web-dist/assets/pentacles_10-MWBiR_Kf.jpg      203.10 kB
+web-dist/assets/swords_09-DKmJj3qC.jpg         203.41 kB
+web-dist/assets/major_19-rWCOxfcL.jpg          203.68 kB
+web-dist/assets/major_02-BUyGLUbd.jpg          203.75 kB
+web-dist/assets/major_05-DKb_MiBf.jpg          204.20 kB
+web-dist/assets/major_15-EAHnnTL5.jpg          204.50 kB
+web-dist/assets/major_04-U366WSAU.jpg          204.55 kB
+web-dist/assets/major_16-BOjPSf_c.jpg          204.82 kB
+web-dist/assets/wands_09-DmSKexWf.jpg          205.41 kB
+web-dist/assets/wands_12-Dibj2MCe.jpg          206.33 kB
+web-dist/assets/major_13-1q6-9U56.jpg          206.56 kB
+web-dist/assets/pentacles_07-DFxV7zzB.jpg      206.76 kB
+web-dist/assets/major_21-4cxdj_de.jpg          207.87 kB
+web-dist/assets/major_20-fngwOYPB.jpg          208.03 kB
+web-dist/assets/swords_05-BWSkjaXG.jpg         208.12 kB
+web-dist/assets/cups_06-CG7XRq2u.jpg           208.15 kB
+web-dist/assets/wands_11-J73078F7.jpg          210.21 kB
+web-dist/assets/cups_03-DIekelEB.jpg           212.33 kB
+web-dist/assets/pentacles_05-DoP_RUfO.jpg      213.74 kB
+web-dist/assets/major_18-DRCcucNz.jpg          213.95 kB
+web-dist/assets/major_14-eln_dsZ7.jpg          215.81 kB
+web-dist/assets/wands_14-DOccJ3kN.jpg          216.29 kB
+web-dist/assets/major_10-KJgi51aK.jpg          217.78 kB
+web-dist/assets/major_06-B4F1v5jL.jpg          220.69 kB
+web-dist/assets/pentacles_03-C0HBMnak.jpg      221.30 kB
+web-dist/assets/wands_13-D6j2TSrr.jpg          228.77 kB
+web-dist/assets/pentacles_13-LxGu8ekj.jpg      230.54 kB
+web-dist/assets/tarot_room-D1ldsYN3.ogg        745.88 kB
+web-dist/assets/body-pastel-v1-8SaGRJY1.png  1,189.54 kB
+web-dist/assets/index-_T8rPMzX.js              766.71 kB │ gzip: 215.20 kB
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 428ms

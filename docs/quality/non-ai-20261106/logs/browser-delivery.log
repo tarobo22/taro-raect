@@ -1,0 +1,47 @@
+✔ unconfigured providers stay disabled and never launch a pretend login (701.7113ms)
+✔ mock social return isolates owner drafts, preserves pending identity, restores guest and handles cancel (1840.5618ms)
+✔ ordinary users never see admin entry; a viewer explicitly opens a private read-only session and leaves without persisted bearer (7062.4231ms)
+✔ publisher confirms rights, publication and selected rollback; CAS conflicts refresh and revoked permissions clear the session (1946.9789ms)
+✔ real unconfigured catalog has no invented prices or purchase success; the web offers entitlement viewing (907.5982ms)
+✔ confirmed daily card decodes a hash-matched bundled image without external assets; reentry stays revealed (2798.0576ms)
+✔ bounded keyboard exploration and vertical scroll never pick cards; explicit slot choices and mood confirmation preserve the existing alternatives and draft (2373.8684ms)
+✔ editing an empty saved entry never imports an unrelated new-entry draft (1140.9206ms)
+✔ three-card reading and manually submitted conversation retain a follow-up draft across reload (2957.151ms)
+✔ a failed tarot-history request does not disable the journal form (712.0351ms)
+✔ lost save response, page reload, retry and edit-conflict resolution preserve the user draft (1784.6149ms)
+✔ all five history labels survive reopen and edit with explicit sorted mood policy (1945.8236ms)
+✔ all five history labels survive reopen and edit with legacy sorted mood policy (2037.8717ms)
+✔ daily and tarot options survive a deck round trip without changing the reviewed question or requesting AI (1281.7977ms)
+✔ returning from a decoded source keeps the loaded record page and scroll position; a missing source never opens a guessed owner route (1066.1923ms)
+✔ explicit onboarding, owned context, hidden slots and an explicit AI retry form one reviewable flow (1803.4585ms)
+✔ cloud audio is explicitly submitted and its editable review appends to an existing draft without a chat send (1071.8653ms)
+✔ export ZIP download uses the bearer while app feedback sends only the explicit rating and comment (1227.5122ms)
+✔ erase completion survives reload using the saved minimal receipt without creating another guest (1106.6647ms)
+✔ a reading-linked journal retains its source through v2 creation, detail reload and CAS edit (1300.9928ms)
+✔ reading deletion needs confirmation and cancellation preserves the owned result (1132.2182ms)
+✔ a closed owned conversation offers an explicit new conversation without automatically sending (1007.8639ms)
+✔ server preferences acknowledge tone, motion and voice and restore them after reload (988.2665ms)
+✔ changing reduced motion keeps the settings scroll position (783.8292ms)
+✔ a busy action retains its accessible operation name before and after acknowledgement (803.3035ms)
+✔ changed context is rejected with its old version until the user reviews the edited journal (1726.3781ms)
+✔ record filters apply to every history and cursor pages and journal date query preserve the selected view (1293.329ms)
+✔ dial and side-choice controls expose at least 48dp targets and profile drag stays bounded (898.5762ms)
+✔ real server slots, selected journal context, explicit AI result, card provenance and linked feedback (8468.2214ms)
+✔ real exported journal ZIP and completed erase receipt survive reload without another guest (2361.329ms)
+✔ inclusive calendar GETs stay current after a range race, open the local day, and work without AI (948.6981ms)
+✔ owned reading favorites add, reopen, remove and disappear with deletion of the original (1227.171ms)
+✔ ten explicit insight sources persist independently, resume one job, retry explicitly and hide invalidated results (1996.6059ms)
+✔ edited selected versions fail honestly and a fresh revoked context consent prevents another insight POST (975.2139ms)
+✔ real summary and explicit selected insight succeed, preserve source versions and hide a result invalidated by an edited original (4811.98ms)
+✔ real favorites add and remove, cascade on original deletion, export only remaining favorites and erase the device connection (3453.5287ms)
+✔ one explicit story resumes after reload, reaches a complete ending and restarts only after confirmation (1561.2315ms)
+✔ a stale choice shows a conflict and requires a fresh server read without advancing or inventing an ending (866.5696ms)
+✔ selection animates without changing the chosen IDs, only a successful new shuffle fades, reduced motion preserves the draft and three cards reveal in 220ms steps (5601.8674ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84554.2512

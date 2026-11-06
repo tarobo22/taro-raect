@@ -1,0 +1,59 @@
+{
+  "feature": "Tarot 0.2 D03 D09 D10 motion",
+  "branch": "codex/non-ai-tarot-motion",
+  "rn_sha": "c02af6a72f73a7d711d699cd212c53de61785090",
+  "web_sha": "5c45c429b871791fca188f28c35d613f34f53547",
+  "remote_sha_verified": true,
+  "design": {
+    "shuffle_opacity": [
+      0.55,
+      1
+    ],
+    "selection_translate_y": [
+      0,
+      -4
+    ],
+    "existing_reveal_ms": 420,
+    "scheduled_last_end_ms": 860,
+    "reveal_delay_ms": [
+      0,
+      220,
+      440
+    ],
+    "shuffle_ms": 180,
+    "selection_ms": 180
+  },
+  "new_browser_passed": 1,
+  "existing_related_browser_passed": 2,
+  "existing_related_unit_passed": 5,
+  "rn_typecheck": "passed",
+  "web_typecheck": "passed",
+  "web_build": "passed",
+  "existing_tests_changed": false,
+  "whole_suite_repeated": false,
+  "shared_files_hash_equal": true,
+  "reading_function_change": "delay 130->220 only, compared to base",
+  "daily_function_equal_to_base": true,
+  "global_UI_Character_Talk_Home_route_opacity_AI_changed": false,
+  "observed": {
+    "selection_intermediate_frames": true,
+    "successful_shuffle_min_opacity": 0.55,
+    "reduced_selected_y": -4,
+    "reduced_shuffle_opacity": 1,
+    "failed_shuffle_min_opacity": 1,
+    "reveal_start_spacing_ms": [
+      216.8,
+      233.3
+    ]
+  },
+  "red": "browser-red.txt",
+  "green": [
+    "browser-green.txt",
+    "related-browser.txt",
+    "related-unit.txt",
+    "rn-typecheck.txt",
+    "web-typecheck.txt",
+    "web-build.txt"
+  ],
+  "remaining": "Parent integrated whole-suite regression, native interaction and motor/frame-rate QA."
+}

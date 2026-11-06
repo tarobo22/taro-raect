@@ -1,0 +1,498 @@
+{
+  "as_of": "2026-11-06T09:33:05.821Z",
+  "base": "http://127.0.0.1:8828",
+  "method": "Node fetch full response-body round trip using performance.now, one warmup plus 20 sequential samples for each GET; nearest-rank percentiles.",
+  "synthetic_guests_created": 1,
+  "token_logged": false,
+  "existing_user_data_read": false,
+  "prior_data_deleted": false,
+  "concurrency": 1,
+  "samples_per_endpoint": 20,
+  "warmups_per_endpoint": 1,
+  "operations": [
+    {
+      "name": "bootstrap",
+      "path": "/v2/bootstrap",
+      "operation_id": "bootstrap",
+      "warmup": {
+        "status": 200,
+        "ms": 29.617,
+        "bytes": 514
+      },
+      "status_counts": {
+        "200": 20
+      },
+      "p50_ms": 28.135,
+      "p95_ms": 49.154,
+      "max_ms": 82.106,
+      "samples": [
+        {
+          "status": 200,
+          "ms": 29.16,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 34.533,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 29.663,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 30.561,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 29.61,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 26.429,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 21.901,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 23.116,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 26.675,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 41.275,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 31.377,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 28.135,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 25.774,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 23.028,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 24.345,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 19.618,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 82.106,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 49.154,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 35.422,
+          "bytes": 514
+        },
+        {
+          "status": 200,
+          "ms": 17.411,
+          "bytes": 514
+        }
+      ]
+    },
+    {
+      "name": "catalog",
+      "path": "/v2/decks?limit=20",
+      "operation_id": "listDecks",
+      "warmup": {
+        "status": 200,
+        "ms": 21.868,
+        "bytes": 854
+      },
+      "status_counts": {
+        "200": 20
+      },
+      "p50_ms": 24.493,
+      "p95_ms": 46.68,
+      "max_ms": 76.31,
+      "samples": [
+        {
+          "status": 200,
+          "ms": 22.828,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 26.542,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 76.31,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 37.762,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 22.721,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 26.899,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 26.752,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 46.68,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 24.493,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 21.642,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 22.479,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 29.216,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 21.88,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 28.953,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 34.871,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 27.814,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 19.543,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 21.623,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 22.418,
+          "bytes": 854
+        },
+        {
+          "status": 200,
+          "ms": 21.398,
+          "bytes": 854
+        }
+      ]
+    },
+    {
+      "name": "story_list",
+      "path": "/v2/story-episodes",
+      "operation_id": "listStoryEpisodes",
+      "warmup": {
+        "status": 200,
+        "ms": 17.26,
+        "bytes": 233
+      },
+      "status_counts": {
+        "200": 20
+      },
+      "p50_ms": 12.489,
+      "p95_ms": 20.817,
+      "max_ms": 26.697,
+      "samples": [
+        {
+          "status": 200,
+          "ms": 11.609,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 20.817,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 10.951,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 11.266,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 13.46,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 12.166,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 20.014,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 12.869,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 12.489,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 16.022,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 14.045,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 11.893,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 10.087,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 15.912,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 11.827,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 12.449,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 11.968,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 15.706,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 26.697,
+          "bytes": 233
+        },
+        {
+          "status": 200,
+          "ms": 15.678,
+          "bytes": 233
+        }
+      ]
+    },
+    {
+      "name": "journal_first_page",
+      "path": "/v2/journal-entries?limit=20",
+      "operation_id": "listJournals",
+      "warmup": {
+        "status": 200,
+        "ms": 23.347,
+        "bytes": 31
+      },
+      "status_counts": {
+        "200": 20
+      },
+      "p50_ms": 16.447,
+      "p95_ms": 19.11,
+      "max_ms": 20.096,
+      "samples": [
+        {
+          "status": 200,
+          "ms": 18.093,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 20.096,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 16.483,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.912,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 15.762,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 16.035,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 15.363,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 15.831,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 16.447,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.375,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 14.901,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 15.774,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.281,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.45,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 19.11,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 16.379,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.775,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 17.225,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 14.311,
+          "bytes": 31
+        },
+        {
+          "status": 200,
+          "ms": 14.18,
+          "bytes": 31
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Development API and database on the same Windows host over loopback; results are not mobile or public network latency.",
+    "Small warm sample from one empty synthetic guest; no load, concurrency, cold-start or production capacity claim.",
+    "No external AI, OAuth or store provider calls; no reading, journal or story content created.",
+    "Node connection reuse and host activity affect these round trips."
+  ],
+  "all_status_200": true,
+  "request_counts": {
+    "openapi": 1,
+    "new_guest_post": 1,
+    "timed_gets": 84
+  }
+}
