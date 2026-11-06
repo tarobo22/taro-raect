@@ -14,6 +14,7 @@ import {operationReceipts} from './infrastructure/storage/OperationReceipts';
 import type {JournalDraft} from './features/journal/model';
 import {Platform} from 'react-native';
 import {P0Api} from './features/p0/P0Api';
+import {CounselingApi} from './features/counseling/CounselingApi';
 import {P1Api} from './features/p1/P1Api';
 import {StoryApi} from './features/story/StoryApi';
 import {AdminSession} from './features/admin/AdminSession';
@@ -49,6 +50,7 @@ export const submitReading=(draft:ReadingDraft,id:string)=>experienceRepository.
 export const submitCounsel=(draft:CounselDraft,id:string)=>experienceRepository.counsel(draft,id);
 export const submitDaily=(draft:{day:string;topic:string},_id:string)=>experienceRepository.daily(draft.day,draft.topic);
 export const p0Repository=new P0Api(http);
+export const counselingRepository=new CounselingApi(http);
 export const p1Repository=new P1Api(http);
 export const storyRepository=new StoryApi(http);
 export const adminSession=new AdminSession();
