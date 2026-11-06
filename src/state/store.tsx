@@ -10,6 +10,7 @@ import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
 import {configureFeedback,SensoryPreferences} from '../services/feedback';
+import {defaultSensory,restoreSensory} from '../features/audio/preferences';
 import {configureUpdatePolicy} from '../services/updates';
 import {DashboardLoader} from '../features/dashboard/DashboardLoader';
 export type Entry=JournalEntry;
@@ -39,7 +40,7 @@ export function Store({children}:{children:React.ReactNode}){
  const [journalPolicy,setJournalPolicy]=useState<JournalPolicy|null>(null),[config,setConfig]=useState<ExperienceConfig|null>(null);
  const [loading,setLoading]=useState(true),[error,setError]=useState(''),[tone,setToneState]=useState<Tone>('warm');
  const [reduced,setReducedState]=useState(false),[draft,setDraftState]=useState('');
- const [sensory,setSensoryState]=useState<SensoryPreferences>({sound:true,haptics:true,music:false});
+ const [sensory,setSensoryState]=useState<SensoryPreferences>({...defaultSensory});
  const [voiceMode,setVoiceModeState]=useState<'device'|'cloud'>('device'),[preferenceBusy,setPreferenceBusy]=useState(false),[preferenceError,setPreferenceError]=useState('');
  const preferenceWriter=useMemo(()=>new PreferencesWriter(p0Repository),[]),preferenceRevision=useRef(0),bootstrapReady=useRef(false),failedPreference=useRef<PreferencePatch|null>(null);
  function applyPreferences(value:Preferences){setToneState(value.tone);setReducedState(value.reduced_motion);setVoiceModeState(value.voice_mode);void AsyncStorage.multiSet([['yeoun.tone',value.tone],['yeoun.reduced',String(value.reduced_motion)],['yeoun.voice-mode',value.voice_mode]]).catch(()=>setPreferenceError('설정은 서버에 저장됐지만 기기 보관에 실패했어요.'));}
@@ -52,7 +53,7 @@ export function Store({children}:{children:React.ReactNode}){
   setSessionState('checking');configureUpdatePolicy(null);dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;bootstrapReady.current=false;
   await eraseCurrentDeviceData(AsyncStorage,session,receipt,()=>reminderController.reset());
   setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIdsState([]);setContextVersions({});setContextError('');contextRevision.current++;setRecordFilterState('전체');setRecordDateState('');setSelectedDeckState('');
-  setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({sound:true,haptics:true,music:false});setError('');setLoading(false);
+  setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({...defaultSensory});setError('');setLoading(false);
   setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
  }
  async function recover(){setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}}
@@ -80,7 +81,7 @@ export function Store({children}:{children:React.ReactNode}){
     if(key==='yeoun.deck'&&value)setSelectedDeckState(value);
     if(key==='yeoun.reduced')setReducedState(value==='true');
     if(key==='yeoun.draft'&&value)setDraftState(value);
-    if(key==='yeoun.sensory'&&value)try{const v=JSON.parse(value);setSensoryState({sound:v.sound!==false,haptics:v.haptics!==false,music:v.music===true});}catch{}
+    if(key==='yeoun.sensory'&&value)try{setSensoryState(restoreSensory(JSON.parse(value)));}catch{}
    }
   }).catch(()=>{});void recover();
  },[]);
