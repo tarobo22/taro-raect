@@ -1,0 +1,32 @@
+[
+  {
+    "repository": "taro",
+    "checks": [
+      {
+        "link": "https://github.com/tarobo22/taro/actions/runs/42203786645/job/127845241237",
+        "name": "types-and-behavior",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/tarobo22/taro/actions/runs/42203557501/job/127844488679",
+        "name": "types-and-behavior",
+        "state": "SUCCESS"
+      }
+    ]
+  },
+  {
+    "repository": "taro-raect",
+    "checks": [
+      {
+        "link": "https://github.com/tarobo22/taro-raect/actions/runs/42203794687/job/127845267786",
+        "name": "build-and-behavior",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/tarobo22/taro-raect/actions/runs/42203566538/job/127844517965",
+        "name": "build-and-behavior",
+        "state": "SUCCESS"
+      }
+    ]
+  }
+]

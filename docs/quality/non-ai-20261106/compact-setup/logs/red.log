@@ -1,0 +1,25 @@
+✖ tarot settings and start fit one phone viewport, animate the chosen spread and start once with the preserved choices (1778.5741ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2197.0596
+
+✖ failing tests:
+
+test at tests\e2e\compact-tarot-setup.test.mjs:10:1
+✖ tarot settings and start fit one phone viewport, animate the chosen spread and start once with the preserved choices (1778.5741ms)
+  AssertionError [ERR_ASSERTION]: deck needs no scroll at 390x844: bottom=1015
+      at TestContext.<anonymous> (file:///C:/Users/chang/Documents/ChatGPT/0915%202/taro-raect/tests/e2e/compact-tarot-setup.test.mjs:43:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

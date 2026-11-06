@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-06",
+  "scope": "Latest compact tarot setup documentation, PDF, Notion and Git only",
+  "source_commits": {
+    "taro": "33f0ce0dfb29d6dd50bd3a61a8f86b1d7f0d157c",
+    "taro-raect": "031709cd29b5e0009bbbb4910a84c417b033c07b",
+    "taro-back": "dca48868102ee39da6dd2ebf09b7a6405e56dd4a"
+  },
+  "previous_pdf_sha256": "6d516a6a7055177eff04a4eb8c3c8a89a6941e3db0d2543def6a9e63051a7b76",
+  "latest_ui_verification": {
+    "scope": "Only compact tarot setup and its optional inline deck presentation. User chose settings on one page, then direct card selection.",
+    "changed_files": [
+      {
+        "repository": "taro",
+        "status": "A",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro\\src\\components\\TarotSetup.tsx",
+        "commit": "33f0ce0dfb29d6dd50bd3a61a8f86b1d7f0d157c"
+      },
+      {
+        "repository": "taro",
+        "status": "M",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro\\src\\screens\\P0Tarot.tsx",
+        "commit": "33f0ce0dfb29d6dd50bd3a61a8f86b1d7f0d157c"
+      },
+      {
+        "repository": "taro",
+        "status": "M",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro\\src\\screens\\Tarot.tsx",
+        "commit": "33f0ce0dfb29d6dd50bd3a61a8f86b1d7f0d157c"
+      },
+      {
+        "repository": "taro-raect",
+        "status": "A",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro-raect\\src\\components\\TarotSetup.tsx",
+        "commit": "031709cd29b5e0009bbbb4910a84c417b033c07b"
+      },
+      {
+        "repository": "taro-raect",
+        "status": "M",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro-raect\\src\\screens\\P0Tarot.tsx",
+        "commit": "031709cd29b5e0009bbbb4910a84c417b033c07b"
+      },
+      {
+        "repository": "taro-raect",
+        "status": "M",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro-raect\\src\\screens\\Tarot.tsx",
+        "commit": "031709cd29b5e0009bbbb4910a84c417b033c07b"
+      },
+      {
+        "repository": "taro-raect",
+        "status": "A",
+        "file": "C:\\Users\\chang\\Documents\\ChatGPT\\0915 2\\taro-raect\\tests\\e2e\\compact-tarot-setup.test.mjs",
+        "commit": "031709cd29b5e0009bbbb4910a84c417b033c07b"
+      }
+    ],
+    "existing_tests_modified": 0,
+    "new_browser_test_pass": 1,
+    "existing_targeted_browser_pass": 4,
+    "typecheck": "RN/Web PASS",
+    "web_build": "PASS",
+    "android_release": "PASS / dedicated emulator QA package only",
+    "normal_viewports": [
+      [
+        390,
+        844
+      ],
+      [
+        360,
+        740
+      ],
+      [
+        430,
+        932
+      ]
+    ],
+    "start_button_bottom_px": 717,
+    "native_setup_and_direct_start": "visually verified",
+    "source_inputs_matched": 278,
+    "apk_sha256": "128b85b8032f9e8e491e388bdaeecb34bd3ec4d2e616ff22e08e2ced83d99ce6",
+    "original_app_data_preserved": true,
+    "actual_microphone_or_ai_calls": false
+  },
+  "previous_full_suite": {
+    "backend": 532,
+    "rn": 133,
+    "web": 130,
+    "browser": 39,
+    "jvm": 6
+  },
+  "latest_targeted_browser": {
+    "new": 1,
+    "existing": 4,
+    "full_39_rerun": false
+  },
+  "performance_scope": "Previous home-only HWUI and sequential loopback API samples; no new compact setup FPS measurement",
+  "ota_scope": "Latest compact UI Git push and emulator APK install only; no claim of OTA download/apply",
+  "product_or_test_changes_this_report_task": 0,
+  "images": [
+    {
+      "source": "compact-tarot-390.png",
+      "sha256": "c7a643e3a5870bfd59eceba6f5d09f0dee588a4b91432b6d598b58a48df6ea01",
+      "bytes": 37362
+    },
+    {
+      "source": "green/setup-360x740.png",
+      "sha256": "f748f75b929f64f576541782aede19ebf8cfb531cc397a3b8ca5b7927f8a80a6",
+      "bytes": 37209
+    },
+    {
+      "source": "native/compact-setup-ready.png",
+      "sha256": "3c4dfb5f95f7c71d99a683150901b21521a222814204073ce83531b96afe3364",
+      "bytes": 169198
+    },
+    {
+      "source": "native/compact-start.png",
+      "sha256": "b470b250d3806239133ae4b91598e7469a77cfcb5e9f1884ba2a0a96ba2a973d",
+      "bytes": 158275
+    }
+  ],
+  "video": {
+    "duration": 5.96,
+    "width": 390,
+    "height": 844,
+    "frames": [
+      {
+        "time": 0.5,
+        "ready": 4
+      },
+      {
+        "time": 2.384,
+        "ready": 4
+      },
+      {
+        "time": 4.47,
+        "ready": 4
+      }
+    ],
+    "bytes": 367780,
+    "sha256": "a3975d46de4dcd1cc855ceaf00b23b68970f6dc563ebc70cc294e4a1d3a3679b"
+  },
+  "updated_pdf": {
+    "pages": 18,
+    "bytes": 888039,
+    "sha256": "465d1246da6a57274c5606fc701d1eb534a880a674e82746d0537f3a4704bb39",
+    "render_visual_verification": "passed: all18 pages rendered; both contact sheets and pages1/2/3/6/17/18 individually reviewed"
+  }
+}
