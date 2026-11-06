@@ -1,10 +1,14 @@
 # 비AI 전체 흐름·브라우저 QA
 
+## 최신 타로 화면 반영
+
+[설정 한 화면·직접 시작·모션·검증·사진](compact-setup/README.md)을 추가했다. 신규1+기존 관련4개 통과는 이전 전체39와 분리한다. 최신 Web JS773.65kB/gzip217.15kB이며 아래의 기존 로그·통계는 이전 스냅샷으로 보존한다.
+
 확인일: 2026-11-06. 현재 Android·웹 비AI 구현과 로컬/원격 검증 결과다. 실제 OAuth·실과금·iOS native·운영 배포는 별도다. AI 처리 로직·모델·프롬프트 추가 개발과 실제 모델 호출은 이번 범위에서 제외했다.
 
-[Notion 비공개 인계 초안](https://app.notion.com/p/410b37c6fe7281249a4dfa62b85a3c46?pvs=204) · [RN 보고서](https://github.com/tarobo22/taro/tree/codex/complete-non-ai-20261106/docs/reports/non-ai-20261106) · [Backend 계약](https://github.com/tarobo22/taro-back/tree/codex/complete-non-ai-20261106/docs/quality/non-ai-20261106) · [Web QA](https://github.com/tarobo22/taro-raect/tree/codex/complete-non-ai-20261106/docs/quality/non-ai-20261106)
+[Notion 비공개 인계 초안](https://app.notion.com/p/410b37c6fe7281249a4dfa62b85a3c46?pvs=204) · [RN 보고서](https://github.com/tarobo22/taro/tree/codex/compact-tarot-setup-20261106/docs/reports/non-ai-20261106) · [Backend 계약](https://github.com/tarobo22/taro-back/tree/codex/complete-non-ai-20261106/docs/quality/non-ai-20261106) · [Web QA](https://github.com/tarobo22/taro-raect/tree/codex/compact-tarot-setup-20261106/docs/quality/non-ai-20261106)
 
-단위: Back532 / RN133 / Web130, 브라우저39, Android JVM6 통과. 세 저장소 GitHub CI도 성공했다. 기존 baseline 테스트 수정·삭제·skip0. 같은 공유 규칙 검증을 품질 점수나 사용자 성능으로 합산하지 않는다.
+이전 전체 검증: Back532 / RN133 / Web130, 브라우저39, Android JVM6 통과. 세 저장소 GitHub CI도 성공했다. 기존 baseline 테스트 수정·삭제·skip0. 같은 공유 규칙 검증을 품질 점수나 사용자 성능으로 합산하지 않는다.
 
 ## 증거 읽기
 

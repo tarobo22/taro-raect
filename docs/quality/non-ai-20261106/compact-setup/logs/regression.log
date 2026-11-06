@@ -1,0 +1,12 @@
+✔ bounded keyboard exploration and vertical scroll never pick cards; explicit slot choices and mood confirmation preserve the existing alternatives and draft (2838.8967ms)
+✔ daily and tarot options survive a deck round trip without changing the reviewed question or requesting AI (1326.6819ms)
+✔ returning from a decoded source keeps the loaded record page and scroll position; a missing source never opens a guessed owner route (1039.6538ms)
+✔ selection animates without changing the chosen IDs, only a successful new shuffle fades, reduced motion preserves the draft and three cards reveal in 220ms steps (5594.0077ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11905.3706
