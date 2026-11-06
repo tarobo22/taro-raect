@@ -1,0 +1,145 @@
+{
+  "base": "http://127.0.0.1:8827",
+  "viewport": "390x844",
+  "additional_viewports": [
+    "360x740",
+    "430x932"
+  ],
+  "new_design_tests": 0,
+  "external_ai_calls": 0,
+  "synthetic_guest_only": true,
+  "events": [
+    {
+      "name": "rotary-and-card-fan",
+      "frame_count": 132,
+      "mean_ms": 16.66590909090909,
+      "p95_ms": 16.799999999999272,
+      "over_33ms": 0,
+      "kind": "browser requestAnimationFrame callback intervals; not GPU frame presentation"
+    },
+    {
+      "name": "server-confirmed-shuffle",
+      "frame_count": 67,
+      "mean_ms": 16.665671641791036,
+      "p95_ms": 16.700000000000728,
+      "over_33ms": 0,
+      "kind": "browser requestAnimationFrame callback intervals; not GPU frame presentation"
+    },
+    {
+      "name": "three-selected",
+      "progress": 1
+    },
+    {
+      "name": "reading-revealed",
+      "card_images": 0
+    },
+    {
+      "name": "cancelled-swipe-rest",
+      "transform": "translate3d(0px, 0px, 0px) rotate(0deg)"
+    },
+    {
+      "name": "choice-spring-and-next-scene",
+      "frame_count": 140,
+      "mean_ms": 16.665714285714284,
+      "p95_ms": 16.700000000000273,
+      "over_33ms": 0,
+      "kind": "browser requestAnimationFrame callback intervals; not GPU frame presentation"
+    },
+    {
+      "name": "counsel-result",
+      "advice": 1
+    },
+    {
+      "name": "mood-cancel",
+      "unchanged": 1
+    },
+    {
+      "name": "journal-saved",
+      "edit": 1
+    },
+    {
+      "name": "story",
+      "ending": 1
+    },
+    {
+      "name": "reduced-motion-setting",
+      "checked": null
+    },
+    {
+      "name": "reduced-motion-choice",
+      "scene": "오늘도 당신의 편에서\n내 마음을 이야기할 수 있는 상대가 있나요?"
+    }
+  ],
+  "errors": [],
+  "api_statuses": [
+    201,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    201,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    201,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    201,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    201,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "api_errors": []
+}

@@ -1,0 +1,94 @@
+[
+  {
+    "path": "App.tsx",
+    "sha256": "f7b00d781f388500aef8dc96d0582282feed397ae470667267c55d3f583236c1"
+  },
+  {
+    "path": "package-lock.json",
+    "sha256": "9160331262920a2540677ecc443b523af773c0399c686305061c2994e91c3868"
+  },
+  {
+    "path": "package.json",
+    "sha256": "da7dc9c8fd0e1628efc46ff23cf97932dd777da0c79f1b07456c569a8ce18b7b"
+  },
+  {
+    "path": "src/components/BottomSheet.tsx",
+    "sha256": "f75753b8a62d8bee6f6f51e499744052952245e52519badd1d4b5f047443eaa6"
+  },
+  {
+    "path": "src/components/CardSlotDial.tsx",
+    "sha256": "33867b3bc0608ba008bf0fbb9432f4b102e07c0af1e5f34594f9e307622ee0b2"
+  },
+  {
+    "path": "src/components/Character.tsx",
+    "sha256": "0dd33eefc6b98c6245b6bcb5f67c3aece1ef2acde416ce266f246d83688cc534"
+  },
+  {
+    "path": "src/components/ChoiceStage.types.ts",
+    "sha256": "d0a30c5ca05387cd9d0b0acefc401d96bb2325209b7ac4f6c26ef5e30328bdc6"
+  },
+  {
+    "path": "src/components/ChoiceStage.web.tsx",
+    "sha256": "10cc4fd41455b4610301e1c092f67f4a39b2d95f2a4f9b54ab19f5f10a44f6ca"
+  },
+  {
+    "path": "src/components/MoodDial.tsx",
+    "sha256": "b59a7418ff589bfd5cc28a7688fc6921ce73e82b20495e68ca5b0e4bedb2dee5"
+  },
+  {
+    "path": "src/components/MotionRoot.web.tsx",
+    "sha256": "ace9c5a84ade4ea765c47b6d8a8c97c5fd4ecb465dd1e18f7ef90df7339e1bb9"
+  },
+  {
+    "path": "src/components/OptionRail.tsx",
+    "sha256": "acc654f74061be8c535a49efac2dd8162301bef77468f66f423685d8a90beab3"
+  },
+  {
+    "path": "src/components/RailHighlight.web.tsx",
+    "sha256": "ac1ee1b6d458f389373b6c63bf4a911af4110820e4c7b1b8da3d76c034e68dd5"
+  },
+  {
+    "path": "src/components/RotarySurface.types.ts",
+    "sha256": "1a197e2fe6557210b994d4c0a5a0fdea3bea00624fa1e0b6e5e1052176072d4c"
+  },
+  {
+    "path": "src/components/RotarySurface.web.tsx",
+    "sha256": "17aaf64cf8b6249bd86018b561cdebcef8364c0d6d3375784897dfb5ef93835c"
+  },
+  {
+    "path": "src/components/SelectionDial.tsx",
+    "sha256": "8190257ac9ecdc9b241df8c70e0922fa389f3c553e5078a06edbd70204e575be"
+  },
+  {
+    "path": "src/components/StepProgress.tsx",
+    "sha256": "0d5b220d5ed04d13ba61497d5f28dd22cb0f1b051152d50e24f7800444d4852e"
+  },
+  {
+    "path": "src/components/TarotSetup.tsx",
+    "sha256": "ac728f15a135b75c30c5855e8d04fdfc9c3e0f58927d1c2fe413debe65c7beb4"
+  },
+  {
+    "path": "src/screens/Journal.tsx",
+    "sha256": "1993d746bbd8b9d050ed2935d72fb6ce0ce37b70351ebdd7ead49db20e57e98e"
+  },
+  {
+    "path": "src/screens/P0Tarot.tsx",
+    "sha256": "de408330f8ada40042c9b0d2bd8b954700091bbeff4df63959e3da74c0375208"
+  },
+  {
+    "path": "src/screens/Story.tsx",
+    "sha256": "626ccde486b7c6a4ea774b035e394b5ac4c90fa317aa0264fcf3f51e6fec6ba7"
+  },
+  {
+    "path": "src/screens/Talk.tsx",
+    "sha256": "25093e4bad72e94f3760ea363f159c8b6b26f1c40c5b38e743f2dc36e31a2d5c"
+  },
+  {
+    "path": "src/services/feedback.web.ts",
+    "sha256": "226fad17713a14c45298fe35051b1c9821e185ccdda258bb64cd3d3609385a7e"
+  },
+  {
+    "path": "src/web/svg.tsx",
+    "sha256": "aba35291a272d862f3c3e810492a49bb909a7b7100d1c1f237402db781f9a4ed"
+  }
+]
