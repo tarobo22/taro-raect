@@ -3,7 +3,7 @@ import {ActivityIndicator,Modal,Pressable,ScrollView,TextInput,View} from 'react
 import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
 import {Icon} from '../components/Icon';
 import {VoiceButton} from '../components/VoiceButton';
-import {SelectionDial} from '../components/SelectionDial';
+import {MoodDial} from '../components/MoodDial';
 import {color} from '../design/tokens';
 import {localDay} from '../domain/content';
 import {Entry,useStore} from '../state/store';
@@ -55,7 +55,7 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   <Copy muted>잘 쓸 필요 없어요. 한 줄이어도 충분해요.</Copy>{editor.draft.sourceReadingId||editor.draft.sourceTurnId?<Notice>{editor.draft.sourceReadingId?'이 타로 리딩과 연결해 남기는 기록이에요.':'이 대화 답변과 연결해 남기는 기록이에요.'}</Notice>:null}
   <View style={{marginTop:4}}>
    <FieldLabel>지금 내 마음 · 하나를 골라 주세요</FieldLabel>
-   {policy?<SelectionDial label="오늘의 마음" options={policy.moods} value={mood} onChange={value=>{if(!busy)editor.change({mood:value});}}/>:null}
+   {policy?<MoodDial options={policy.moods} value={mood} disabled={busy} onConfirm={value=>{if(!busy)editor.change({mood:value});}}/>:null}
    <View style={s.wrap}>{(policy?.moods||[]).map(value=><Chip key={value} selected={mood===value} onPress={()=>{if(!busy)editor.change({mood:value});}}>{value}</Chip>)}</View>
   </View>
   <View>
