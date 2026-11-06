@@ -33,9 +33,13 @@ export interface JournalDraftStore {
   clear():Promise<void>;
 }
 
+export type JournalMoodCode = 'calm' | 'happy' | 'thinking' | 'settled' | 'talk';
+export type JournalMoodLabels = Record<JournalMoodCode, string>;
+
 export interface JournalPolicy {
   moods: string[];
   maxBodyLength: number;
+  moodCodes?: JournalMoodLabels;
 }
 
 export interface JournalRepository {

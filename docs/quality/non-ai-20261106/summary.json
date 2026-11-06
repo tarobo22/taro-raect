@@ -1,0 +1,391 @@
+{
+  "as_of": "2026-11-06T09:16:09.612Z",
+  "retake_verified_at": "2026-11-06T09:18:57.007356+00:00",
+  "actual_app": "http://127.0.0.1:8827",
+  "actual_api": "http://127.0.0.1:8828",
+  "fixture_guests_only": true,
+  "prior_data_deleted": false,
+  "artifacts": [
+    {
+      "file": "01-home.png",
+      "bytes": 41682,
+      "width": 390,
+      "height": 844,
+      "sha256": "f258260c254e4a616c872f0c00d54df3d4eab4ec86511b6b5c995382eaf60776"
+    },
+    {
+      "file": "02-daily-basic.png",
+      "bytes": 74392,
+      "width": 390,
+      "height": 844,
+      "sha256": "926a23da15885082a14ba00b3ec2986e4b0031a797a1f85293d53ed0990bef15"
+    },
+    {
+      "file": "03-journal-draft.png",
+      "bytes": 32706,
+      "width": 390,
+      "height": 844,
+      "sha256": "96bd1bbbecf9cdecce288968728e4d17bc31293bd629f5d4edced4c51c54c72d"
+    },
+    {
+      "file": "04-journal-saved.png",
+      "bytes": 16654,
+      "width": 390,
+      "height": 844,
+      "sha256": "d4af015f8f12c2ed22aa554a55f0d1d0d076c4a3dc67bbc7ecf4135c9504ca37"
+    },
+    {
+      "file": "05-history.png",
+      "bytes": 28698,
+      "width": 390,
+      "height": 844,
+      "sha256": "03d371855b461e9a56fd754a53f5027177dc63c7765392145eadddb48c171fb1"
+    },
+    {
+      "file": "06-story-ending.png",
+      "bytes": 41175,
+      "width": 390,
+      "height": 844,
+      "sha256": "47048849f17ee33b54ad028dff2ffc014c377e2f3741c74ce21b73bf08ff4753"
+    },
+    {
+      "file": "07-account-unconfigured.png",
+      "bytes": 35613,
+      "width": 390,
+      "height": 844,
+      "sha256": "d06791dbf731688234bdeea15bfe69a8afdfe2fb8d2d62496207e24a4e09f76a"
+    },
+    {
+      "file": "08-billing-unconfigured.png",
+      "bytes": 35003,
+      "width": 390,
+      "height": 844,
+      "sha256": "78b5de9b99802443b419b46f555a7f8f6f1499bef6c26bf10893ab3cb97b4df3"
+    },
+    {
+      "file": "non-ai-walkthrough.webm",
+      "bytes": 1652026,
+      "sha256": "0c4ed065d7cc3e461e7241a829f1c8d1293dd5c4c0e3436f5c9c0e3be87b915e",
+      "container": "WebM",
+      "duration_seconds": 18,
+      "decode_verification": "video-verification.json, four seek positions readyState4"
+    }
+  ],
+  "walkthrough": {
+    "api_ui_status": "passed",
+    "visual_card_status": "passed: original front shown normally in latest 02 screenshot",
+    "steps": [
+      {
+        "step": "new guest → Home",
+        "status": "passed"
+      },
+      {
+        "step": "actual candidate daily card → basic result",
+        "status": "passed",
+        "ai_requested": false
+      },
+      {
+        "step": "source-linked dummy journal save → detail",
+        "status": "passed"
+      },
+      {
+        "step": "actual saved journal visible in history",
+        "status": "passed"
+      },
+      {
+        "step": "actual story start + 3 choices → ending",
+        "status": "passed"
+      },
+      {
+        "step": "actual unconfigured Google/Apple disabled",
+        "status": "passed"
+      },
+      {
+        "step": "actual unconfigured store catalog; no purchase attempted",
+        "status": "passed"
+      }
+    ],
+    "page_errors": [],
+    "qa_guest_id": "164cd708-efb2-4b2b-90c7-d887040e0bfc",
+    "candidate_label": "Rider-Waite 1909 Roses & Lilies · rws1909-20261105-ef03c0b150d3 · 후보 덱",
+    "providers": {
+      "google_disabled": true,
+      "apple_disabled": true
+    },
+    "billing": {
+      "unconfigured": true,
+      "restore_disabled": true
+    },
+    "ai_or_transcription_mutations": 0
+  },
+  "text_stress": {
+    "qa_guest_id": "9fb3be66-f593-4dbe-be4d-7f3f89cdc744",
+    "method": "Every direct-text HTML element and input/textarea gets its pre-injection computed font-size(px) and numeric line-height ×2, snapshot before mutation. SVG art/icons not scaled; layout dimensions unchanged. Reset/reapply for each screen. This is browser text-stress QA, not native/OS font scaling.",
+    "scope": "360/430 × Home/Journal/Account/Billing, computed text/input px ×2. Native/OS font scaling and all accessibility are not claimed.",
+    "cases": [
+      {
+        "width": 360,
+        "height": 844,
+        "screen": "Home",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      },
+      {
+        "width": 360,
+        "height": 844,
+        "screen": "Journal",
+        "font_factor": 2,
+        "status": "findings",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": [
+          {
+            "name": "오늘의 마음 이전",
+            "tag": "BUTTON",
+            "rect": {
+              "x": 38,
+              "y": 429,
+              "width": 48,
+              "height": 50
+            },
+            "caption_outside_control": true,
+            "caption_ranges": [
+              {
+                "left": 45.578125,
+                "right": 78.421875,
+                "top": 422,
+                "bottom": 486
+              }
+            ],
+            "horizontally_clipped": false,
+            "ancestor_clips": [],
+            "css": {
+              "font": "16px",
+              "overflow_x": "visible",
+              "overflow_y": "visible"
+            }
+          },
+          {
+            "name": "오늘의 마음 다음",
+            "tag": "BUTTON",
+            "rect": {
+              "x": 274,
+              "y": 429,
+              "width": 48,
+              "height": 50
+            },
+            "caption_outside_control": true,
+            "caption_ranges": [
+              {
+                "left": 274,
+                "right": 322,
+                "top": 422,
+                "bottom": 486
+              }
+            ],
+            "horizontally_clipped": false,
+            "ancestor_clips": [],
+            "css": {
+              "font": "16px",
+              "overflow_x": "visible",
+              "overflow_y": "visible"
+            }
+          }
+        ]
+      },
+      {
+        "width": 360,
+        "height": 844,
+        "screen": "Account",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      },
+      {
+        "width": 360,
+        "height": 844,
+        "screen": "Billing",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      },
+      {
+        "width": 430,
+        "height": 844,
+        "screen": "Home",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      },
+      {
+        "width": 430,
+        "height": 844,
+        "screen": "Journal",
+        "font_factor": 2,
+        "status": "findings",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": [
+          {
+            "name": "오늘의 마음 이전",
+            "tag": "BUTTON",
+            "rect": {
+              "x": 73,
+              "y": 429,
+              "width": 48,
+              "height": 50
+            },
+            "caption_outside_control": true,
+            "caption_ranges": [
+              {
+                "left": 80.578125,
+                "right": 113.421875,
+                "top": 422,
+                "bottom": 486
+              }
+            ],
+            "horizontally_clipped": false,
+            "ancestor_clips": [],
+            "css": {
+              "font": "16px",
+              "overflow_x": "visible",
+              "overflow_y": "visible"
+            }
+          },
+          {
+            "name": "오늘의 마음 다음",
+            "tag": "BUTTON",
+            "rect": {
+              "x": 309,
+              "y": 429,
+              "width": 48,
+              "height": 50
+            },
+            "caption_outside_control": true,
+            "caption_ranges": [
+              {
+                "left": 309,
+                "right": 357,
+                "top": 422,
+                "bottom": 486
+              }
+            ],
+            "horizontally_clipped": false,
+            "ancestor_clips": [],
+            "css": {
+              "font": "16px",
+              "overflow_x": "visible",
+              "overflow_y": "visible"
+            }
+          }
+        ]
+      },
+      {
+        "width": 430,
+        "height": 844,
+        "screen": "Account",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      },
+      {
+        "width": 430,
+        "height": 844,
+        "screen": "Billing",
+        "font_factor": 2,
+        "status": "passed",
+        "document_overflow": false,
+        "text_findings": [],
+        "required_button_clips": [],
+        "geometry_observations": []
+      }
+    ],
+    "overall": "No document horizontal overflow or required CTA clipping in 8 combinations. Journal ± glyph Range extends 7px above/below 48x50 hitbox at both widths; overflow visible/ancestor clips0. Kept as an injected-text geometry observation, not asserted to be actual OS text clipping.",
+    "appendix": "responsive-360-journal-text2x.png"
+  },
+  "bundle_provenance": {
+    "main": [
+      "/assets/index-Bd0ou1yk.js"
+    ],
+    "responsive": [
+      "/assets/index-Bd0ou1yk.js"
+    ],
+    "note": "Latest full retake after root separate-face card fix. Loaded bundle identifies served code more precisely than a HEAD while root integration is in progress."
+  },
+  "card_visual_regression": {
+    "status": "passed",
+    "direct_visual_review": "Latest 02-daily-basic.png shows the original Pentacles 5 front normally after settling.",
+    "geometry": "card-geometry-verified.json",
+    "original_observation_preserved": "card-geometry.json",
+    "root_reported_regression": "Root independently confirmed actual backface pixel comparison RED→GREEN; this QA reruns the full actual API happy flow."
+  },
+  "first_attempt": {
+    "metadata": "first-attempt-metadata.json",
+    "original_geometry": "card-geometry.json",
+    "state": "Preserved historical failed observation; final eight PNG paths and video were deliberately reused with corrected current content/hashes."
+  },
+  "video_verification": {
+    "file": "non-ai-walkthrough.webm",
+    "media": {
+      "duration": 18,
+      "width": 390,
+      "height": 844,
+      "frames": [
+        {
+          "time": 0.5,
+          "ready_state": 4,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "time": 6,
+          "ready_state": 4,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "time": 12,
+          "ready_state": 4,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "time": 17,
+          "ready_state": 4,
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    "status": "passed"
+  },
+  "evidence_files": [
+    "final-qa-evidence.json",
+    "responsive-evidence.json",
+    "card-geometry-verified.json",
+    "video-verification.json"
+  ],
+  "limitations": [
+    "No actual OAuth/store purchase, microphone recording or provider invocation.",
+    "Candidate deck is unreviewed and is not portrayed as published/final art.",
+    "Only QA artifacts and the requested reconciliation report statuses were changed; repository code/tests/config and prior owners/data were not changed."
+  ]
+}

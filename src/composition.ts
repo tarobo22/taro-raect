@@ -2,6 +2,7 @@ import {runtime} from './config/runtime';
 import {FetchClient} from './infrastructure/http/FetchClient';
 import {GuestSession} from './infrastructure/http/GuestSession';
 import {JournalApi} from './features/journal/JournalApi';
+import {JournalSourceApi} from './features/journal/JournalSourceApi';
 import {SaveJournal} from './features/journal/saveJournal';
 import {ExperienceApi} from './features/experience/ExperienceApi';
 import type {ReadingDraft,CounselDraft} from './features/experience/model';
@@ -14,14 +15,31 @@ import type {JournalDraft} from './features/journal/model';
 import {Platform} from 'react-native';
 import {P0Api} from './features/p0/P0Api';
 import {P1Api} from './features/p1/P1Api';
+import {StoryApi} from './features/story/StoryApi';
+import {AdminSession} from './features/admin/AdminSession';
+import {AdminApi} from './features/admin/AdminApi';
 import {downloadPrivate} from './services/files';
+import {AccountApi} from './features/account/AccountApi';
+import {AccountTransport} from './features/account/AccountTransport';
+import {AccountRuntime} from './features/account/AccountRuntime';
+import {AccountFlow} from './features/account/AccountFlow';
+import {accountCache} from './features/account/storage';
+import {guestVault,pendingSocial} from './features/account/vault';
+import {social} from './services/social';
+import {uuid as accountOwnerId} from './features/account/contracts';
 
 export const session: GuestSession = new GuestSession({read: readSession, write: writeSession,clear:clearSession},
   () => http.request('/v2/sessions', {method: 'POST',body:JSON.stringify({platform:Platform.OS==='web'?'web':Platform.OS==='ios'?'ios':'android',locale:'ko-KR',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul'})}, false),true);
-export const http: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
+const rawHttp: FetchClient = new FetchClient(runtime.apiBaseUrl, runtime.timeoutMs,
   () => session.token(), (url, options) => fetch(url, options));
+export const http=new AccountTransport(rawHttp);
+export const accountApi=new AccountApi(rawHttp);
+export const accountRuntime:AccountRuntime=new AccountRuntime(accountApi,session,accountCache,http,guestVault,async()=>{const value=await rawHttp.request('/v2/bootstrap') as {user?:{id?:unknown}};return accountOwnerId(value?.user?.id);},owner=>accountFlow.eraseOwner(owner));
+export const accountFlow:AccountFlow=new AccountFlow(accountApi,pendingSocial,social,(grant,previous)=>accountRuntime.apply(grant,previous));
 export const journalRepository = new JournalApi(http, runtime.paths.journal,'/v2/journal-entries');
 export const getJournalEntry=(id:string)=>journalRepository.get(id);
+const journalSourceRepository=new JournalSourceApi(http);
+export const getJournalSource=(id:string)=>journalSourceRepository.get(id);
 export const createJournalSaver = () => new SaveJournal(journalRepository,undefined,journalRetries);
 export const createJournalDraft=(initial:JournalDraft)=>new JournalDraftSession(initial,journalDraftStore(initial));
 export const experienceRepository=new ExperienceApi(http,runtime.paths.experience);
@@ -32,5 +50,8 @@ export const submitCounsel=(draft:CounselDraft,id:string)=>experienceRepository.
 export const submitDaily=(draft:{day:string;topic:string},_id:string)=>experienceRepository.daily(draft.day,draft.topic);
 export const p0Repository=new P0Api(http);
 export const p1Repository=new P1Api(http);
+export const storyRepository=new StoryApi(http);
+export const adminSession=new AdminSession();
+export const adminRepository=new AdminApi(http,adminSession);
 export const p0Receipts=(name:string)=>operationReceipts('yeoun.p0.attempt.'+name);
 export const downloadExport=async(id:string)=>downloadPrivate(runtime.apiBaseUrl+'/v2/data-requests/'+encodeURIComponent(id)+'/download',await session.token(),'yeoun-export-'+id+'.zip',64*1024*1024);

@@ -1,0 +1,9 @@
+export type BillingKind='inapp'|'subs';
+export interface BillingProduct{product_id:string;kind:BillingKind;entitlement_key:string;}
+export interface BillingCatalog{store:'google_play';available:boolean;reason:'catalog_not_configured'|'store_not_configured'|null;can_purchase:boolean;account_id:string;package_name:string;products:BillingProduct[];}
+export interface Entitlement{key:string;product_id:string;expires_at:string|null;verified_at:string;}
+export interface VerifiedPurchase{state:'active'|'pending'|'expired'|'revoked';acknowledged:boolean;entitlements:Entitlement[];}
+export interface StoreReceipt{product_id:string;purchase_token:string;state:'purchased'|'pending';}
+export interface StoreOffer{offer_token:string;phases:{price:string;period:string;cycles:number;recurrence:number}[];}
+export interface StoreProduct{product_id:string;kind:BillingKind;title:string;description:string;offers:StoreOffer[];}
+export interface StoreBilling{supported:boolean;products(items:BillingProduct[]):Promise<StoreProduct[]>;purchase(id:string,kind:BillingKind,account:string,offer:string):Promise<{state:'completed'|'cancelled';purchases:StoreReceipt[]}>;restore():Promise<StoreReceipt[]>;}

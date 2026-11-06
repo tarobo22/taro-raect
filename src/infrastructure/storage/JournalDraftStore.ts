@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../features/account/storage';
 import type {JournalDraft,JournalDraftStore} from '../../features/journal/model';
 import {journalDraftKey} from '../../features/journal/model';
 

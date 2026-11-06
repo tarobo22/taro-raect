@@ -1,0 +1,3 @@
+import {createPkce} from '../features/account/contracts';
+export const social={platform:'web' as const,returnUri:()=>location.origin+'/auth/complete',ready:()=>!!globalThis.crypto?.getRandomValues&&!!globalThis.crypto?.subtle,pkce:()=>createPkce(globalThis.crypto),async open(url:string){location.assign(url);}};
+export function listenSocial(receive:(url:string)=>void){const check=()=>{if(!location.hash.includes('auth_'))return;const url=location.href;history.replaceState(history.state,'',location.pathname+location.search);receive(url);};window.addEventListener('hashchange',check);window.addEventListener('popstate',check);queueMicrotask(check);return()=>{window.removeEventListener('hashchange',check);window.removeEventListener('popstate',check);};}

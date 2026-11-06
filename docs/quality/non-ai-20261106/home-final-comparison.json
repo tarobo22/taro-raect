@@ -1,0 +1,185 @@
+{
+  "as_of": "2026-11-06T09:32:19.687Z",
+  "base": "http://127.0.0.1:8827",
+  "api": "http://127.0.0.1:8828",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "synthetic_guest_created": true,
+  "prior_data_deleted": false,
+  "repository_or_existing_tests_changed": false,
+  "network": [
+    {
+      "method": "POST",
+      "path": "/v2/sessions",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/v2/bootstrap",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v1/journal-policy",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v1/experience-config",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v1/entries",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v1/readings",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v1/counsel",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/v2/sessions/refresh",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/v2/story-episodes",
+      "status": 200
+    }
+  ],
+  "page_errors": [],
+  "old_evidence": {
+    "image": "01-home.png",
+    "image_sha256": "f258260c254e4a616c872f0c00d54df3d4eab4ec86511b6b5c995382eaf60776",
+    "video": "non-ai-walkthrough.webm",
+    "video_sha256": "0c4ed065d7cc3e461e7241a829f1c8d1293dd5c4c0e3436f5c9c0e3be87b915e",
+    "bundle": [
+      "/assets/index-Bd0ou1yk.js"
+    ]
+  },
+  "limitations": [
+    "Browser screenshot and geometry at 390x844; this does not certify native layout or OS accessibility.",
+    "Old image geometry is measured from exact painted panel colors, not a retained DOM; raster bounds can differ from CSS subpixels by less than one pixel.",
+    "Existing video remains evidence for its original bundle; the new home PNG is separate evidence for the corrected bundle."
+  ],
+  "bundle": [
+    "/assets/index-mAbMCFC4.js"
+  ],
+  "boxes": {
+    "header": {
+      "x": 18,
+      "y": 16,
+      "width": 276,
+      "height": 32
+    },
+    "title": {
+      "x": 24,
+      "y": 102,
+      "width": 342,
+      "height": 78
+    },
+    "daily_button": {
+      "x": 24,
+      "y": 608,
+      "width": 165,
+      "height": 146
+    },
+    "daily_panel": {
+      "x": 24,
+      "y": 608,
+      "width": 165,
+      "height": 146
+    },
+    "tarot_button": {
+      "x": 201,
+      "y": 608,
+      "width": 165,
+      "height": 146
+    },
+    "tarot_panel": {
+      "x": 201,
+      "y": 608,
+      "width": 165,
+      "height": 146
+    }
+  },
+  "new_image": {
+    "file": "01-home-final.png",
+    "sha256": "27f2afac6f07448598238aa0da410ab623e871d1cb00a793baa6b14830c1d4c4"
+  },
+  "painted_comparison": {
+    "daily": {
+      "rgb": [
+        243,
+        231,
+        216
+      ],
+      "previous": {
+        "x": 24,
+        "y": 608,
+        "width": 165,
+        "height": 146
+      },
+      "current": {
+        "x": 24,
+        "y": 608,
+        "width": 165,
+        "height": 146
+      },
+      "height_delta_px": 0,
+      "top_delta_px": 0
+    },
+    "tarot": {
+      "rgb": [
+        240,
+        221,
+        215
+      ],
+      "previous": {
+        "x": 201,
+        "y": 608,
+        "width": 165,
+        "height": 146
+      },
+      "current": {
+        "x": 201,
+        "y": 608,
+        "width": 165,
+        "height": 146
+      },
+      "height_delta_px": 0,
+      "top_delta_px": 0
+    }
+  },
+  "journal_cta": {
+    "box": {
+      "x": 24,
+      "y": 548,
+      "width": 342,
+      "height": 83
+    },
+    "visible": true,
+    "opened_form": true
+  },
+  "story_cta": {
+    "box": {
+      "x": 24,
+      "y": 651,
+      "width": 342,
+      "height": 52
+    },
+    "visible": true,
+    "opened_landing": true
+  },
+  "existing_image_video_preserved": true,
+  "status": "passed"
+}

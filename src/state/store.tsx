@@ -1,6 +1,7 @@
 import React,{createContext,useContext,useEffect,useMemo,useRef,useState} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {experienceRepository,journalRepository,p0Repository,session} from '../composition';
+import AsyncStorage from '../features/account/storage';
+import {experienceRepository,journalRepository,p0Repository,session,accountRuntime} from '../composition';
+import {accountCache} from '../features/account/storage';
 import type {Bootstrap,Consent,DataReceipt,Preferences,PreferencePatch,RecordFilter} from '../features/p0/model';
 import {contextSnapshot,validateContext,validRecordDate} from '../features/p0/selection';
 import {PreferencesWriter} from '../features/p0/PreferencesWriter';
@@ -10,6 +11,7 @@ import type {Tone} from '../domain/content';
 import type {JournalEntry,JournalPolicy} from '../features/journal/model';
 import type {ExperienceConfig,Reading,Counsel} from '../features/experience/model';
 import {configureFeedback,SensoryPreferences} from '../services/feedback';
+import {defaultSensory,restoreSensory} from '../features/audio/preferences';
 import {configureUpdatePolicy} from '../services/updates';
 import {DashboardLoader} from '../features/dashboard/DashboardLoader';
 export type Entry=JournalEntry;
@@ -21,7 +23,7 @@ interface State{
  contextVersions:Record<string,number>;contextError:string;setContextSelection:(entries:{id:string;version:number}[])=>void;recordFilter:RecordFilter;setRecordFilter:(filter:RecordFilter)=>void;recordDate:string;setRecordDate:(date:string)=>void;
  completeErasure:(receipt:DataReceipt)=>Promise<void>;
  journalPolicy:JournalPolicy|null;config:ExperienceConfig|null;entries:Entry[];readings:Reading[];counsels:Counsel[];
- loading:boolean;error:string;refresh:()=>Promise<void>;tone:Tone;setTone:(v:Tone)=>void;
+ recordsRevision:number;loading:boolean;error:string;refresh:()=>Promise<void>;tone:Tone;setTone:(v:Tone)=>void;
  reduced:boolean;setReduced:(v:boolean)=>void;draft:string;setDraft:(v:string)=>void;
  sensory:SensoryPreferences;setSensory:(v:SensoryPreferences)=>void;
 }
@@ -38,32 +40,35 @@ export function Store({children}:{children:React.ReactNode}){
  const [entries,setEntries]=useState<Entry[]>([]),[readings,setReadings]=useState<Reading[]>([]),[counsels,setCounsels]=useState<Counsel[]>([]);
  const [journalPolicy,setJournalPolicy]=useState<JournalPolicy|null>(null),[config,setConfig]=useState<ExperienceConfig|null>(null);
  const [loading,setLoading]=useState(true),[error,setError]=useState(''),[tone,setToneState]=useState<Tone>('warm');
+ const [recordsRevision,setRecordsRevision]=useState(0);
  const [reduced,setReducedState]=useState(false),[draft,setDraftState]=useState('');
- const [sensory,setSensoryState]=useState<SensoryPreferences>({sound:true,haptics:true,music:false});
+ const [sensory,setSensoryState]=useState<SensoryPreferences>({...defaultSensory});
  const [voiceMode,setVoiceModeState]=useState<'device'|'cloud'>('device'),[preferenceBusy,setPreferenceBusy]=useState(false),[preferenceError,setPreferenceError]=useState('');
  const preferenceWriter=useMemo(()=>new PreferencesWriter(p0Repository),[]),preferenceRevision=useRef(0),bootstrapReady=useRef(false),failedPreference=useRef<PreferencePatch|null>(null);
  function applyPreferences(value:Preferences){setToneState(value.tone);setReducedState(value.reduced_motion);setVoiceModeState(value.voice_mode);void AsyncStorage.multiSet([['yeoun.tone',value.tone],['yeoun.reduced',String(value.reduced_motion)],['yeoun.voice-mode',value.voice_mode]]).catch(()=>setPreferenceError('설정은 서버에 저장됐지만 기기 보관에 실패했어요.'));}
- async function savePreferences(patch:PreferencePatch){const revision=++preferenceRevision.current;setPreferenceBusy(true);setPreferenceError('');failedPreference.current=patch;if(patch.tone)setToneState(patch.tone);if(patch.reduced_motion!==undefined)setReducedState(patch.reduced_motion);if(patch.voice_mode)setVoiceModeState(patch.voice_mode);try{const saved=await preferenceWriter.change(patch);if(saved){applyPreferences(saved.preferences);setBootstrap(value=>value?{...value,user:saved}:value);failedPreference.current=null;}}catch(e){if(revision===preferenceRevision.current)setPreferenceError(e instanceof Error?e.message:'설정을 저장하지 못했어요. 다시 시도해 주세요.');}finally{if(revision===preferenceRevision.current)setPreferenceBusy(false);}}
+ function savePreferences(patch:PreferencePatch){return accountRuntime.trackLocal(async()=>{const revision=++preferenceRevision.current;setPreferenceBusy(true);setPreferenceError('');failedPreference.current=patch;if(patch.tone)setToneState(patch.tone);if(patch.reduced_motion!==undefined)setReducedState(patch.reduced_motion);if(patch.voice_mode)setVoiceModeState(patch.voice_mode);try{const saved=await preferenceWriter.change(patch);if(saved){applyPreferences(saved.preferences);setBootstrap(value=>value?{...value,user:saved}:value);failedPreference.current=null;}}catch(e){if(revision===preferenceRevision.current)setPreferenceError(e instanceof Error?e.message:'설정을 저장하지 못했어요. 다시 시도해 주세요.');}finally{if(revision===preferenceRevision.current)setPreferenceBusy(false);}});}
  async function retryPreferences(){if(failedPreference.current)await savePreferences(failedPreference.current);}
  const setVoiceMode=(mode:'device'|'cloud')=>{void savePreferences({voice_mode:mode});};
  const dashboard=useMemo(()=>new DashboardLoader(journalRepository,experienceRepository),[]);
- async function completeErasure(receipt:DataReceipt){
+ function completeErasure(receipt:DataReceipt){return accountRuntime.trackLocal(async()=>{
   if(receipt.device_cleanup_complete===true)return;
+  const owner=bootstrap?.user.id;if(owner&&await accountCache.owner()!==owner)return;
   setSessionState('checking');configureUpdatePolicy(null);dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;bootstrapReady.current=false;
   await eraseCurrentDeviceData(AsyncStorage,session,receipt,()=>reminderController.reset());
+  await accountRuntime.erased(owner);
   setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIdsState([]);setContextVersions({});setContextError('');contextRevision.current++;setRecordFilterState('전체');setRecordDateState('');setSelectedDeckState('');
-  setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({sound:true,haptics:true,music:false});setError('');setLoading(false);
+  setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({...defaultSensory});setError('');setLoading(false);
   setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
- }
- async function recover(){setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}}
- async function connect(){setSessionState('checking');setSessionError('');try{const raw=await AsyncStorage.getItem('yeoun.p0.data-receipt');if(raw){const receipt=JSON.parse(raw) as DataReceipt;if(receipt.kind==='erase'&&receipt.state==='completed'&&receipt.device_cleanup_complete!==true)await completeErasure(receipt);}await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}}
- async function reloadConsents(){const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);}
+ });}
+ function recover(){return accountRuntime.trackLocal(async()=>{setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();await accountCache.attach(next.user.id);bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}});}
+ function connect(){return accountRuntime.trackLocal(async()=>{setSessionState('checking');setSessionError('');try{const raw=await AsyncStorage.getItem('yeoun.p0.data-receipt');if(raw){const receipt=JSON.parse(raw) as DataReceipt;if(receipt.kind==='erase'&&receipt.state==='completed'&&receipt.device_cleanup_complete!==true)await completeErasure(receipt);}await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}});}
+ function reloadConsents(){return accountRuntime.trackLocal(async()=>{const next=await p0Repository.bootstrap();bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);});}
  const setSelectedDeck=(id:string)=>{setSelectedDeckState(id);AsyncStorage.setItem('yeoun.deck',id).catch(()=>{});};
  async function refresh(){
   setLoading(true);
   const next=await dashboard.load();
   if(!next)return;
-  setEntries(next.entries);setReadings(next.readings);setCounsels(next.counsels);
+  setEntries(next.entries);setReadings(next.readings);setCounsels(next.counsels);setRecordsRevision(value=>value+1);
   setJournalPolicy(next.journalPolicy);setConfig(next.config);
   setError(Object.values(next.errors).join('\n'));setLoading(false);
  }
@@ -80,7 +85,7 @@ export function Store({children}:{children:React.ReactNode}){
     if(key==='yeoun.deck'&&value)setSelectedDeckState(value);
     if(key==='yeoun.reduced')setReducedState(value==='true');
     if(key==='yeoun.draft'&&value)setDraftState(value);
-    if(key==='yeoun.sensory'&&value)try{const v=JSON.parse(value);setSensoryState({sound:v.sound!==false,haptics:v.haptics!==false,music:v.music===true});}catch{}
+    if(key==='yeoun.sensory'&&value)try{setSensoryState(restoreSensory(JSON.parse(value)));}catch{}
    }
   }).catch(()=>{});void recover();
  },[]);
@@ -89,6 +94,7 @@ export function Store({children}:{children:React.ReactNode}){
  const setReduced=(v:boolean)=>{void savePreferences({reduced_motion:v});};
  const setDraft=(v:string)=>{setDraftState(v);AsyncStorage.setItem('yeoun.draft',v).catch(()=>{});};
  const setSensory=(v:SensoryPreferences)=>{configureFeedback(v);setSensoryState(v);AsyncStorage.setItem('yeoun.sensory',JSON.stringify(v)).catch(()=>{});};
- return <Context.Provider value={{contextVersions,contextError,setContextSelection,recordFilter,setRecordFilter,recordDate,setRecordDate,voiceMode,setVoiceMode,preferenceBusy,preferenceError,retryPreferences,sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,completeErasure,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
+ useEffect(()=>()=>{dashboard.clear();preferenceWriter.reset();preferenceRevision.current++;contextRevision.current++;},[dashboard,preferenceWriter]);
+ return <Context.Provider value={{recordsRevision,contextVersions,contextError,setContextSelection,recordFilter,setRecordFilter,recordDate,setRecordDate,voiceMode,setVoiceMode,preferenceBusy,preferenceError,retryPreferences,sessionState,sessionError,bootstrap,connect,recover,reloadConsents,consents,completeErasure,selectedDeck,setSelectedDeck,contextIds,setContextIds,entries,readings,counsels,journalPolicy,config,loading,error,refresh,tone,setTone,reduced,setReduced,draft,setDraft,sensory,setSensory}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store provider is required');return value;}

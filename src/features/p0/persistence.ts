@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../account/storage';
 import type {Route} from '../../navigation';
 const key='yeoun.p0.pending-job';
 export async function rememberJob(route:Route){await AsyncStorage.setItem(key,JSON.stringify(route));}

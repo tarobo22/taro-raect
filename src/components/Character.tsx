@@ -1,15 +1,16 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useRef,useState} from 'react';
 import {Animated,Image,Platform,View} from 'react-native';
 import Svg,{Path,Ellipse,Circle} from 'react-native-svg';
 import {color,motion} from '../design/tokens';
 import {characterBody} from './characterBody';
+import {useActivityEffect} from '../features/motion/useActivityEffect';
 export type Expression='calm'|'welcome'|'listen'|'encourage'|'joy'|'concern'|'serious';
 export const expressionNames:Record<Expression,string>={calm:'편안함',welcome:'반가움',listen:'경청',encourage:'응원',joy:'기쁨',concern:'걱정',serious:'진지함'};
 
 export function Character({expression='calm',giga=false,reduced=false,size=230}:{expression?:Expression;giga?:boolean;reduced?:boolean;size?:number}){
  const breath=useRef(new Animated.Value(0)).current;
  const [blink,setBlink]=useState(false);
- useEffect(()=>{if(reduced){breath.setValue(0);return;}const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:motion.breath,useNativeDriver:Platform.OS!=='web'}),Animated.timing(breath,{toValue:0,duration:motion.breath,useNativeDriver:Platform.OS!=='web'})]));loop.start();let close:ReturnType<typeof setTimeout>;const timer=setInterval(()=>{setBlink(true);close=setTimeout(()=>setBlink(false),150);},motion.blink);return()=>{loop.stop();clearInterval(timer);clearTimeout(close);};},[breath,reduced]);
+ useActivityEffect(current=>{breath.setValue(0);setBlink(false);const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:motion.breath,useNativeDriver:Platform.OS!=='web'}),Animated.timing(breath,{toValue:0,duration:motion.breath,useNativeDriver:Platform.OS!=='web'})]));loop.start();let close:ReturnType<typeof setTimeout>|undefined;const timer=setInterval(()=>{if(!current())return;setBlink(true);close=setTimeout(()=>{if(current())setBlink(false);},150);},motion.blink);return()=>{loop.stop();clearInterval(timer);clearTimeout(close);breath.setValue(0);setBlink(false);};},[breath],!reduced);
  const happy=['joy','welcome','encourage'].includes(expression);
  const mouth=expression==='serious'?'M129 124 Q140 125 151 124':expression==='concern'?'M130 124 Q140 126 150 124':happy?'M127 121 Q140 134 153 121':'M129 122 Q140 129 151 122';
  const face=giga?'M98 62 C98 42 182 42 182 62 L182 99 C182 115 172 132 160 139 L140 145 L120 139 C108 132 98 115 98 99 Z':'M104 62 C104 42 176 42 176 62 L176 96 C176 119 162 139 140 142 C118 139 104 119 104 96 Z';

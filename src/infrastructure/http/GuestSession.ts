@@ -8,17 +8,37 @@ export class GuestSession {
   private cached: string | null = null;
   private pending: Promise<string> | null = null;
   private generation=0;
+  private changing:Promise<void>|null=null;
+  private writes:Promise<unknown>=Promise.resolve();
 
   constructor(private readonly store: SessionStore, private readonly create: () => Promise<unknown>,private readonly explicitStart=false) {}
 
   async hasStoredSession():Promise<boolean>{return (await this.store.read())!==null;}
   async forget():Promise<void>{
-    this.generation++;this.cached=null;
-    const pending=this.pending;if(pending)await pending.catch(()=>{});
-    await this.store.clear?.();this.pending=null;
+    const generation=++this.generation;this.cached=null;
+    const pending=this.pending,previous=this.changing;
+    const changing=(async()=>{await pending?.catch(()=>{});await previous?.catch(()=>{});
+      await this.persist(async()=>{if(generation===this.generation)await this.store.clear?.();});if(this.pending===pending)this.pending=null;
+    })();this.changing=changing;
+    try{await changing;}finally{if(this.changing===changing)this.changing=null;}
+  }
+
+  private persist<T>(work:()=>Promise<T>):Promise<T>{const next=this.writes.catch(()=>{}).then(work);this.writes=next;return next;}
+  async adopt(token:string,expected?:string):Promise<void>{
+    if(!/^[\da-f]{64}$/.test(token))throw new Error('새 계정 연결을 확인하지 못했어요.');
+    const generation=++this.generation,pending=this.pending;this.cached=null;
+    const changing=(async()=>{await pending?.catch(()=>{});await this.persist(async()=>{
+      if(generation!==this.generation)throw new Error('더 새로운 계정 연결이 있어 적용하지 않았어요.');
+      if(expected!==undefined&&await this.store.read()!==expected)throw new Error('다른 화면에서 계정 연결이 바뀌었어요. 다시 확인해 주세요.');
+      await this.store.write(token);
+      if(generation!==this.generation)throw new Error('계정 연결이 바뀌어 이전 응답은 적용하지 않았어요.');
+      this.cached=token;
+    });})();this.changing=changing;
+    try{await changing;}finally{if(this.changing===changing)this.changing=null;}
   }
 
   start():Promise<string>{
+    if(this.changing)return this.changing.then(()=>this.start());
     if(this.cached)return Promise.resolve(this.cached);
     if(this.pending)return this.pending;
     this.pending=this.load(true).finally(()=>{this.pending=null;});
@@ -26,6 +46,7 @@ export class GuestSession {
   }
 
   token(): Promise<string> {
+    if(this.changing)return this.changing.then(()=>this.token());
     if (this.cached) return Promise.resolve(this.cached);
     if (this.pending) return this.pending;
     this.pending = this.load().finally(() => {this.pending = null;});
@@ -45,8 +66,11 @@ export class GuestSession {
     if (typeof token !== 'string' || !/^[\da-f]{64}$/.test(token)) {
       throw new Error('기록 연결을 확인하지 못했어요.');
     }
-    await this.store.write(token);
-    if(generation!==this.generation){await this.store.clear?.();throw new Error('기기 연결이 해제됐어요.');}
+    await this.persist(async()=>{
+      if(generation!==this.generation)throw new Error('기기 연결이 해제됐어요.');
+      await this.store.write(token);
+      if(generation!==this.generation)throw new Error('기기 연결이 해제됐어요.');
+    });
     return this.cached = token;
   }
 }

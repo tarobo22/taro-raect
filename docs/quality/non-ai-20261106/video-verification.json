@@ -1,0 +1,35 @@
+{
+  "file": "non-ai-walkthrough.webm",
+  "media": {
+    "duration": 18,
+    "width": 390,
+    "height": 844,
+    "frames": [
+      {
+        "time": 0.5,
+        "ready_state": 4,
+        "width": 390,
+        "height": 844
+      },
+      {
+        "time": 6,
+        "ready_state": 4,
+        "width": 390,
+        "height": 844
+      },
+      {
+        "time": 12,
+        "ready_state": 4,
+        "width": 390,
+        "height": 844
+      },
+      {
+        "time": 17,
+        "ready_state": 4,
+        "width": 390,
+        "height": 844
+      }
+    ]
+  },
+  "status": "passed"
+}

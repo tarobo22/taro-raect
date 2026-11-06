@@ -1,5 +1,6 @@
 import type {JsonTransport} from '../../infrastructure/http/FetchClient';
 import type {JournalDetailRepository, JournalDraft, JournalEntry, JournalPolicy, JournalRepository} from './model';
+import {decodeMoodCodes,isJournalMoodCode,journalMoodCode,journalMoodLabel} from './moodMapping';
 
 export interface JournalEndpoints {entries: string; policy: string;}
 
@@ -20,16 +21,15 @@ export function decodeEntry(value: unknown): JournalEntry {
 }
 
 export class JournalApi implements JournalRepository,JournalDetailRepository {
-  private labels:string[]|null=null;
+  private journalPolicy:JournalPolicy|null=null;
   constructor(private readonly http: JsonTransport, private readonly paths: JournalEndpoints,private readonly v2?:string) {}
-  private readonly codes=['calm','happy','thinking','settled','talk'];
-  private async moodCode(mood:string){if(this.codes.includes(mood))return mood;const labels=this.labels??(await this.policy()).moods;const code=this.codes[labels.indexOf(mood)];if(!code)throw new Error('마음 선택을 다시 확인해 주세요.');return code;}
+  private async moodCode(mood:string){if(isJournalMoodCode(mood))return mood;return journalMoodCode(mood,this.journalPolicy??await this.policy());}
   private async decodeV2(value:unknown):Promise<JournalEntry>{
     if(!isRecord(value))throw new Error('기록 응답을 확인하지 못했어요.');
-    const labels=this.labels??(await this.policy()).moods;
+    const policy=this.journalPolicy??await this.policy();
     const source=(v:unknown)=>{if(v==null)return undefined;if(typeof v!=='string'||!/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(v))throw new Error('연결된 기록 출처를 확인하지 못했어요.');return v;};
     const sourceReadingId=source(value.source_reading_id),sourceTurnId=source(value.source_turn_id);if(sourceReadingId&&sourceTurnId)throw new Error('기록 출처는 하나만 연결할 수 있어요.');
-    const entry=decodeEntry({...value,day:value.local_day,mood:labels[this.codes.indexOf(String(value.mood))]??value.mood});
+    const entry=decodeEntry({...value,day:value.local_day,mood:typeof value.mood==='string'?journalMoodLabel(value.mood,policy):value.mood});
     return {...entry,...(sourceReadingId||sourceTurnId?{apiVersion:2 as const}:{}),...(sourceReadingId?{sourceReadingId}:{}),...(sourceTurnId?{sourceTurnId}:{})};
   }
 
@@ -72,7 +72,9 @@ export class JournalApi implements JournalRepository,JournalDetailRepository {
         !Number.isInteger(value.maxBodyLength) || value.maxBodyLength <= 0) {
       throw new Error('마음기록 설정을 불러오지 못했어요.');
     }
-    this.labels=value.moods;return {moods: value.moods, maxBodyLength: value.maxBodyLength};
+    const policy:JournalPolicy={moods:[...value.moods],maxBodyLength:value.maxBodyLength,
+      ...(value.moodCodes!==undefined?{moodCodes:decodeMoodCodes(value.moodCodes,value.moods)}:{})};
+    this.journalPolicy=policy;return policy;
   }
 }
 

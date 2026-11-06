@@ -1,0 +1,25 @@
+✖ confirmed daily card decodes a hash-matched bundled image without external assets; reentry stays revealed (1654.4384ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1961.7556
+
+✖ failing tests:
+
+test at tests\e2e\card-reveal.test.mjs:18:1
+✖ confirmed daily card decodes a hash-matched bundled image without external assets; reentry stays revealed (1654.4384ms)
+  AssertionError [ERR_ASSERTION]: the painted face must match the decoded card, rather than a mirrored back
+      at TestContext.<anonymous> (file:///C:/Users/chang/Documents/ChatGPT/0915%202/taro-raect/tests/e2e/card-reveal.test.mjs:27:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {enterGuest} from './onboarding.mjs';
+const {chromium}=await import(process.env.YEOUN_PLAYWRIGHT_MODULE||'playwright');
+test('real unconfigured catalog has no invented prices or purchase success; the web offers entitlement viewing',{timeout:30000},async t=>{
+ const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
+ const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});page.setDefaultTimeout(7000);
+ const calls=[];page.on('request',request=>{if(request.url().includes('/v2/billing/'))calls.push({url:request.url(),method:request.method()});});
+ await page.goto(process.env.YEOUN_WEB_URL||'http://127.0.0.1:8827');await enterGuest(page);
+ await page.getByRole('tab',{name:'내 공간',exact:true}).click();await page.getByRole('button',{name:'구매와 이용 권한',exact:true}).click();
+ await page.getByText('아직 판매 중인 상품이 없어요. 무료 기능은 계속 사용할 수 있어요.',{exact:true}).waitFor();
+ await page.getByText('연결된 유료 이용 권한이 없어요.',{exact:true}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'구매 복원',exact:true}).isDisabled(),true);
+ assert.equal(await page.getByRole('button',{name:'스토어에서 구매 조건 확인',exact:true}).count(),0);
+ assert.ok(calls.some(c=>c.url.endsWith('/v2/billing/catalog')));
+ assert.equal(calls.some(c=>c.method==='POST'),false);
+ const out=process.env.YEOUN_TEST_ARTIFACTS||'.local/billing';await mkdir(out,{recursive:true});await page.screenshot({path:out+'/billing-unconfigured.png',fullPage:true});
+ await page.getByRole('button',{name:'뒤로가기',exact:true}).click();await page.getByRole('button',{name:'구매와 이용 권한',exact:true}).waitFor();
+});
