@@ -1,0 +1,13 @@
+✔ broken saved settings keep a usable default without resetting unrelated preferences (3.4475ms)
+✔ late hydration never replaces a choice the user has already made (0.5079ms)
+✔ rapid selections persist in order and end with the latest visible skin (0.6838ms)
+✔ failed persistence preserves the visible choice and can be explicitly retried (0.511ms)
+✔ unknown skin IDs cannot publish an invalid asset choice or write storage (0.2103ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1594.2133
