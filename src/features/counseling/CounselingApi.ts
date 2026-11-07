@@ -8,7 +8,7 @@ export interface CounselingSession{id:string;topic:Topic;version:number;phase:'l
 export interface SessionSummary{id:string;topic:Topic;phase:string;summary:string;updated_at:string;}
 export interface Capabilities{available:boolean;policy_version:string;card_counts:number[];glossary_limit:number;max_message_chars:number;}
 export interface MessageInput{text:string;expected_version:number;consent_event_id:string;remember_definitions:boolean;}
-export interface ConfirmInput{confirmed:true;expected_version:number;consent_event_id:string;web_search:boolean;card_count:1|3;}
+export interface ConfirmInput{confirmed:true;expected_version:number;consent_event_id:string;web_search:boolean;card_count:1|3|5;}
 
 const invalid=()=>new Error('대화 응답을 확인하지 못했어요. 다시 연결해 주세요.');
 function record(value:unknown):Record<string,unknown>{
@@ -72,10 +72,10 @@ export class CounselingApi {
  async capabilities():Promise<Capabilities>{
   const value=await this.http.request('/v2/counseling/capabilities'),caps=record(value);
   boolean(caps.available);text(caps.policy_version);positive(caps.glossary_limit);positive(caps.max_message_chars);
-  if(array(caps.card_counts).some(count=>count!==1&&count!==3))throw invalid();
+  if(array(caps.card_counts).some(count=>count!==1&&count!==3&&count!==5))throw invalid();
   return value as Capabilities;
  }
- async create(topic:Topic,key:string){return decode(await this.http.request('/v2/counseling/sessions',post({topic},key)));}
+ async create(topic:Topic,key:string,sourceReadingId?:string){return decode(await this.http.request('/v2/counseling/sessions',post({topic,...(sourceReadingId?{source_reading_id:sourceReadingId}:{})},key)));}
  async get(id:string){return decode(await this.http.request(sessionPath(id)));}
  async message(id:string,input:MessageInput,key:string){
   const body={text:input.text,expected_version:input.expected_version,consent_event_id:input.consent_event_id,remember_definitions:input.remember_definitions};

@@ -13,8 +13,9 @@ import {submitReading,submitDaily,readingRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
+import {requestId} from '../infrastructure/requestId';
 import AsyncStorage from '../features/account/storage';
-import {DeckChoice,DrawV2,StartThree,ResourceDelete} from './P0Tarot';
+import {DeckChoice,DrawV2,topicCode,ResourceDelete} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 import {TarotSetupIntro,CompactTopicPicker,TarotDepthPicker} from '../components/TarotSetup';
 
@@ -43,7 +44,7 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
   </View>
   {voice?<Notice>{voice}</Notice>:null}{draftError?<Notice error>{draftError}</Notice>:null}
   <DeckChoice nav={nav} compact/>
-  {spread.positions.length===3?<StartThree nav={nav} topic={selectedTopic} question={question}/>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
+  {spread.positions.length===3||spread.positions.length===5?<Button icon="cards" onPress={()=>nav.push({name:'counseling',counselingDraftKey:requestId(),topic:topicCode(selectedTopic),initialText:question,cardCount:spread.positions.length as 3|5})}>{spread.positions.length}장 타로로 이야기하기</Button>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
  </View>;
 }
 

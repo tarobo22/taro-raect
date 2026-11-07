@@ -4,7 +4,7 @@ import {DraftMemory} from './DraftMemory';
 import {HttpError} from '../../infrastructure/http/FetchClient';
 
 export type CounselingPort=Pick<CounselingApi,'capabilities'|'create'|'get'|'message'|'confirm'|'sessions'|'delete'|'glossary'|'define'|'forget'>;
-export interface CounselingOptions{owner:string;topic?:Topic;sessionId?:string;initialText?:string;}
+export interface CounselingOptions{owner:string;topic?:Topic;sessionId?:string;initialText?:string;sourceReadingId?:string;draftKey?:string;}
 export interface ConversationState{value:CounselingSession|null;text:string;busy:boolean;pending:boolean;error:string;caps:Capabilities|null;definitions:Definition[];sessions:SessionSummary[];}
 const empty=():ConversationState=>({value:null,text:'',busy:false,pending:false,error:'',caps:null,definitions:[],sessions:[]});
 type Attempt={kind:'message';id:string;key:string;payload:MessageInput}|{kind:'confirm';id:string;key:string;payload:ConfirmInput};
@@ -16,9 +16,9 @@ export class CounselingController{
  private creation:string;private draftKey:string;private restore?:string;private attempt?:Attempt;
  constructor(private api:CounselingPort,private nextId:()=>string,private drafts:DraftMemory,private options:CounselingOptions){
   this.owner=options.owner;this.fence.attach(this.owner);this.drafts.attach(this.owner);
-  this.creation=this.nextId();this.draftKey=options.sessionId||'new';
+  this.creation=options.sourceReadingId||this.nextId();this.draftKey=options.sessionId||(options.sourceReadingId?'reading:'+options.sourceReadingId:options.draftKey||'new');
   const previous=this.drafts.read(this.draftKey);this.restore=options.sessionId||previous?.sessionId;
-  this.state={...empty(),text:options.initialText??previous?.text??''};
+  this.state={...empty(),text:options.draftKey?(previous?.text??options.initialText??''):(options.initialText??previous?.text??'')};
  }
  subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener);};};
  getSnapshot=()=>this.state;
@@ -32,12 +32,14 @@ export class CounselingController{
  private get ready(){return !!this.owner&&!!this.state.caps?.available&&!this.state.busy&&!this.attempt&&!this.processing;}
  async initialize():Promise<void>{
   const epoch=this.fence.capture(),restore=this.restore;
+  if(this.options.sourceReadingId)this.patch({busy:true});
   await Promise.all([
    this.api.capabilities().then(caps=>{if(this.fence.valid(epoch))this.patch({caps});})
     .catch(error=>{if(this.fence.valid(epoch))this.patch({error:message(error)});}),
-   restore?this.api.get(restore).then(value=>{if(this.fence.valid(epoch))this.publish(value);})
+   restore||this.options.sourceReadingId?(restore?this.api.get(restore):this.api.create(this.options.topic||'care',this.creation,this.options.sourceReadingId)).then(value=>{if(this.fence.valid(epoch))this.publish(value);})
     .catch(error=>{if(this.fence.valid(epoch))this.patch({error:message(error)});}):Promise.resolve()
   ]);
+  if(this.options.sourceReadingId&&this.fence.valid(epoch))this.patch({busy:false});
  }
  attach(owner:string){
   if(owner===this.owner)return;
@@ -50,14 +52,14 @@ export class CounselingController{
   const epoch=this.fence.capture(),text=this.state.text.trim();this.patch({busy:true,error:''});
   try{
    let session=this.state.value;
-   if(!session){session=await this.api.create(this.options.topic||'care',this.creation);
+   if(!session){session=await this.api.create(this.options.topic||'care',this.creation,this.options.sourceReadingId);
     if(!this.fence.valid(epoch))return false;this.publish(session);}
    return await this.execute({kind:'message',id:session.id,key:this.nextId(),payload:{text,
     expected_version:session.version,consent_event_id:consent,remember_definitions:remember}});
   }catch(error){if(this.fence.valid(epoch))this.patch({error:message(error)});return false;}
   finally{if(this.fence.valid(epoch))this.patch({busy:false});}
  }
- async confirm(consent:string,count:1|3,web:boolean):Promise<boolean>{
+ async confirm(consent:string,count:1|3|5,web:boolean):Promise<boolean>{
   const value=this.state.value;if(!this.ready||!consent||value?.phase!=='confirmation')return false;
   return this.execute({kind:'confirm',id:value.id,key:this.nextId(),payload:{confirmed:true,
    expected_version:value.version,consent_event_id:consent,card_count:count,web_search:web}});
