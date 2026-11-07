@@ -4,6 +4,8 @@
 
 `main`에서 위 검증이 모두 통과하면 같은 빌드 결과를 SHA-256과 함께 GitHub Release로 게시한다. 여운 전용 서버가 1분 간격으로 릴리스를 확인하고 웹 파일을 교체한다. Actions는 서버에 해당 릴리스가 반영되고 웹·API health가 통과해야 성공 처리한다.
 
+게시 전 현재 `main`과 빌드 커밋을 대조한다. 새 커밋에 뒤처진 빌드는 artifact로만 보관하며, 업로드 도중 `main`이 바뀌어도 draft를 공개하지 않는다. 최신 커밋의 업로드 실패는 숨기지 않고 Actions 실패로 처리한다.
+
 - [공개 앱](https://yeoun-43-201-209-249.sslip.io/)
 - [배포 상태](https://yeoun-43-201-209-249.sslip.io/deployment-status.json)
 - [실행 기록](https://github.com/tarobo22/taro-raect/actions/workflows/checks.yml)
