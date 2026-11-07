@@ -319,4 +319,3 @@
 | A | tools/tdd_skins.py |
 
 기존 테스트 수정·삭제: 없음
-
