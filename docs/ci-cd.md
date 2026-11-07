@@ -6,6 +6,8 @@
 
 게시 전 현재 `main`과 빌드 커밋을 대조한다. 새 커밋에 뒤처진 빌드는 artifact로만 보관하며, 업로드 도중 `main`이 바뀌어도 draft를 공개하지 않는다. 최신 커밋의 업로드 실패는 숨기지 않고 Actions 실패로 처리한다.
 
+문서만 변경된 push는 빌드를 생략한다. 문서 커밋이 빌드 도중 추가되면 코드가 같은지 확인해 원래 검증한 커밋으로 게시한다. 코드 변경 또는 불완전한 비교 결과는 게시하지 않는다.
+
 - [공개 앱](https://yeoun-43-201-209-249.sslip.io/)
 - [배포 상태](https://yeoun-43-201-209-249.sslip.io/deployment-status.json)
 - [실행 기록](https://github.com/tarobo22/taro-raect/actions/workflows/checks.yml)
