@@ -8,14 +8,15 @@ import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {useStore} from '../state/store';
 import type {Nav,Route,ScreenName} from '../navigation';
 import {Settings} from './Settings';
-import {Consents,Decks,CardDetail,Sources,DataControls,Feedback} from './P0';
+import {Consents,CardDetail,Sources,DataControls,Feedback} from './P0';
+import {Decks} from './DeckCatalog';
 import {AccountScreen} from './Account';
 import {RemindersScreen} from './Reminders';
 import {BillingScreen} from './Billing';
 import {AdminScreen} from './Admin';
 
 const titles:Partial<Record<ScreenName,string>>={settings:'설정',consents:'AI 이용 설정',decks:'카드 덱과 그림',card:'카드 상세',sources:'그림과 소리의 출처',data:'내 기록과 데이터',feedback:'의견 남기기',account:'계정 연결',reminders:'마음기록 알림',billing:'구매와 이용 권한',admin:'운영관리'};
-export function isSettingsRoute(name:ScreenName){return name!=='card'&&name in titles;}
+export function isSettingsRoute(name:ScreenName){return name!=='card'&&name!=='decks'&&name in titles;}
 
 // Keep the conversation mounted while preferences and their detail pages are open.
 export function SettingsPage({initialRoute,onClose,onNavigate,onTab}:{initialRoute:Route;onClose:()=>void;onNavigate:(route:Route)=>void;onTab:Nav['tab']}){
@@ -23,8 +24,8 @@ export function SettingsPage({initialRoute,onClose,onNavigate,onTab}:{initialRou
  const [stack,setStack]=useState<Route[]>(()=>initialRoute.name==='settings'?[initialRoute]:[{name:'settings'},initialRoute]);
  const route=stack[stack.length-1],offsets=useRef(new Map<string,number>()),pageKey=route.name+':'+(route.cardId||'');
  const nav:Nav=useMemo(()=>({
-  push:next=>{if(next.name in titles)setStack(old=>[...old,next]);else onNavigate(next);},
-  replace:next=>{if(next.name in titles)setStack(old=>[...old.slice(0,-1),next]);else onNavigate(next);},
+  push:next=>{if(next.name==='decks'){onNavigate({...next,returnToSettings:true});return;}if(next.name in titles)setStack(old=>[...old,next]);else onNavigate(next);},
+  replace:next=>{if(next.name==='decks'){onNavigate({...next,returnToSettings:true});return;}if(next.name in titles)setStack(old=>[...old.slice(0,-1),next]);else onNavigate(next);},
   back:()=>{if(stack.length>1)setStack(old=>old.slice(0,-1));else onClose();},
   update:data=>setStack(old=>[...old.slice(0,-1),{...old[old.length-1],...data}]),
   tab:name=>{if(name==='settings')setStack([{name:'settings'}]);else onTab(name);},
