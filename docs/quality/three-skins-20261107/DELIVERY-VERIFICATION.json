@@ -1,0 +1,97 @@
+{
+  "at": "2026-11-07",
+  "images": [
+    {
+      "file": "assets/skins/cafe/rest.png",
+      "matchesCatalog": true,
+      "sha256": "113c42d5feb4520eddacc8d5b59f98d2e50dc1ece0d9518d14fcc5e09677cb72"
+    },
+    {
+      "file": "assets/skins/cafe/greeting.png",
+      "matchesCatalog": true,
+      "sha256": "55aa011da50396a88b96a995e140d70860b99d1a665e464ec5060a57e373ee78"
+    },
+    {
+      "file": "assets/skins/cafe/explain.png",
+      "matchesCatalog": true,
+      "sha256": "5232da542926369db97cd5e1f46a54af1c49d298a286963fb323f9111b2ebd92"
+    },
+    {
+      "file": "assets/skins/clinic/rest.png",
+      "matchesCatalog": true,
+      "sha256": "c3380593cbc22e7370a2f1cbe0ea5cabd9e98011cdf7d5a308fa348393161fca"
+    },
+    {
+      "file": "assets/skins/clinic/greeting.png",
+      "matchesCatalog": true,
+      "sha256": "fe7ac62b0819404ed613622a046dfb8383615d2ddb5b95023d71e5a359a18a4a"
+    },
+    {
+      "file": "assets/skins/clinic/explain.png",
+      "matchesCatalog": true,
+      "sha256": "07c4aa7bbe6b8e0e53550e055e445fa9f09450a13db93825b4eb7ac42c99bf5c"
+    },
+    {
+      "file": "assets/skins/playroom/rest.png",
+      "matchesCatalog": true,
+      "sha256": "e4bfad8afac550e4809a282b912959c9234e46b168975db8adbe619db8e67e6c"
+    },
+    {
+      "file": "assets/skins/playroom/greeting.png",
+      "matchesCatalog": true,
+      "sha256": "6d4270c497cf191ee4f1236a6961c2bfc8ea4e2dc3193f74324d93c847f9bc2a"
+    },
+    {
+      "file": "assets/skins/playroom/explain.png",
+      "matchesCatalog": true,
+      "sha256": "1f3ef5b4928ee7ae7c1f4e1471d3e053f1b84ff6009f0396124701377b92155e"
+    }
+  ],
+  "allOriginalImagesMatch": true,
+  "media": [
+    {
+      "file": "yeoun-three-spaces-guide-30s.mp4",
+      "duration": 30.0,
+      "video_frames": 1800,
+      "rate": "60/1",
+      "audio_codec": "aac"
+    },
+    {
+      "file": "yeoun-three-spaces-landscape-60s.mp4",
+      "duration": 60.0,
+      "video_frames": 3600,
+      "rate": "60/1",
+      "audio_codec": "aac"
+    },
+    {
+      "file": "yeoun-three-spaces-portrait-60s.mp4",
+      "duration": 60.0,
+      "video_frames": 3600,
+      "rate": "60/1",
+      "audio_codec": "aac"
+    }
+  ],
+  "pdfPages": 4,
+  "existingTestsModified": false,
+  "newFunctionalTestsPerFrontend": 8,
+  "gptCalls": 0,
+  "designSnapshotTestsAdded": 0,
+  "androidApk": "Not assembled: local debug.keystore absent; Kotlin/resources compiled",
+  "iosLocalBuild": "Not available on Windows",
+  "iosCI": "Simulator workflow 42330103180 in progress at report creation",
+  "codeHeads": {
+    "web": "c74c7d4b8aa9bf9ce03a1392836ac8ffebfe8d69",
+    "rn": "428a1ef1dd7d5326f4e1ca7a8b7f2ccc89b12884"
+  },
+  "finalTestEvidence": [
+    "S04-whole-room-theme-regression.json"
+  ],
+  "audioMeasured": {
+    "source": "Final landscape MP4, FFmpeg ebur128",
+    "integratedLUFS": -17.4,
+    "truePeakDbfs": -1.5
+  },
+  "assetsZipSha256": "7b705f8aae3e07332ad3bfad9b4c59248921ee3c60d6ce59e48748ae2e3295e2",
+  "pdfSha256": "fa9e02543574b7b4533b26d0c5c40f4b342a722f4958a1c95906692809ae25a7",
+  "mediaCommit": "69435a0"
+}
