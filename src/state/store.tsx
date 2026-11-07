@@ -58,7 +58,7 @@ export function Store({children}:{children:React.ReactNode}){
   await accountRuntime.erased(owner);
   setEntries([]);setReadings([]);setCounsels([]);setBootstrap(null);setConsents([]);setContextIdsState([]);setContextVersions({});setContextError('');contextRevision.current++;setRecordFilterState('전체');setRecordDateState('');setSelectedDeckState('');
   setJournalPolicy(null);setConfig(null);setDraftState('');setToneState('warm');setReducedState(false);setVoiceModeState('device');setPreferenceBusy(false);setPreferenceError('');setSensoryState({...defaultSensory});setError('');setLoading(false);
-  setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새 이용은 시작을 누를 때만 연결돼요.');setSessionState('welcome');
+  setSessionError('전체 삭제가 완료됐어요. 기기 연결과 이 앱의 임시 초안·설정도 정리했어요. 새로 이용할 때 게스트 연결을 만들어요.');setSessionState('welcome');
  });}
  function recover(){return accountRuntime.trackLocal(async()=>{setSessionState('checking');setSessionError('');try{if(!await session.hasStoredSession()){setSessionState('welcome');return;}const next=await p0Repository.bootstrap();await accountCache.attach(next.user.id);bootstrapReady.current=true;configureUpdatePolicy(next.ota_policy);applyPreferences(next.user.preferences);setBootstrap(next);setConsents(next.consents);setSessionState('ready');void p0Repository.refreshSession().catch(()=>{});await refresh();}catch(e){setSessionError(e instanceof Error?e.message:'기기 연결을 확인하지 못했어요.');setSessionState('blocked');}});}
  function connect(){return accountRuntime.trackLocal(async()=>{setSessionState('checking');setSessionError('');try{const raw=await AsyncStorage.getItem('yeoun.p0.data-receipt');if(raw){const receipt=JSON.parse(raw) as DataReceipt;if(receipt.kind==='erase'&&receipt.state==='completed'&&receipt.device_cleanup_complete!==true)await completeErasure(receipt);}await session.start();await recover();}catch(e){setSessionError(e instanceof Error?e.message:'연결을 만들지 못했어요.');setSessionState(await session.hasStoredSession()?'blocked':'welcome');}});}
@@ -87,7 +87,7 @@ export function Store({children}:{children:React.ReactNode}){
     if(key==='yeoun.draft'&&value)setDraftState(value);
     if(key==='yeoun.sensory'&&value)try{setSensoryState(restoreSensory(JSON.parse(value)));}catch{}
    }
-  }).catch(()=>{});void recover();
+  }).catch(()=>{});void connect();
  },[]);
  useEffect(()=>configureFeedback(sensory),[sensory]);
  const setTone=(v:Tone)=>{void savePreferences({tone:v});};
