@@ -1,6 +1,6 @@
 import React,{useEffect,useId,useRef,useState} from 'react';
 import {Animated,Platform,View} from 'react-native';
-import Svg,{Path,Circle,Ellipse,Defs,ClipPath,Image as SvgImage} from 'react-native-svg';
+import Svg,{Path,Circle,Ellipse,Defs,ClipPath,G,Image as SvgImage} from 'react-native-svg';
 import {motion} from '../design/tokens';
 import {useActivityEffect} from '../features/motion/useActivityEffect';
 import {useSkin} from '../features/skins/SkinProvider';
@@ -19,11 +19,11 @@ function Artwork({visual,expression,blink,giga}:{visual:Visual;expression:Expres
   <Defs><ClipPath id={clipId}><Path d={info.outline} fillRule="evenodd" transform={'translate('+x+' '+y+') scale('+info.scale+')'}/></ClipPath></Defs>
   {cat?<Path d="M205 314 C264 316 263 261 250 249 C236 237 226 252 237 264 C246 277 236 293 216 289" fill="none" stroke="#F3DAB6" strokeWidth="17" strokeLinecap="round"/>:null}
   <SvgImage href={skinAssets[id][pose]} x={x} y={y} width={w} height={h} clipPath={'url(#'+clipId+')'}/>
-  {cat?<Svg x={info.face[0]-50} y={info.face[1]-35} width={100} height={80} viewBox="-50 -35 100 80">
+  {cat?<G transform={'translate('+info.face[0]+' '+info.face[1]+')'}>
    {expression==='concern'?<Path d="M-24 -12 L-11 -16 M11 -16 L24 -12" fill="none" stroke="#88775F" strokeWidth={2} strokeLinecap="round"/>:null}
    {closed?<Path d="M-23 0 Q-17 -6 -11 0 M11 0 Q17 -6 23 0" stroke="#514B42" strokeWidth={2.8} fill="none" strokeLinecap="round"/>:<><Circle cx={-17} cy={0} r={3.5} fill="#514B42"/><Circle cx={17} cy={0} r={3.5} fill="#514B42"/></>}
    <Path d="M-4 9 Q0 6 4 9 L0 12 Z" fill="#D8A28E"/><Path d={expressions[expression].catMouth} fill="none" stroke="#514B42" strokeWidth={2.2} strokeLinecap="round"/>
-  </Svg>:<>
+  </G>:<>
    <Ellipse cx={103} cy={96} rx={6} ry={11} fill={info.faceColor}/><Ellipse cx={177} cy={96} rx={6} ry={11} fill={info.faceColor}/>
    <Path d={giga?'M100 62 C100 42 180 42 180 62 L180 99 C180 119 160 141 140 145 C120 141 100 119 100 99 Z':'M104 62 C104 42 176 42 176 62 L176 96 C176 119 162 139 140 142 C118 139 104 119 104 96 Z'} fill={info.faceColor}/>
    <Path d={id==='clinic'?'M101 91 L100 70 C99 47 113 31 136 30 C162 26 181 40 183 61 L180 94 L173 80 L170 60 C156 65 139 65 125 57 C121 72 114 79 106 80 Z':'M103 91 C95 80 96 65 100 55 C104 39 116 29 132 29 C142 21 158 24 166 30 C184 33 191 47 190 62 C191 76 185 88 177 96 L172 76 C158 75 147 68 140 56 C135 72 122 79 108 80 Z'} fill={hair}/>
