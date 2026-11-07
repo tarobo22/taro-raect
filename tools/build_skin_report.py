@@ -87,7 +87,7 @@ for i,line in enumerate(code):txt(line,54,430+i*12,9,'Code','#FFFDF8')
 if native:
     ios_status = {
         'success': 'iOS는 Swift 6건과 시뮬레이터 빌드·설치·실행을 통과했습니다.',
-        'in_progress': 'iOS는 초기 연결 오류를 수정한 뒤 실행을 재검증 중입니다.',
+        'in_progress': 'iOS 실행은 확인했고, 안전 영역을 보완한 화면을 다시 검증 중입니다.',
         'failure': 'iOS 시뮬레이터 실행 검증은 완료되지 않았습니다.',
     }[native['ios']['result']]
     para('<b>네이티브 검증</b><br/>Android APK 두 개의 서명과 리소스를 확인했습니다. x86_64에서 세 공간 전환, 놀이방 복원과 연결 실패 후 재시도를 검증했습니다.<br/>'+ios_status+' APK는 로컬 테스트용입니다.',464,423,331,9,14)

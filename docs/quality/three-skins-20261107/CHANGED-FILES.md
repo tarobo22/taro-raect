@@ -312,6 +312,8 @@
 | A | docs/quality/three-skins-20261107/native/android-restored-playroom.png |
 | A | docs/quality/three-skins-20261107/native/android-startup-recovery.png |
 | A | docs/quality/three-skins-20261107/native/android-x86.json |
+| A | docs/quality/three-skins-20261107/native/ios-launch.png |
+| A | docs/quality/three-skins-20261107/native/ios-simulator-proof.json |
 | M | ios/Yeoun/Native/YeounFeedback.swift |
 | A | ios/Yeoun/Sounds/cat_meow.wav |
 | M | src/components/Character.tsx |

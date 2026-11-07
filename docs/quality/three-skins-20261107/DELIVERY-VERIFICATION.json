@@ -78,10 +78,10 @@
   "designSnapshotTestsAdded": 0,
   "androidApk": "Signed previews verified for x86_64 and arm64-v8a. x86_64 exercised in Android 35.",
   "iosLocalBuild": "Xcode validation runs on the GitHub macOS runner.",
-  "iosCI": "in_progress",
+  "iosCI": "success",
   "codeHeads": {
     "web": "7da0d54881a138adc9bc75b73f295ccefc26206d",
-    "rn": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
+    "rn": "73cf377261efd9e944ced231ca04a01f063b6a07"
   },
   "finalTestEvidence": [
     "S04-whole-room-theme-regression.json"
@@ -92,16 +92,16 @@
     "truePeakDbfs": -1.5
   },
   "assetsZipSha256": "7b705f8aae3e07332ad3bfad9b4c59248921ee3c60d6ce59e48748ae2e3295e2",
-  "pdfSha256": "c0aa4e435f8831f122c08dd703cea8298546e1450f4bc9d60e2864f19b18779c",
+  "pdfSha256": "a7df682307742ea2e44ca6279220931dd864daad895b00b64912c918e6f6c91c",
   "mediaCommit": "69435a0",
   "nativeCompletion": {
-    "apkRelease": "https://github.com/tarobo22/taro/releases/tag/untagged-e3f0a7ff0b87244ccae8",
+    "apkRelease": "https://github.com/tarobo22/taro/releases/tag/untagged-815d965dc371e2631e4c",
     "isDraft": true,
     "androidApks": [
       {
         "artifact": "yeoun-preview-arm64-v8a.apk",
-        "bytes": 65999651,
-        "sha256": "7bc64099043681dd2319c2b8d66da7079c2b05592c1f1aec2d86606fed0a0a66",
+        "bytes": 65999643,
+        "sha256": "a29fb110beef944686c185db9146f7222795a275f0ee61b8e7807c9f7192e5ad",
         "applicationId": "com.yeoun.preview.skins",
         "abi": [
           "arm64-v8a"
@@ -123,12 +123,12 @@
         "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
         "apiUrlVerifiedInBundle": true,
         "bundledJavaScript": true,
-        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
+        "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07"
       },
       {
         "artifact": "yeoun-preview-x86_64.apk",
-        "bytes": 66822765,
-        "sha256": "bf0419a50bb44d870f535416dd8921e70db841f6b5609864fa1bdc3b33dc2390",
+        "bytes": 66822757,
+        "sha256": "5ed2a4fe408bc3bb91410153530e80b2f505f44a2a4e87ff7107bdd186a77c10",
         "applicationId": "com.yeoun.preview.skins",
         "abi": [
           "x86_64"
@@ -150,14 +150,14 @@
         "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
         "apiUrlVerifiedInBundle": true,
         "bundledJavaScript": true,
-        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
+        "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07"
       }
     ],
     "androidDevice": {
-      "recordedAt": "2026-11-07T05:08:04.521433+00:00",
+      "recordedAt": "2026-11-07T05:26:29.927023+00:00",
       "method": "Observed taps and theme screenshots on the Android 35 preview. UiAutomator verified the offline retry response.",
       "apkReceipt": "android-x86.json",
-      "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
+      "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07",
       "package": "com.yeoun.preview.skins",
       "androidApi": 35,
       "architecture": "x86_64",
@@ -174,19 +174,19 @@
       "screenCaptures": {
         "cafe": {
           "file": "android-cafe.png",
-          "sha256": "4f031fa6fbfeba2a4068fe74f0274a42d239801dcd7e7f71badea32c424878f2"
+          "sha256": "628e2d686641601ea277a90187673586d377f68c4c340bddc0c57fc6b119a05b"
         },
         "clinic": {
           "file": "android-clinic.png",
-          "sha256": "e40161a07eb4117b0c1089fb6dfa37b0d2048a740e835830646e577c3d8dcda1"
+          "sha256": "a5481445c50c59953b5a2c5a7c4d8fa14da887ed4de51f582544017352bf8647"
         },
         "playroom": {
           "file": "android-playroom.png",
-          "sha256": "9e9beed8979c3dce20e90694f83abc764dbea10e7b520f6b986c2226b7e36891"
+          "sha256": "8fcaf2b370a23ddf71ef9303a1c5c4be6f986d3fb9eabee5df6f3686b22ecbb1"
         },
         "restored-playroom": {
           "file": "android-restored-playroom.png",
-          "sha256": "b60169a2e7ca41ede03a1a2fae50aa986013fd22c4a31cf20d00bcb05828423b"
+          "sha256": "e3971154b6b6eda4806a927d0ec58124130e2503a9af58510e15d42de405d6e1"
         }
       },
       "backend": "ADB reverse to the existing local synthetic QA API",
@@ -200,7 +200,8 @@
         "processSurvivesOfflineRetry": true,
         "restoredAfterReconnectAndColdLaunch": "playroom",
         "screenshot": "android-startup-recovery.png",
-        "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+        "screenshotSha256": "9b836579048319a833d3df46d5080d52b3388237d14581c87b9c0a3683a516fe",
+        "safeAreaTitleVisible": true
       }
     },
     "remoteApkDigestsMatch": true,
@@ -215,35 +216,57 @@
     },
     "sameApplicationInputs": true,
     "ios": {
-      "runId": 42340677998,
-      "url": "https://github.com/tarobo22/taro/actions/runs/42340677998",
-      "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
-      "result": "in_progress",
-      "workflowConclusion": "",
+      "runId": 42342416808,
+      "url": "https://github.com/tarobo22/taro/actions/runs/42342416808",
+      "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07",
+      "result": "success",
+      "workflowConclusion": "success",
       "checkedSteps": {
         "Test native rules": {
-          "completedAt": "2026-11-07T04:59:05Z",
+          "completedAt": "2026-11-07T05:23:09Z",
           "conclusion": "success",
           "name": "Test native rules",
           "number": 5,
-          "startedAt": "2026-11-07T04:58:27Z",
+          "startedAt": "2026-11-07T05:22:29Z",
           "status": "completed"
         },
         "Build unsigned simulator application": {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-11-07T05:42:55Z",
+          "conclusion": "success",
           "name": "Build unsigned simulator application",
           "number": 7,
-          "startedAt": "2026-11-07T04:59:48Z",
-          "status": "in_progress"
+          "startedAt": "2026-11-07T05:23:54Z",
+          "status": "completed"
         },
         "Launch on a clean simulator": {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-11-07T05:44:59Z",
+          "conclusion": "success",
           "name": "Launch on a clean simulator",
           "number": 8,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-11-07T05:42:55Z",
+          "status": "completed"
+        }
+      },
+      "artifactEvidence": {
+        "runId": 42342416808,
+        "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07",
+        "swiftPassed": 6,
+        "swiftFailures": 0,
+        "buildSucceeded": true,
+        "launchProcessObserved": true,
+        "pid": 40875,
+        "screen": "ios-launch.png",
+        "screenSha256": "1a2bb8a9718964742cc1eff5ad346599a1e69e47a3961380d78019b5b278af3d",
+        "buildSha256": "58e8015cbb7d0aba3131d5f75f10d1c7f5a66b7d2afd502ad529740d7d4880cf",
+        "coreSha256": "9056fe259ae05f51be27a54cef9f18b4359bb12a3e54ac559ee851e194cfd10b",
+        "launchSha256": "a17432e58a0835959b72719fc1ae09746bcae47cf10d18d37155c2e561c6c138",
+        "processSha256": "1c9dca02e1a9849c4f5c67775aa133ae28253c8064a8ede4d672f4945549258b",
+        "visualReview": {
+          "deviceType": "iPhone 16",
+          "observedScreen": "Account connection recovery",
+          "titleClearsDisplayCutout": true,
+          "retryButtonVisible": true,
+          "endToEndLoginVerified": false
         }
       }
     },
@@ -269,14 +292,15 @@
         "workflow": "https://github.com/tarobo22/taro-raect/actions/runs/42340677884"
       },
       "android": {
-        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
+        "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07",
         "oldAppStoreProviderErrorReproduced": true,
         "offlineRetryVisible": true,
         "offlineRetryShowsRecoverableError": true,
         "processSurvivesOfflineRetry": true,
         "restoredAfterReconnectAndColdLaunch": "playroom",
         "screenshot": "android-startup-recovery.png",
-        "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+        "screenshotSha256": "9b836579048319a833d3df46d5080d52b3388237d14581c87b9c0a3683a516fe",
+        "safeAreaTitleVisible": true
       },
       "iosDiagnosis": {
         "workflow": "https://github.com/tarobo22/taro/actions/runs/42337300637",
@@ -286,7 +310,9 @@
           "AccountBoundary",
           "SkinProvider"
         ],
-        "finalRun": "https://github.com/tarobo22/taro/actions/runs/42340677998"
+        "finalRun": "https://github.com/tarobo22/taro/actions/runs/42342416808",
+        "crashFixRun": "https://github.com/tarobo22/taro/actions/runs/42340677998",
+        "safeAreaFixCommit": "73cf377261efd9e944ced231ca04a01f063b6a07"
       },
       "existingTestsModified": false
     }

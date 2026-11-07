@@ -20,14 +20,15 @@
     "workflow": "https://github.com/tarobo22/taro-raect/actions/runs/42340677884"
   },
   "android": {
-    "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
+    "sourceCommit": "73cf377261efd9e944ced231ca04a01f063b6a07",
     "oldAppStoreProviderErrorReproduced": true,
     "offlineRetryVisible": true,
     "offlineRetryShowsRecoverableError": true,
     "processSurvivesOfflineRetry": true,
     "restoredAfterReconnectAndColdLaunch": "playroom",
     "screenshot": "android-startup-recovery.png",
-    "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+    "screenshotSha256": "9b836579048319a833d3df46d5080d52b3388237d14581c87b9c0a3683a516fe",
+    "safeAreaTitleVisible": true
   },
   "iosDiagnosis": {
     "workflow": "https://github.com/tarobo22/taro/actions/runs/42337300637",
@@ -37,7 +38,9 @@
       "AccountBoundary",
       "SkinProvider"
     ],
-    "finalRun": "https://github.com/tarobo22/taro/actions/runs/42340677998"
+    "finalRun": "https://github.com/tarobo22/taro/actions/runs/42342416808",
+    "crashFixRun": "https://github.com/tarobo22/taro/actions/runs/42340677998",
+    "safeAreaFixCommit": "73cf377261efd9e944ced231ca04a01f063b6a07"
   },
   "existingTestsModified": false
 }

@@ -129,7 +129,7 @@ def update_report(details):
     draft_url = details["apkRelease"]
     ios_result = {
         "success": "macOS 러너 Swift 6건, 시뮬레이터 빌드·설치, 실행 5초 후 PID와 실행 파일 확인, 화면 캡처·딥링크 열기 통과",
-        "in_progress": "빌드·설치를 확인했다. 최초 연결 오류에서 발생한 앱 종료를 수정하고, 최신 커밋으로 실행을 재검증 중",
+        "in_progress": "앱 종료를 수정한 실행은 통과했다. 연결 복구 화면의 안전 영역을 보완한 뒤 마지막 캡처를 재검증 중",
         "failure": "시뮬레이터 실행 검증 미완료. 실패 단계는 실행 기록 참고",
     }[ios["result"]]
     report_path = DOC / "REPORT.md"
@@ -145,8 +145,8 @@ def update_report(details):
     )
     for previous in ("42330099460", "42334931931"):
         report = report.replace(f"actions/runs/{previous}", "actions/runs/42340677884")
-    for previous in ("42330103172", "42335124459"):
-        report = report.replace(f"actions/runs/{previous}", "actions/runs/42340678125")
+    for previous in ("42330103172", "42335124459", "42340678125"):
+        report = report.replace(f"actions/runs/{previous}", "actions/runs/42342416777")
     heading = "\n## 네이티브 검증\n"
     report = report.split(heading, 1)[0].rstrip() + "\n" + heading + "\n"
     report += (
