@@ -61,7 +61,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{padding:20,gap:14}} onContentSizeChange={()=>{if(!history)scroll.current?.scrollTo({y:0,animated:!store.reduced});}}>
    {!value?<View style={{flexDirection:'row',gap:14,alignItems:'center'}}><Character size={76} expression="welcome" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:6}}><Copy kind="subtitle">어떤 마음으로 오셨나요?</Copy><Copy muted>잘 정리된 말이 아니어도 괜찮아요. 먼저 듣고, 제가 이해한 게 맞는지 여쭤볼게요.</Copy></View></View>:null}
    {!caps?.available&&caps?<Notice>지금은 AI 대화 연결을 준비하고 있어요. 기본 가이드와 마음기록은 계속 이용하실 수 있어요.</Notice>:null}
-   {!consent?<><Notice>이야기를 보내기 전에 AI 이용 동의를 확인해 주세요. 개인사전은 본인 대화에만 사용해요.</Notice><Button secondary onPress={()=>nav.push({name:'consents'})}>AI 이용 설정</Button></>:null}
+   {!consent?<><Copy kind="small" muted>오른쪽 위 설정에서 AI 이용을 허용하면 이야기를 보낼 수 있어요.</Copy></>:null}
    {value&&value.history.length>2?<Pressable accessibilityRole="button" onPress={()=>setHistory(!history)} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small" muted>{history?'앞선 이야기 접기':'앞선 이야기 보기'}</Copy></Pressable>:null}
    {history?value?.history.slice(0,-2).map((h,i)=><Panel key={i} tone={h.role==='user'?theme.tint:theme.surface}><Copy kind="small" muted>{h.role==='user'?'나의 이야기':'함께 나눈 말'}</Copy><Copy>{h.text}</Copy></Panel>):null}
    {lastUser?<Panel tone={theme.tint} style={{alignSelf:'flex-end',maxWidth:'94%',padding:16}}><Copy>{lastUser.text}</Copy></Panel>:null}
