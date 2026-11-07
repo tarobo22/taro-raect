@@ -33,10 +33,10 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const setText=(next:string)=>controller.setText(next),processing=controller.processing;
  const [voice,setVoice]=useState(''),[count,setCount]=useState<1|3|5>(route.cardCount||3),[web,setWeb]=useState(true),[remember,setRemember]=useState(true),[resultOptions,setResultOptions]=useState(false);
  const [settings,setSettings]=useState(false),[term,setTerm]=useState(''),[meaning,setMeaning]=useState('');
- const [editing,setEditing]=useState(false),[history,setHistory]=useState(true),[deleting,setDeleting]=useState(false),[references,setReferences]=useState(false);
- const input=useRef<TextInput>(null),scroll=useRef<ScrollView>(null);
+ const [editing,setEditing]=useState(false),[deleting,setDeleting]=useState(false),[references,setReferences]=useState(false);
+ const input=useRef<TextInput>(null),scroll=useRef<ScrollView>(null),followLatest=useRef(true);
  const requestConsent=useSendConsent(),[sendError,setSendError]=useState('');
- useEffect(()=>{void controller.initialize();return()=>controller.dispose();},[controller]);
+ useEffect(()=>{followLatest.current=true;void controller.initialize();return()=>controller.dispose();},[controller]);
  useEffect(()=>{
   if(!processing)return;let disposed=false;let timer:ReturnType<typeof setTimeout>;
   async function poll(){await controller.refresh();if(!disposed&&controller.processing)timer=setTimeout(()=>void poll(),1200);}
@@ -49,27 +49,29 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   setSendError('');
   if(!caps?.available&&!await controller.refreshCapabilities()){setSendError('지금은 답변을 받지 못했어요. 잠시 후 다시 보내 주세요.');return;}
   const permission=await requestConsent(['ai_processing']);
-  if(permission?.ai_processing)await controller.send(permission.ai_processing.id,remember);
+  if(permission?.ai_processing){followLatest.current=true;await controller.send(permission.ai_processing.id,remember);}
  }
- async function confirm(){const permission=await requestConsent(['ai_processing']);if(permission?.ai_processing)await controller.confirm(permission.ai_processing.id,count,web);}
+ async function confirm(){const permission=await requestConsent(['ai_processing']);if(permission?.ai_processing){followLatest.current=true;await controller.confirm(permission.ai_processing.id,count,web);}}
  async function openSettings(){setSettings(true);await controller.loadManagement();}
  async function saveDefinition(){if(await controller.define(term,meaning)){setTerm('');setMeaning('');setEditing(false);}}
  async function forget(entry:Definition){await controller.forget(entry.id);}
  async function remove(){if(await controller.deleteCurrent()){setSettings(false);setDeleting(false);nav.replace({name:'counseling'});}}
  const result=value?.result,lastUser=[...(value?.history||[])].reverse().find(item=>item.role==='user');
  const windowWidth=useWindowDimensions().width,displayCount=value?.cards.length||count,cardWidth=Math.min(64,Math.floor((Math.min(windowWidth,430)-40-6*displayCount-8*(displayCount-1))/displayCount));
- const lastUserIndex=value?.history.map(item=>item.role).lastIndexOf('user')??-1;
+ const transcript=value?.history||[];
+ const hasCurrentReply=!processing&&!!(result||value?.acknowledgement||value?.clarification_question||value?.understanding);
+ const earlierMessages=hasCurrentReply&&transcript.at(-1)?.role==='assistant'?transcript.slice(0,-1):transcript;
  const canSend=!busy&&!processing&&!pending&&!!text.trim();
  return <View style={{flex:1,backgroundColor:theme.paper}}>
   <View style={{paddingHorizontal:20,paddingTop:6,paddingBottom:12,borderBottomWidth:1,borderColor:theme.line,backgroundColor:theme.paper}}>
    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:8}}><Copy kind="label" muted>{value?.phase==='support'?'지금은 안전이 먼저예요':value?.cards.length?'카드를 누르면 해석을 볼 수 있어요':count+'장 타로 · 이야기를 먼저 들을게요'}</Copy><Pressable accessibilityRole="button" onPress={()=>void openSettings()} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">대화 옵션</Copy></Pressable></View>
    {value?.phase!=='support'&&value?.response_mode!=='listen'?<View style={{flexDirection:'row',justifyContent:'center',gap:8}}>{value?.cards.length?value.cards.map((c,i)=><Pressable key={c.position} accessibilityRole="button" accessibilityLabel={c.card.name_ko+' 카드 해석 보기'} onPress={()=>{feedback('select');nav.push({name:'card',cardId:c.card_id,cardData:c.card,cardReflection:result?.tarot.find(item=>item.card_id===c.card_id)?.reflection,positionLabel:c.position_label,orientation:c.orientation});}} style={{alignItems:'center',gap:4,padding:3}}><RevealingAssetImage asset={c.card.image_asset} label={c.card.name_ko} width={cardWidth} eventKey={(value.draw?.id||value.id)+':'+c.card_id} delay={i*130}/><Copy kind="label" style={{maxWidth:cardWidth+6,fontSize:11,textAlign:'center'}}>{c.card.name_ko}</Copy></Pressable>):Array.from({length:count},(_,i)=>i).map(i=><View key={i} style={{opacity:.72}}><TarotArt back width={Math.min(54,cardWidth)}/></View>)}</View>:null}
   </View>
-  <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{padding:20,gap:14}} onContentSizeChange={()=>scroll.current?.scrollToEnd({animated:!store.reduced})}>
+  <ScrollView ref={scroll} accessibilityLabel="상담 채팅 내역" style={{flex:1,minHeight:0}} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator contentContainerStyle={{padding:20,gap:14}} scrollEventThrottle={16}
+   onScroll={event=>{const {contentOffset,layoutMeasurement,contentSize}=event.nativeEvent;followLatest.current=contentSize.height-layoutMeasurement.height-contentOffset.y<64;}}
+   onContentSizeChange={()=>{if(followLatest.current)scroll.current?.scrollToEnd({animated:!store.reduced});}}>
    {!value||value.phase==='listening'?<View style={{flexDirection:'row',gap:14,alignItems:'center'}}><Character size={76} expression="welcome" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:6}}><Copy kind="subtitle">{route.sourceReadingId?'어떤 이야기를 더 나누고 싶나요?':'어떤 마음으로 오셨나요?'}</Copy><Copy muted>{route.sourceReadingId?'뽑은 카드와 앞선 고민을 기억하고 있어요. 지금 마음을 편하게 들려주세요.':'먼저 이야기를 듣고, 고른 장수의 카드와 함께 살펴볼게요.'}</Copy></View></View>:null}
-   {value&&value.history.length>2?<Pressable accessibilityRole="button" onPress={()=>setHistory(!history)} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small" muted>{history?'앞선 이야기 접기':'앞선 이야기 보기'}</Copy></Pressable>:null}
-   {history?value?.history.slice(0,Math.max(0,lastUserIndex)).map((h,i)=><Panel key={i} tone={h.role==='user'?theme.tint:theme.surface} style={{alignSelf:h.role==='user'?'flex-end':'flex-start',maxWidth:'94%',padding:16,gap:6}}><Copy kind="small" muted>{h.role==='user'?'나의 이야기':'함께 나눈 말'}</Copy><Copy>{h.text}</Copy></Panel>):null}
-   {lastUser?<Panel tone={theme.tint} style={{alignSelf:'flex-end',maxWidth:'94%',padding:16}}><Copy>{lastUser.text}</Copy></Panel>:null}
+   {earlierMessages.map((h,i)=><Panel key={i} tone={h.role==='user'?theme.tint:theme.surface} style={{alignSelf:h.role==='user'?'flex-end':'flex-start',maxWidth:'94%',padding:16,gap:6}}>{h.role==='assistant'?<Copy kind="small" muted>{skins[skin.id].name}</Copy>:null}<Copy>{h.text}</Copy></Panel>)}
    {processing?<View accessibilityLiveRegion="polite" style={{flexDirection:'row',gap:10,alignItems:'center',paddingVertical:12}}><ActivityIndicator color={theme.action}/><Copy muted>{value?.cards.length?'카드와 이야기를 함께 살펴보고 있어요.':'말씀해주신 마음을 천천히 듣고 있어요.'}</Copy></View>:null}
    {!processing&&value?.acknowledgement&&!result?<View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="listen" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{value.acknowledgement}</Copy></View></View>:null}
    {!processing&&value?.phase==='clarifying'?<Panel style={{padding:16}}><Copy style={{fontSize:17,lineHeight:28}}>{value.clarification_question}</Copy></Panel>:null}
