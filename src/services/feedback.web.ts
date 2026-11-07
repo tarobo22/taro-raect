@@ -5,11 +5,14 @@ import back from '../../assets/audio/light_tap.wav';
 import shuffle from '../../assets/audio/card_shuffle.wav';
 import flip from '../../assets/audio/card_flip.wav';
 import musicFile from '../../assets/audio/tarot_room.ogg';
+import meow from '../../assets/audio/cat_meow.wav';
+import {CharacterCue} from '../features/skins/CharacterCue';
 import {AudioGate} from '../features/audio/AudioGate';
 import {defaultSensory,SensoryPreferences} from '../features/audio/preferences';
 export type {SensoryPreferences} from '../features/audio/preferences';
-export type FeedbackKind='tap'|'select'|'confirm'|'back'|'shuffle'|'flip'|'tick'|'boundary';
-const files={tap,select,confirm,back,shuffle,flip,tick:back,boundary:back};
+export type FeedbackKind='tap'|'select'|'confirm'|'back'|'shuffle'|'flip'|'tick'|'boundary'|'meow';
+const files={tap,select,confirm,back,shuffle,flip,tick:back,boundary:back,meow};
+const characterCue=new CharacterCue();
 let prefs:SensoryPreferences={...defaultSensory};
 let previousTick=0,previousAction=0,music:HTMLAudioElement|undefined,context:AudioContext|undefined;
 const buffers=new Map<string,Promise<AudioBuffer>>(),sources=new Set<AudioBufferSourceNode>(),audioGate=new AudioGate();
@@ -25,8 +28,8 @@ document.addEventListener('visibilitychange',()=>audioGate.setForeground(!docume
 export function beginAudioCapture(){return audioGate.acquire();}
 export function configureFeedback(value:SensoryPreferences){prefs={...value};if(!prefs.sound)stopEffects();applyFeedback();}
 export function feedback(kind:FeedbackKind='tap'){
- if(audioGate.blocked)return;const now=performance.now();if(kind==='tick'){if(now-previousTick<35)return;previousTick=now;}else{if(now-previousAction<45)return;previousAction=now;}
+ if(audioGate.blocked)return;const now=performance.now();if(kind==='meow'){if(!characterCue.request(now,prefs.sound,audioGate.blocked))return;}else if(kind==='tick'){if(now-previousTick<35)return;previousTick=now;}else{if(now-previousAction<45)return;previousAction=now;}
  if(prefs.music&&(!music||music.paused))updateMusic();
  if(prefs.sound){prepare();if(context){const c=context,requestedAt=performance.now();void buffer(files[kind]).then(data=>{if(audioGate.blocked||!prefs.sound||document.hidden||performance.now()-requestedAt>160)return;const source=c.createBufferSource(),gain=c.createGain();source.buffer=data;gain.gain.value=kind==='tick'?.18:kind==='boundary'?.22:.45;source.connect(gain);gain.connect(c.destination);sources.add(source);source.onended=()=>{sources.delete(source);source.disconnect();gain.disconnect();};source.start();}).catch(()=>{});}}
- if(prefs.haptics&&'vibrate' in navigator)navigator.vibrate(kind==='confirm'?[8,28,8]:kind==='tick'?3:kind==='boundary'?4:7);
+ if(kind!=='meow'&&prefs.haptics&&'vibrate' in navigator)navigator.vibrate(kind==='confirm'?[8,28,8]:kind==='tick'?3:kind==='boundary'?4:7);
 }

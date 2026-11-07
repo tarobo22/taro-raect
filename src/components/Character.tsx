@@ -1,33 +1,60 @@
-import React,{useId,useRef,useState} from 'react';
-import {Animated,Image,Platform,View} from 'react-native';
-import Svg,{Path,Ellipse,Circle,Defs,ClipPath,Image as SvgImage} from 'react-native-svg';
-import {color,motion} from '../design/tokens';
-import {characterBody} from './characterBody';
+import React,{useEffect,useId,useRef,useState} from 'react';
+import {Animated,Platform,View} from 'react-native';
+import Svg,{Path,Circle,Ellipse,Defs,ClipPath,Image as SvgImage} from 'react-native-svg';
+import {motion} from '../design/tokens';
 import {useActivityEffect} from '../features/motion/useActivityEffect';
-export type Expression='calm'|'welcome'|'listen'|'encourage'|'joy'|'concern'|'serious';
+import {useSkin} from '../features/skins/SkinProvider';
+import {geometry,Pose,skins} from '../features/skins/catalog';
+import {SkinId} from '../features/skins/SkinSelection';
+import {skinAssets} from '../features/skins/skinAssets';
+import expressions from '../../assets/skins/expressions.json';
+export type Expression=keyof typeof expressions;
 export const expressionNames:Record<Expression,string>={calm:'편안함',welcome:'반가움',listen:'경청',encourage:'응원',joy:'기쁨',concern:'걱정',serious:'진지함'};
-
-export function Character({expression='calm',giga=false,reduced=false,size=230,framed=true}:{expression?:Expression;giga?:boolean;reduced?:boolean;size?:number;framed?:boolean}){
- const clipId=useId().replace(/:/g,'');
- const breath=useRef(new Animated.Value(0)).current;
- const [blink,setBlink]=useState(false);
- useActivityEffect(current=>{breath.setValue(0);setBlink(false);const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:motion.breath,useNativeDriver:Platform.OS!=='web'}),Animated.timing(breath,{toValue:0,duration:motion.breath,useNativeDriver:Platform.OS!=='web'})]));loop.start();let close:ReturnType<typeof setTimeout>|undefined;const timer=setInterval(()=>{if(!current())return;setBlink(true);close=setTimeout(()=>{if(current())setBlink(false);},150);},motion.blink);return()=>{loop.stop();clearInterval(timer);clearTimeout(close);breath.setValue(0);setBlink(false);};},[breath],!reduced);
- const happy=['joy','welcome','encourage'].includes(expression);
- const mouth=expression==='serious'?'M129 124 Q140 125 151 124':expression==='concern'?'M130 124 Q140 126 150 124':happy?'M127 121 Q140 134 153 121':'M129 122 Q140 129 151 122';
- const face=giga?'M98 62 C98 42 182 42 182 62 L182 99 C182 115 172 132 160 139 L140 145 L120 139 C108 132 98 115 98 99 Z':'M104 62 C104 42 176 42 176 62 L176 96 C176 119 162 139 140 142 C118 139 104 119 104 96 Z';
- return <View accessible accessibilityRole="image" accessibilityLabel={`${giga?'기가차드 모드, ':''}${expressionNames[expression]} 표정의 안내자`} style={{width:size,height:size*1.25,alignItems:'center',justifyContent:'center'}}>
-  <Animated.View style={{width:size,height:size*1.25,backgroundColor:framed?'#D4E5D9':'transparent',borderRadius:16,transform:[{translateY:breath.interpolate({inputRange:[0,1],outputRange:[0,-1.5]})}]}}>
-   {framed?<Image source={characterBody} accessible={false} resizeMode="contain" style={{position:'absolute',left:size*.1,top:size*(123/280),width:size*.8,height:size*.8}}/>:null}
-   <Svg width="100%" height="100%" viewBox="0 0 280 350" style={{position:'absolute',top:0,left:0,zIndex:1}}>
-    <Defs><ClipPath id={clipId}><Path d="M545 53 L710 53 C712 98 719 121 752 138 L960 219 C1020 248 1050 317 1060 391 L1093 527 L1080 534 C1091 598 1098 715 1087 766 C1080 789 1018 843 959 880 L909 913 L933 1177 C864 1217 379 1215 309 1177 C307 1125 321 1007 334 917 C251 871 178 812 161 782 C143 754 148 655 153 608 L167 534 L157 527 C185 443 190 399 199 351 C214 288 239 247 286 219 L503 138 C533 120 542 99 545 53 Z M329 578 C320 623 300 673 286 708 L355 768 C358 691 347 629 341 574 Z M908 578 C922 626 940 680 954 710 L887 770 C885 694 896 628 901 575 Z" fillRule="evenodd" transform="translate(28 123) scale(0.178628389)"/></ClipPath></Defs>{!framed?<SvgImage href={characterBody} x={28} y={123} width={224} height={224} clipPath={'url(#'+clipId+')'}/>:null}
-    <Ellipse cx={giga?98:103} cy="96" rx="6" ry="11" fill={color.skin}/><Ellipse cx={giga?182:177} cy="96" rx="6" ry="11" fill={color.skin}/>
-    <Path d={face} fill={color.skin}/>
-    <Path d="M103 91 C95 80 96 65 100 55 C104 39 116 29 132 29 C142 21 158 24 166 30 C184 33 191 47 190 62 C191 76 185 88 177 96 L172 76 C158 75 147 68 140 56 C135 72 122 79 108 80 Z" fill={color.hair}/>
-    {expression==='concern'?<><Path d="M116 88 Q123 81 131 84" stroke={color.hair} strokeWidth="2.8" strokeLinecap="round" fill="none"/><Path d="M149 84 Q157 81 164 88" stroke={color.hair} strokeWidth="2.8" strokeLinecap="round" fill="none"/></>:<><Path d={giga?'M116 85 L132 84':'M117 86 Q124 83 131 85'} stroke={color.hair} strokeWidth={giga?3.5:2.8} strokeLinecap="round" fill="none"/><Path d={giga?'M148 84 L164 85':'M149 85 Q156 83 163 86'} stroke={color.hair} strokeWidth={giga?3.5:2.8} strokeLinecap="round" fill="none"/></>}
-    {blink||expression==='joy'?<><Path d="M120 97 Q124 93 128 97" stroke={color.ink} strokeWidth="2.4" strokeLinecap="round" fill="none"/><Path d="M152 97 Q156 93 160 97" stroke={color.ink} strokeWidth="2.4" strokeLinecap="round" fill="none"/></>:<><Circle cx="124" cy="96" r="2.8" fill={color.ink}/><Circle cx="156" cy="96" r="2.8" fill={color.ink}/></>}
-    <Path d="M140 103 L137 112 Q139 114 142 113" stroke={color.skinShade} strokeWidth="2.4" strokeLinecap="round" fill="none"/>
-    <Path d={mouth} stroke={color.hair} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-   </Svg>
+type Visual={id:SkinId;pose:Pose};
+const poseFor=(expression:Expression):Pose=>expression==='welcome'||expression==='joy'?'greeting':expression==='encourage'?'explain':'rest';
+function Artwork({visual,expression,blink,giga}:{visual:Visual;expression:Expression;blink:boolean;giga:boolean}){
+ const {id,pose}=visual,info=geometry[id].poses[pose],clipId=useId().replace(/:/g,''),[x,y,w,h]=info.rect;
+ const closed=blink||expression==='joy',cat=id==='playroom',hair=id==='clinic'?'#57554D':'#645246';
+ return <Svg width="100%" height="100%" viewBox="0 0 280 350">
+  <Defs><ClipPath id={clipId}><Path d={info.outline} fillRule="evenodd" transform={'translate('+x+' '+y+') scale('+info.scale+')'}/></ClipPath></Defs>
+  {cat?<Path d="M205 314 C264 316 263 261 250 249 C236 237 226 252 237 264 C246 277 236 293 216 289" fill="none" stroke="#F3DAB6" strokeWidth="17" strokeLinecap="round"/>:null}
+  <SvgImage href={skinAssets[id][pose]} x={x} y={y} width={w} height={h} clipPath={'url(#'+clipId+')'}/>
+  {cat?<Svg x={info.face[0]-50} y={info.face[1]-35} width={100} height={80} viewBox="-50 -35 100 80">
+   {expression==='concern'?<Path d="M-24 -12 L-11 -16 M11 -16 L24 -12" fill="none" stroke="#88775F" strokeWidth={2} strokeLinecap="round"/>:null}
+   {closed?<Path d="M-23 0 Q-17 -6 -11 0 M11 0 Q17 -6 23 0" stroke="#514B42" strokeWidth={2.8} fill="none" strokeLinecap="round"/>:<><Circle cx={-17} cy={0} r={3.5} fill="#514B42"/><Circle cx={17} cy={0} r={3.5} fill="#514B42"/></>}
+   <Path d="M-4 9 Q0 6 4 9 L0 12 Z" fill="#D8A28E"/><Path d={expressions[expression].catMouth} fill="none" stroke="#514B42" strokeWidth={2.2} strokeLinecap="round"/>
+  </Svg>:<>
+   <Ellipse cx={103} cy={96} rx={6} ry={11} fill={info.faceColor}/><Ellipse cx={177} cy={96} rx={6} ry={11} fill={info.faceColor}/>
+   <Path d={giga?'M100 62 C100 42 180 42 180 62 L180 99 C180 119 160 141 140 145 C120 141 100 119 100 99 Z':'M104 62 C104 42 176 42 176 62 L176 96 C176 119 162 139 140 142 C118 139 104 119 104 96 Z'} fill={info.faceColor}/>
+   <Path d={id==='clinic'?'M101 91 L100 70 C99 47 113 31 136 30 C162 26 181 40 183 61 L180 94 L173 80 L170 60 C156 65 139 65 125 57 C121 72 114 79 106 80 Z':'M103 91 C95 80 96 65 100 55 C104 39 116 29 132 29 C142 21 158 24 166 30 C184 33 191 47 190 62 C191 76 185 88 177 96 L172 76 C158 75 147 68 140 56 C135 72 122 79 108 80 Z'} fill={hair}/>
+   <Path d={expression==='concern'?'M116 88 Q123 81 131 84 M149 84 Q157 81 164 88':giga?'M116 85 L132 84 M148 84 L164 85':'M117 86 Q124 83 131 85 M149 85 Q156 83 163 86'} stroke={hair} strokeWidth={giga?3.2:2.8} fill="none" strokeLinecap="round"/>
+   {closed?<Path d="M120 97 Q124 93 128 97 M152 97 Q156 93 160 97" fill="none" stroke="#303F3A" strokeWidth={2.4} strokeLinecap="round"/>:<><Circle cx={124} cy={96} r={2.8} fill="#303F3A"/><Circle cx={156} cy={96} r={2.8} fill="#303F3A"/></>}
+   <Path d="M140 103 L137 112 Q139 114 142 113" stroke="#DFA580" strokeWidth={2.4} strokeLinecap="round" fill="none"/>
+   <Path d={expressions[expression].mouth} stroke={hair} strokeWidth={2.5} strokeLinecap="round" fill="none"/>
+  </>}
+ </Svg>;
+}
+export function Character({expression='calm',giga=false,reduced=false,size=230,framed=true,skinId,pose}:{expression?:Expression;giga?:boolean;reduced?:boolean;size?:number;framed?:boolean;skinId?:SkinId;pose?:Pose}){
+ const skin=useSkin(),id=skinId??skin.id,targetPose=pose??poseFor(expression),visual={id,pose:targetPose};
+ const previous=useRef<Visual>(visual),[under,setUnder]=useState<Visual|null>(null);
+ const fade=useRef(new Animated.Value(1)).current,breath=useRef(new Animated.Value(0)).current,[blink,setBlink]=useState(false);
+ useEffect(()=>{
+  if(reduced){fade.stopAnimation();fade.setValue(1);setUnder(null);previous.current={id,pose:targetPose};return;}
+  if(previous.current.id===id&&previous.current.pose===targetPose)return;
+  fade.stopAnimation();setUnder(reduced?null:previous.current);previous.current={id,pose:targetPose};fade.setValue(reduced?1:0);
+  const animation=Animated.timing(fade,{toValue:1,duration:220,useNativeDriver:Platform.OS!=='web'});animation.start(({finished})=>{if(finished)setUnder(null);});return()=>animation.stop();
+ },[id,targetPose,reduced,fade]);
+ useActivityEffect(current=>{
+  const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:motion.breath,useNativeDriver:Platform.OS!=='web'}),Animated.timing(breath,{toValue:0,duration:motion.breath,useNativeDriver:Platform.OS!=='web'})]));loop.start();
+  let close:ReturnType<typeof setTimeout>|undefined;const timer=setInterval(()=>{if(!current())return;setBlink(true);close=setTimeout(()=>{if(current())setBlink(false);},150);},motion.blink);
+  return()=>{loop.stop();clearInterval(timer);clearTimeout(close);breath.setValue(0);setBlink(false);};
+ },[breath],!reduced);
+ return <View accessible accessibilityRole="image" accessibilityLabel={skins[id].name+', '+(giga?'기가차드 모드, ':'')+expressionNames[expression]+' 표정'} style={{width:size,height:size*1.25}}>
+  <Animated.View style={{width:'100%',height:'100%',backgroundColor:framed?skins[id].accent:'transparent',borderRadius:22,transform:[{translateY:breath.interpolate({inputRange:[0,1],outputRange:[0,-1.5]})}]}}>
+   {under?<View style={{position:'absolute',inset:0}}><Artwork visual={under} expression={expression} blink={blink} giga={giga}/></View>:null}
+   <Animated.View style={{position:'absolute',inset:0,opacity:fade}}><Artwork visual={visual} expression={expression} blink={blink} giga={giga}/></Animated.View>
   </Animated.View>
  </View>;
 }
+
+

@@ -11,6 +11,7 @@ import {color} from '../design/tokens';
 import type {Advice} from '../domain/content';
 import {submitCounsel,counselRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
+import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {useStore,Counsel} from '../state/store';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
@@ -18,7 +19,7 @@ import {AIConversationSubmit,ResourceDelete} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 
 export function Talk({nav,route}:{nav:Nav;route?:Route}){
- const store=useStore(),config=store.config;
+ const theme=useSkinTheme(),store=useStore(),config=store.config;
  const [topic,setTopicState]=useState(''),[question,setQuestionState]=useState(''),[answers,setAnswersState]=useState<boolean[]>([]);
  const draftSession=useScreenDraft(),[draftError,setDraftError]=useState('');
  const setTopic=(value:string)=>{draftSession.changed();setTopicState(value);};
@@ -49,7 +50,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
   {response?<><View style={{alignItems:'center'}}><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={150} framed={false}/></View><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
    <ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
-    <View style={{backgroundColor:color.sage,borderRadius:24,padding:16,alignItems:'center',gap:4}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={142} framed={false}/><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
+    <View style={{backgroundColor:theme.soft,borderRadius:24,padding:16,alignItems:'center',gap:4}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={142} framed={false}/><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
    </ChoiceStage>
    <StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/>
    {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}

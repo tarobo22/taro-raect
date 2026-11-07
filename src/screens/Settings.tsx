@@ -10,9 +10,12 @@ import {voiceAvailable} from '../services/voice';
 import {checkAndDownload,applyUpdate,getUpdateNotice,subscribeUpdateNotice,isUpdateReady} from '../services/updates';
 import type {Nav} from '../navigation';
 import {useAdminEligibility} from '../features/admin/useAdmin';
+import {useSkinTheme} from '../features/skins/useSkinTheme';
+import {SkinPicker} from '../features/skins/SkinPicker';
+import {SceneHero} from '../features/skins/SceneHero';
 
 export function Settings({nav}:{nav:Nav}){
- const store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
+ const theme=useSkinTheme(),store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
  const admin=useAdminEligibility(store.bootstrap?.user.id);
  useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>{setStatus(getUpdateNotice());setDownloaded(isUpdateReady());});},[]);
  async function update(){
@@ -30,7 +33,8 @@ export function Settings({nav}:{nav:Nav}){
   finally{setBusy(false);}
  }
  return <View style={s.stack}><Copy kind="hero">나에게 편한 방식으로.</Copy>{store.preferenceBusy?<Notice>설정을 서버에 저장하고 있어요.</Notice>:null}{store.preferenceError?<><Notice error>{store.preferenceError}</Notice><Button secondary onPress={()=>void store.retryPreferences()}>설정 저장 다시 시도</Button></>:null}
-  <Panel style={{gap:16}}><Copy kind="subtitle">이야기를 건네는 방식</Copy><View style={s.wrap}><Chip selected={store.tone==='warm'} onPress={()=>store.setTone('warm')}>다정하게</Chip><Chip selected={store.tone==='giga'} onPress={()=>store.setTone('giga')}>기가차드 모드</Chip></View><Copy kind="small" muted>{store.tone==='giga'?'단호하게 응원해요. 비난하거나 몰아붙이지 않아요.':'천천히 듣고, 다정하게 함께 정리해요.'}</Copy><View style={{alignItems:'center'}}><Character size={132} expression="encourage" giga={store.tone==='giga'} reduced={store.reduced}/></View><Button secondary onPress={()=>setFaces(true)}>캐릭터 표정 살펴보기</Button></Panel>
+  <Panel style={{gap:12,padding:14}}><Copy kind="subtitle">오늘, 마음이 쉬어갈 곳</Copy><SkinPicker/><SceneHero reduced={store.reduced} giga={store.tone==='giga'}/><Copy kind="small" muted>진료실은 의사 콘셉트의 AI 안내 공간이에요.</Copy></Panel>
+  <Panel style={{gap:16}}><Copy kind="subtitle">이야기를 건네는 방식</Copy><View style={s.wrap}><Chip selected={store.tone==='warm'} onPress={()=>store.setTone('warm')}>다정하게</Chip><Chip selected={store.tone==='giga'} onPress={()=>store.setTone('giga')}>기가차드 모드</Chip></View><Copy kind="small" muted>{store.tone==='giga'?'단호하게 응원해요. 비난하거나 몰아붙이지 않아요.':'천천히 듣고, 다정하게 함께 정리해요.'}</Copy><Button secondary onPress={()=>setFaces(true)}>캐릭터 표정 살펴보기</Button></Panel>
   <Panel style={{gap:20}}><Copy kind="subtitle">손끝과 소리의 감각</Copy>
    <View style={[s.row,{justifyContent:'space-between'}]}><View style={{flex:1}}><Copy style={{fontWeight:'600'}}>버튼과 카드 소리</Copy><Copy kind="small" muted>짧고 조용한 터치의 여운</Copy></View><Switch accessibilityLabel="효과음" value={store.sensory.sound} onValueChange={sound=>store.setSensory({...store.sensory,sound})} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>
    <View style={[s.row,{justifyContent:'space-between'}]}><View style={{flex:1}}><Copy style={{fontWeight:'600'}}>손끝의 작은 반응</Copy><Copy kind="small" muted>기기가 지원하는 촉각 피드백</Copy></View><Switch accessibilityLabel="햅틱" value={store.sensory.haptics} onValueChange={haptics=>store.setSensory({...store.sensory,haptics})} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>
@@ -45,6 +49,6 @@ export function Settings({nav}:{nav:Nav}){
   <Panel style={{gap:12}}><Copy kind="subtitle">여운의 새로운 이야기</Copy><Copy kind="small" muted>앱을 다시 설치하지 않고 새로운 화면과 이야기를 받을 수 있어요.</Copy>{status?<Notice>{status}</Notice>:null}<Button secondary busy={busy} onPress={downloaded?apply:update}>{downloaded?'지금 다시 열어 적용하기':'업데이트 확인'}</Button></Panel>
   {admin?.eligible?<Panel style={{gap:10}}><Copy kind="subtitle">운영 도구</Copy><Copy kind="small" muted>허용된 역할로만 짧은 운영 세션을 열어요.</Copy><Button secondary onPress={()=>nav.push({name:'admin'})}>운영관리</Button></Panel>:null}
   <Copy kind="small" muted style={{textAlign:'center'}}>여운 {release.version} · {release.label}</Copy>
-  <Modal visible={faces} animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}><ScrollView style={{backgroundColor:color.paper}} contentContainerStyle={{padding:24,paddingTop:52,gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}><Copy kind="title">상황에 맞게, 따뜻하게.</Copy><Copy muted>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</Copy><View style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><View key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><Copy kind="label">{expressionNames[e]}</Copy></View>)}</View><Button onPress={()=>setFaces(false)}>닫기</Button></ScrollView></Modal>
+  <Modal visible={faces} animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}><ScrollView style={{backgroundColor:theme.paper}} contentContainerStyle={{padding:24,paddingTop:52,gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}><Copy kind="title">상황에 맞게, 따뜻하게.</Copy><Copy muted>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</Copy><View style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><View key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><Copy kind="label">{expressionNames[e]}</Copy></View>)}</View><Button onPress={()=>setFaces(false)}>닫기</Button></ScrollView></Modal>
  </View>;
 }
