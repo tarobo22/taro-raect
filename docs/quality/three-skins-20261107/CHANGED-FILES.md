@@ -1,6 +1,6 @@
 # 이번 작업의 실제 변경 파일
 
-카페·진료실·놀이방 에셋, 전체 테마, 재생 제어, 영상과 문서만 포함한다. 기존 테스트 파일 변경·삭제는 없다. 새 테스트 2개만 추가했다.
+세 공간의 에셋·전체 테마·재생 제어·영상·문서와 네이티브 설치 검증에 포함된 변경이다.
 
 ## React 웹
 
@@ -82,6 +82,8 @@
 | A | assets/skins/production-prompts.json |
 | A | assets/skins/scenes.json |
 | A | assets/skins/themes.json |
+| A | docs/quality/three-skins-20261107/CHANGED-FILES.md |
+| A | docs/quality/three-skins-20261107/DELIVERY-VERIFICATION.json |
 | A | docs/quality/three-skins-20261107/REPORT.md |
 | A | docs/quality/three-skins-20261107/browser-capture.json |
 | A | docs/quality/three-skins-20261107/evidence/S01-selection-green.json |
@@ -119,6 +121,10 @@
 | A | docs/quality/three-skins-20261107/screens/journal-from-counseling.png |
 | A | docs/quality/three-skins-20261107/screens/journal-input.png |
 | A | docs/quality/three-skins-20261107/screens/motion-switch.png |
+| A | docs/quality/three-skins-20261107/screens/native-android-cafe.png |
+| A | docs/quality/three-skins-20261107/screens/native-android-clinic.png |
+| A | docs/quality/three-skins-20261107/screens/native-android-playroom.png |
+| A | docs/quality/three-skins-20261107/screens/native-android-restored-playroom.png |
 | A | docs/quality/three-skins-20261107/screens/record-button.png |
 | A | docs/quality/three-skins-20261107/screens/settings-cat.png |
 | A | docs/quality/three-skins-20261107/screens/space-selector-cafe.png |
@@ -184,28 +190,28 @@
 | M | src/screens/Settings.tsx |
 | M | src/screens/Talk.tsx |
 | M | src/services/feedback.web.ts |
+| M | src/web/svg.tsx |
 | A | tests/character-cue.test.ts |
 | A | tests/skin-selection.test.ts |
 | A | tools/build_skin_assets.py |
 | A | tools/build_skin_film.mjs |
 | A | tools/build_skin_report.py |
 | A | tools/capture_skin_flow.mjs |
+| A | tools/finalize_native_report.py |
 | A | tools/mix_skin_film.py |
 | A | tools/narrate_skins.ps1 |
 | A | tools/preview_skin_assets.mjs |
 | A | tools/render_skin_film.mjs |
 | A | tools/skin_visuals.mjs |
 | A | tools/tdd_skins.py |
-| A | docs/quality/three-skins-20261107/CHANGED-FILES.md |
-| A | docs/quality/three-skins-20261107/DELIVERY-VERIFICATION.json |
 
-기존 테스트 수정·삭제: 없음
-
-## RN
+## React Native
 
 | 상태 | 실제 파일 |
 |---|---|
+| M | .github/workflows/ios.yml |
 | M | App.tsx |
+| M | android/app/build.gradle |
 | M | android/app/src/main/java/com/yeoun/app/YeounFeedbackModule.kt |
 | A | android/app/src/main/res/raw/yeoun_meow.wav |
 | A | assets/audio/cat_meow.license.json |
@@ -282,6 +288,7 @@
 | A | assets/skins/production-prompts.json |
 | A | assets/skins/scenes.json |
 | A | assets/skins/themes.json |
+| A | docs/quality/three-skins-20261107/ANDROID-DELIVERY.md |
 | A | docs/quality/three-skins-20261107/evidence/S01-selection-green.json |
 | A | docs/quality/three-skins-20261107/evidence/S01-selection-green.txt |
 | A | docs/quality/three-skins-20261107/evidence/S01-selection-red.json |
@@ -294,6 +301,14 @@
 | A | docs/quality/three-skins-20261107/evidence/S03-integration-regression.txt |
 | A | docs/quality/three-skins-20261107/evidence/S04-whole-room-theme-regression.json |
 | A | docs/quality/three-skins-20261107/evidence/S04-whole-room-theme-regression.txt |
+| A | docs/quality/three-skins-20261107/native/android-arm64.json |
+| A | docs/quality/three-skins-20261107/native/android-bundle-input-proof.json |
+| A | docs/quality/three-skins-20261107/native/android-cafe.png |
+| A | docs/quality/three-skins-20261107/native/android-clinic.png |
+| A | docs/quality/three-skins-20261107/native/android-device-proof.json |
+| A | docs/quality/three-skins-20261107/native/android-playroom.png |
+| A | docs/quality/three-skins-20261107/native/android-restored-playroom.png |
+| A | docs/quality/three-skins-20261107/native/android-x86.json |
 | M | ios/Yeoun/Native/YeounFeedback.swift |
 | A | ios/Yeoun/Sounds/cat_meow.wav |
 | M | src/components/Character.tsx |
@@ -316,6 +331,9 @@
 | A | tests/character-cue.test.ts |
 | A | tests/skin-selection.test.ts |
 | A | tools/build_skin_assets.py |
+| M | tools/doctor.mjs |
 | A | tools/tdd_skins.py |
+| A | tools/verify_android_preview.py |
 
-기존 테스트 수정·삭제: 없음
+기존 기능 테스트의 수정·삭제·완화는 없다. 웹과 RN에 새 기능 테스트 파일을 각각 2개 추가했다.
+사용자 승인에 따라 iOS CI의 러너 아키텍처, 시간 제한과 실행 프로세스 확인 설정을 수정했다.

@@ -76,12 +76,12 @@
   "newFunctionalTestsPerFrontend": 8,
   "gptCalls": 0,
   "designSnapshotTestsAdded": 0,
-  "androidApk": "Not assembled: local debug.keystore absent; Kotlin/resources compiled",
-  "iosLocalBuild": "Not available on Windows",
-  "iosCI": "Simulator workflow 42330103180 in progress at report creation",
+  "androidApk": "Signed previews verified for x86_64 and arm64-v8a. x86_64 exercised in Android 35.",
+  "iosLocalBuild": "Xcode validation runs on the GitHub macOS runner.",
+  "iosCI": "in_progress",
   "codeHeads": {
-    "web": "c74c7d4b8aa9bf9ce03a1392836ac8ffebfe8d69",
-    "rn": "428a1ef1dd7d5326f4e1ca7a8b7f2ccc89b12884"
+    "web": "abd5feb3daf31f6ec211130ad00301887a303a22",
+    "rn": "4d14bd319443d32b328b44fe2b49ef26348c85db"
   },
   "finalTestEvidence": [
     "S04-whole-room-theme-regression.json"
@@ -92,6 +92,151 @@
     "truePeakDbfs": -1.5
   },
   "assetsZipSha256": "7b705f8aae3e07332ad3bfad9b4c59248921ee3c60d6ce59e48748ae2e3295e2",
-  "pdfSha256": "fa9e02543574b7b4533b26d0c5c40f4b342a722f4958a1c95906692809ae25a7",
-  "mediaCommit": "69435a0"
+  "pdfSha256": "9944cd4752f0588e934010f4f1b409ef476935602ab8f5bc423cefec182d7895",
+  "mediaCommit": "69435a0",
+  "nativeCompletion": {
+    "apkRelease": "https://github.com/tarobo22/taro/releases/tag/untagged-fb1e11eeb96f1244849f",
+    "isDraft": true,
+    "androidApks": [
+      {
+        "artifact": "yeoun-preview-arm64-v8a.apk",
+        "bytes": 65999471,
+        "sha256": "260268af7a6e6a78fa4fd4638a1f6ce32a96d04f055de2f581940db820aed820",
+        "applicationId": "com.yeoun.preview.skins",
+        "abi": [
+          "arm64-v8a"
+        ],
+        "apiBaseUrl": "http://127.0.0.1:8808",
+        "signing": "Android SDK managed debug certificate; local preview, not store distribution",
+        "signatureVerified": true,
+        "allNinePoseAssets": {
+          "drawable/assets_skins_cafe_explain": "res/Ee.png",
+          "drawable/assets_skins_cafe_greeting": "res/xH.png",
+          "drawable/assets_skins_cafe_rest": "res/sO.png",
+          "drawable/assets_skins_clinic_explain": "res/Vn.png",
+          "drawable/assets_skins_clinic_greeting": "res/Li.png",
+          "drawable/assets_skins_clinic_rest": "res/G4.png",
+          "drawable/assets_skins_playroom_explain": "res/np.png",
+          "drawable/assets_skins_playroom_greeting": "res/Ii.png",
+          "drawable/assets_skins_playroom_rest": "res/uZ.png"
+        },
+        "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
+        "apiUrlVerifiedInBundle": true,
+        "bundledJavaScript": true,
+        "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db"
+      },
+      {
+        "artifact": "yeoun-preview-x86_64.apk",
+        "bytes": 66822585,
+        "sha256": "6473a8d6082c53d49a7d2cb20444341f2e830ade373451ba82eaed2cef2435d0",
+        "applicationId": "com.yeoun.preview.skins",
+        "abi": [
+          "x86_64"
+        ],
+        "apiBaseUrl": "http://127.0.0.1:8808",
+        "signing": "Android SDK managed debug certificate; local preview, not store distribution",
+        "signatureVerified": true,
+        "allNinePoseAssets": {
+          "drawable/assets_skins_cafe_explain": "res/Ee.png",
+          "drawable/assets_skins_cafe_greeting": "res/xH.png",
+          "drawable/assets_skins_cafe_rest": "res/sO.png",
+          "drawable/assets_skins_clinic_explain": "res/Vn.png",
+          "drawable/assets_skins_clinic_greeting": "res/Li.png",
+          "drawable/assets_skins_clinic_rest": "res/G4.png",
+          "drawable/assets_skins_playroom_explain": "res/np.png",
+          "drawable/assets_skins_playroom_greeting": "res/Ii.png",
+          "drawable/assets_skins_playroom_rest": "res/uZ.png"
+        },
+        "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
+        "apiUrlVerifiedInBundle": true,
+        "bundledJavaScript": true,
+        "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db"
+      }
+    ],
+    "androidDevice": {
+      "recordedAt": "2026-11-07T03:47:00.638382+00:00",
+      "method": "Manual taps based on the observed screen, then screenshot review and cold launch. The animated scene prevented the idle wait of uiautomator dump.",
+      "apkReceipt": "android-x86.json",
+      "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db",
+      "package": "com.yeoun.preview.skins",
+      "androidApi": 35,
+      "architecture": "x86_64",
+      "installedAndLaunched": true,
+      "originalAppStillInstalled": true,
+      "observedThemes": [
+        "cafe",
+        "clinic",
+        "playroom"
+      ],
+      "playroomRestoredAfterForceStopAndLaunch": true,
+      "catFaceCorrectlyAnchored": true,
+      "greetingPawsAndTailVisible": true,
+      "screenCaptures": {
+        "cafe": {
+          "file": "android-cafe.png",
+          "sha256": "94190305e3d556b87e5afd521e5ebda2dedc151fe553f3d82cb49abbb0fb85f5"
+        },
+        "clinic": {
+          "file": "android-clinic.png",
+          "sha256": "15a913643cb4acc5aa59e6c2bebddb80f369b093fa45f4c52c539556f471ac80"
+        },
+        "playroom": {
+          "file": "android-playroom.png",
+          "sha256": "6a32d951cc46b57a26c4674be11350276143750476e57b3fdc895f8e389de2bb"
+        },
+        "restored-playroom": {
+          "file": "android-restored-playroom.png",
+          "sha256": "fc8ada02b9710689fe3fc330d5b23f8ecc874c375b6c4fc98e913745b1fd837d"
+        }
+      },
+      "backend": "ADB reverse to the existing local synthetic QA API",
+      "realGptCalls": 0,
+      "audiblePlaybackMeasured": false,
+      "testReceipt": "Recorded from ADB install Success, am start COLD Status ok, post-relaunch PID and reviewed final screenshots."
+    },
+    "remoteApkDigestsMatch": true,
+    "androidBundleInputs": {
+      "onlyInputChanged": "src/config/endpoints.json in the temporary build copy",
+      "previousApiUrl": "http://127.0.0.1:8808",
+      "changedApiUrl": "http://127.0.0.1:8810",
+      "bundleContainsChangedUrl": true,
+      "gradleExitCode": 0,
+      "durationSeconds": 41.28,
+      "deliveryApksUnchanged": true
+    },
+    "sameApplicationInputs": true,
+    "ios": {
+      "runId": 42337300637,
+      "url": "https://github.com/tarobo22/taro/actions/runs/42337300637",
+      "sourceCommit": "59392ca41b3b2211514413ef0014d5daad113003",
+      "result": "in_progress",
+      "workflowConclusion": "",
+      "checkedSteps": {
+        "Test native rules": {
+          "completedAt": "2026-11-07T04:12:36Z",
+          "conclusion": "success",
+          "name": "Test native rules",
+          "number": 5,
+          "startedAt": "2026-11-07T04:11:48Z",
+          "status": "completed"
+        },
+        "Build unsigned simulator application": {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Build unsigned simulator application",
+          "number": 7,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        "Launch on a clean simulator": {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Launch on a clean simulator",
+          "number": 8,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        }
+      }
+    }
+  }
 }

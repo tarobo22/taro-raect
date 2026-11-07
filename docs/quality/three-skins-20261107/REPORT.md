@@ -82,8 +82,8 @@ FastAPI·AI 프롬프트·PostgreSQL 스키마와 상담 계약은 변경하지 
 | 전체 기능 회귀 | 웹 158/158, RN 161/161 |
 | 타입·패키징 | 양쪽 타입 검사, React production build, RN Android production JS bundle 통과 |
 | 웹 실제 동작 | 공간 변경·재실행 복원·상담·이해 확인·카드 결과·기록 입력, 화면 오류 0 |
-| Android | Kotlin·리소스 컴파일 통과. 릴리스 APK 조립은 로컬 debug.keystore 누락으로 미완료 |
-| iOS | 소스·Sounds 연결. 로컬 Windows에서 Xcode 빌드 미검증 |
+| Android | x86_64·ARM64 APK 조립·서명·패키징 통과. x86_64 설치·세 공간 전환·재실행 복원 확인 |
+| iOS | Swift 6건·빌드·설치 확인. PID가 반환된 뒤 기존 프로세스 검사가 실패해 검사 방식을 바꿔 재검증 중 |
 | 기존 테스트 | 수정·삭제·완화 없음. 새 파일 2개, 검증 8개만 추가 |
 | 디자인 | 실제 화면·영상 샘플 시각 검토. 디자인·스냅샷 테스트 추가 없음 |
 
@@ -98,7 +98,7 @@ FastAPI·AI 프롬프트·PostgreSQL 스키마와 상담 계약은 변경하지 
 
 - [웹 브랜치](https://github.com/tarobo22/taro-raect/tree/codex/three-companion-skins-20261107)
 - [RN 브랜치](https://github.com/tarobo22/taro/tree/codex/three-companion-skins-20261107)
-- [웹 기능 CI](https://github.com/tarobo22/taro-raect/actions/runs/42330099460) / [RN 기능 CI](https://github.com/tarobo22/taro/actions/runs/42330103172)
+- [웹 기능 CI](https://github.com/tarobo22/taro-raect/actions/runs/42334931931) / [RN 기능 CI](https://github.com/tarobo22/taro/actions/runs/42335124459)
 
 검증 후 기능별로 push했다. main 병합·운영 배포는 하지 않았다. 테마·표정·이미지의 후속 변경은 기존 JS/에셋 OTA 경로를 사용할 수 있다. 이번 네이티브 야옹 등록은 새 앱 바이너리에 포함해야 한다.
 
@@ -138,4 +138,12 @@ FastAPI·AI 프롬프트·PostgreSQL 스키마와 상담 계약은 변경하지 
 - [실제 변경 파일 전체 목록](CHANGED-FILES.md)
 - [원본 이미지·영상·PDF 해시와 검증 기록](DELIVERY-VERIFICATION.json)
 
-최종 영상에서 가로·세로 소개는 각각 60.0초·3,600프레임, 사용법은 30.0초·1,800프레임을 확인했다. 가로 영상 오디오 실측은 -17.4 LUFS, true peak -1.5 dBFS였다. iOS 시뮬레이터 CI는 보고서 작성 시 진행 중이며 [실행 상태](https://github.com/tarobo22/taro/actions/runs/42330103180)에서 확인할 수 있다.
+최종 영상에서 가로·세로 소개는 각각 60.0초·3,600프레임, 사용법은 30.0초·1,800프레임을 확인했다. 가로 영상 오디오 실측은 -17.4 LUFS, true peak -1.5 dBFS였다.
+
+## 네이티브 검증
+
+- [Android APK 두 개와 체크섬](https://github.com/tarobo22/taro/releases/tag/untagged-fb1e11eeb96f1244849f): GitHub 초안 릴리스. ARM64는 패키징·서명, x86_64는 설치와 실제 앱 동작까지 검증했다.
+- [Android 놀이방 복원 화면](screens/native-android-restored-playroom.png): 전체 테마와 고양이 얼굴을 확인할 수 있다.
+- Android 빌드는 SDK 기본 테스트 서명을 사용하고 JSON과 에셋을 번들 입력으로 추적한다. 미리보기는 별도 패키지로 로컬 QA API에 연결한다.
+- [iOS 검증 기록](https://github.com/tarobo22/taro/actions/runs/42337300637): Swift 6건·빌드·설치 확인. PID가 반환된 뒤 기존 프로세스 검사가 실패해 검사 방식을 바꿔 재검증 중. Android와 iOS의 앱 소스는 같고, CI 설정과 검증 문서만 달라졌다.
+- 기존 기능 테스트 코드는 유지했다. iOS 실행 설정에서 러너 CPU와 제한 시간을 조정하고, 앱 PID·실행 파일 대조와 실패 시 로그 수집을 적용했다.
