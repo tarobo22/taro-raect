@@ -50,26 +50,28 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   editor.change({version:latest.entry.version,...(useSavedText?{body:latest.entry.body,mood:latest.entry.mood}:{})});
   clearError();setResolving(false);setNotice(useSavedText?'저장된 글을 불러왔어요.':'입력한 글을 유지했어요. 확인 후 저장해 주세요.');
  }
- return <View style={s.stack}>
-  <Copy kind="label" muted>{day.replaceAll('-','. ')}</Copy>
-  <Copy kind="title">지금의 마음을, 있는 그대로.</Copy>
-  <Copy kind="small" muted>한 줄이어도 충분해요.</Copy>{editor.draft.sourceReadingId||editor.draft.sourceTurnId?<Notice>{editor.draft.sourceReadingId?'이 타로 리딩과 연결해 남기는 기록이에요.':'이 대화 답변과 연결해 남기는 기록이에요.'}</Notice>:null}
-  <View style={{marginTop:4}}>
-   <FieldLabel>지금 내 마음 · 하나를 골라 주세요</FieldLabel>
+ return <View style={{gap:10}}>
+  <View style={{gap:4}}>
+   <Copy kind="title">지금의 마음을, 있는 그대로.</Copy>
+   <View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="label" muted>{day.replaceAll('-','. ')}</Copy><Copy kind="small" muted>한 줄이어도 충분해요.</Copy></View>
+   {editor.draft.sourceReadingId||editor.draft.sourceTurnId?<Copy kind="small" muted>{editor.draft.sourceReadingId?'이 타로 리딩과 연결해 남기는 기록이에요.':'이 대화 답변과 연결해 남기는 기록이에요.'}</Copy>:null}
+  </View>
+  <View style={{gap:4}}>
+   <Copy kind="label" muted>지금 내 마음 · 하나를 골라 주세요</Copy>
    {policy?<View><MoodDial options={policy.moods} value={mood} disabled={busy} onConfirm={value=>{if(!busy)editor.change({mood:value});}}/></View>:null}
   </View>
-  <View>
-   <FieldLabel>오늘의 이야기</FieldLabel>
+  <View style={{gap:6}}>
+   <View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="label" muted>오늘의 이야기</Copy><Copy kind="small" muted>{body.length} / {policy?.maxBodyLength??'—'}</Copy></View>
    <TextInput accessibilityLabel="마음기록 내용 입력" editable={!busy} multiline maxLength={policy?.maxBodyLength}
     value={body} onChangeText={change} placeholder="오늘 마음에 남은 순간이나, 나에게 건네고 싶은 말."
-    placeholderTextColor={color.muted} style={[s.input,{minHeight:132}]}/>
-   <View style={[s.row,{justifyContent:'space-between',marginTop:10}]}>
-    <Copy kind="small" muted>{body.length} / {policy?.maxBodyLength??'—'}</Copy>
+    placeholderTextColor={color.muted} style={[s.input,{height:108,minHeight:108,padding:12}]}/>
+   <View style={[s.row,{justifyContent:'space-between',gap:8}]}>
     <View pointerEvents={busy?'none':'auto'}><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'journal'})} value={body} onText={change} onStatus={setVoice}/></View>
+    {!route.entry&&store.voiceMode!=='cloud'?<Pressable accessibilityRole="button" accessibilityLabel="클라우드 음성 파일로 기록 쓰기" disabled={busy} onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'journal'})} style={{minHeight:48,paddingHorizontal:12,justifyContent:'center'}}><Copy kind="small" muted>음성 파일로 쓰기</Copy></Pressable>:null}
    </View>
   </View>
   {!policy?<Notice>{store.error||'마음기록 설정을 불러오고 있어요.'}</Notice>:null}
-  {voice?<Notice>{voice}</Notice>:null}{!route.entry?<Button secondary onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'journal'})}>클라우드 음성 파일로 기록 쓰기</Button>:null}
+  {voice?<Notice>{voice}</Notice>:null}
   {error||editor.error?<Notice error>{error||editor.error}</Notice>:null}
   {notice?<Notice>{notice}</Notice>:null}
   {latest.error?<Notice error>{latest.error}</Notice>:null}

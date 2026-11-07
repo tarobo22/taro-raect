@@ -70,13 +70,15 @@ export function PageSection({title,children,style}:{title:string;children:React.
 // Content stays mounted. Turning pages never clears drafts, selections or API state.
 export function PageFlow({children,title='이어 보기',style,contentContainerStyle,initialOffset=0,onPageChange}:{children:React.ReactNode;title?:string;style?:StyleProp<ViewStyle>;contentContainerStyle?:StyleProp<ViewStyle>;initialOffset?:number;onPageChange?:(offset:number)=>void}){
  const theme=useSkinTheme(),insets=useSafeAreaInsets(),reduced=useStore().reduced,root=useRef<Node|null>(null),entries=useRef(new Map<string,Registration>()),frame=useRef<number|null>(null),alive=useRef(true),generation=useRef(0);
- const [height,setHeight]=useState(0),[total,setTotal]=useState(0),[bounds,setBounds]=useState<Bounds[]>([]),[index,setIndex]=useState(0);
+ const [height,setHeight]=useState(0),[availableHeight,setAvailableHeight]=useState(0),[total,setTotal]=useState(0),[bounds,setBounds]=useState<Bounds[]>([]),[index,setIndex]=useState(0);
  const motion=useRef(new Animated.Value(1)).current,direction=useRef(1),restore=useRef<number|null>(initialOffset);
  const measure=useMemo(()=>()=>{if(!alive.current||frame.current!==null)return;frame.current=requestAnimationFrame(()=>{frame.current=null;const parent=root.current;if(!parent)return;const version=++generation.current,pending=[...entries.current.entries()];void Promise.all(pending.map(([id,item])=>new Promise<Bounds|null>(resolve=>{const node=item.node();if(!node){resolve(null);return;}node.measureLayout(parent,(_x,y,_width,h)=>resolve(h>0?{id,top:Math.round(y*2)/2,bottom:Math.round((y+h)*2)/2,title:item.title,section:item.section,lineHeight:item.lineHeight}:null),()=>resolve(null));}))).then(values=>{if(!alive.current||version!==generation.current)return;const next=values.filter((v):v is Bounds=>v!==null).sort((a,b)=>a.id.localeCompare(b.id));setBounds(old=>JSON.stringify(old)===JSON.stringify(next)?old:next);});});},[]);
  const register=useMemo(()=>((id:string,value:Registration)=>{entries.current.set(id,value);measure();return()=>{entries.current.delete(id);measure();};}),[measure]);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;if(frame.current!==null)cancelAnimationFrame(frame.current);};},[]);
  useEffect(measure,[height,total,measure]);
- const pages=useMemo(()=>arrangePages(bounds,Math.max(1,height),total,title),[bounds,height,total,title]);
+ const showPagination=useMemo(()=>availableHeight>0&&arrangePages(bounds,availableHeight,total,title).length>1,[bounds,availableHeight,total,title]);
+ const pageHeight=showPagination?height:availableHeight;
+ const pages=useMemo(()=>arrangePages(bounds,Math.max(1,pageHeight),total,title),[bounds,pageHeight,total,title]);
  const current=Math.min(index,pages.length-1),page=pages[current];
  useEffect(()=>{const target=restore.current;if(target!==null&&bounds.length&&total>target){const restored=pages.findIndex(p=>target>=p.start&&target<p.end);if(restored>=0){setIndex(restored);restore.current=null;}}},[bounds.length,total,pages]);
  useEffect(()=>{if(index>=pages.length)setIndex(pages.length-1);},[index,pages.length]);
@@ -84,19 +86,19 @@ export function PageFlow({children,title='이어 보기',style,contentContainerS
  function turn(next:number){if(next<0||next>=pages.length||next===current)return;Keyboard.dismiss();direction.current=next>current?1:-1;motion.stopAnimation();motion.setValue(reduced?1:0);setIndex(next);onPageChange?.(pages[next].start);restore.current=null;feedback('select');if(!reduced)Animated.timing(motion,{toValue:1,duration:180,useNativeDriver:Platform.OS!=='web'}).start();}
  const first=Math.max(0,Math.min(current-1,pages.length-3)),visible=Array.from({length:Math.min(3,pages.length)},(_,i)=>first+i);
  const ready=height>0&&total>0;
- return <NativeView style={[{flex:1,minHeight:0},style]}>
+ return <NativeView style={[{flex:1,minHeight:0},style]} onLayout={e=>setAvailableHeight(Math.floor(e.nativeEvent.layout.height))}>
   <NativeView style={{flex:1,minHeight:0,overflow:'hidden'}} onLayout={e=>setHeight(Math.floor(e.nativeEvent.layout.height))}>
    <Animated.View style={{height:ready?Math.min(height,page.end-page.start):height,overflow:'hidden',opacity:ready?motion:0,transform:[{translateX:motion.interpolate({inputRange:[0,1],outputRange:[direction.current*22,0]})}]}}>
     <FlowContext.Provider value={context}><NativeView collapsable={false} ref={root} onLayout={e=>{setTotal(Math.ceil(e.nativeEvent.layout.height));measure();}} style={[{position:'absolute',top:0,left:0,right:0,padding:20,gap:16,transform:[{translateY:-page.start}]},contentContainerStyle]}>{children}</NativeView></FlowContext.Provider>
    </Animated.View>
   </NativeView>
-  <NativeView style={{paddingHorizontal:16,paddingTop:8,paddingBottom:Math.max(10,insets.bottom+8),borderTopWidth:1,borderColor:theme.line,backgroundColor:theme.paper,gap:6}}>
+  {showPagination?<NativeView style={{paddingHorizontal:16,paddingTop:8,paddingBottom:Math.max(10,insets.bottom+8),borderTopWidth:1,borderColor:theme.line,backgroundColor:theme.paper,gap:6}}>
    <NativeText accessibilityLiveRegion="polite" style={{fontSize:12,lineHeight:16,textAlign:'center',color:theme.muted}}>{page.title+' · '+(current+1)+' / '+pages.length}</NativeText>
    <NativeView style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:6}}>
-    <Pressable accessibilityRole="button" accessibilityLabel="이전 페이지" disabled={current===0} onPress={()=>turn(current-1)} style={{minWidth:64,minHeight:44,alignItems:'center',justifyContent:'center',opacity:current===0?.35:1}}><NativeText style={{color:theme.ink,fontWeight:'600'}}>← 이전</NativeText></Pressable>
+    {current>0?<Pressable accessibilityRole="button" accessibilityLabel="이전 페이지" onPress={()=>turn(current-1)} style={{minWidth:64,minHeight:44,alignItems:'center',justifyContent:'center'}}><NativeText style={{color:theme.ink,fontWeight:'600'}}>← 이전</NativeText></Pressable>:<NativeView style={{width:64}}/>}
     <NativeView style={{flexDirection:'row',gap:4}}>{visible.map(n=><Pressable key={n} accessibilityRole="button" accessibilityLabel={`${n+1}번 페이지`} accessibilityState={{selected:current===n}} onPress={()=>turn(n)} style={{width:44,height:44,borderRadius:14,alignItems:'center',justifyContent:'center',backgroundColor:current===n?theme.action:theme.soft}}><NativeText style={{color:current===n?'#fff':theme.ink,fontWeight:'600',fontSize:15}}>{n+1}</NativeText></Pressable>)}</NativeView>
-    <Pressable accessibilityRole="button" accessibilityLabel="다음 페이지" disabled={current===pages.length-1} onPress={()=>turn(current+1)} style={{minWidth:64,minHeight:44,alignItems:'center',justifyContent:'center',opacity:current===pages.length-1?.35:1}}><NativeText style={{color:theme.action,fontWeight:'600'}}>다음 →</NativeText></Pressable>
+    {current<pages.length-1?<Pressable accessibilityRole="button" accessibilityLabel="다음 페이지" onPress={()=>turn(current+1)} style={{minWidth:64,minHeight:44,alignItems:'center',justifyContent:'center'}}><NativeText style={{color:theme.action,fontWeight:'600'}}>다음 →</NativeText></Pressable>:<NativeView style={{width:64}}/>}
    </NativeView>
-  </NativeView>
+  </NativeView>:null}
  </NativeView>;
 }

@@ -5,6 +5,7 @@ import {StepProgress} from '../components/StepProgress';
 import React,{useEffect,useState} from 'react';
 import {Pressable,Switch,TextInput} from 'react-native';
 import AsyncStorage from '../features/account/storage';
+import {Character,type Expression} from '../components/Character';
 import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {VoiceButton} from '../components/VoiceButton';
 import {color} from '../design/tokens';
@@ -44,12 +45,13 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
   if(saved){feedback('confirm');setResponse(saved);setFollowup(false);try{await draftSession.write(()=>AsyncStorage.removeItem('yeoun.talk.draft'));await acknowledge();}catch{}await store.refresh();}
  }
  const canChoose=!busy&&!response&&!choicesComplete;
+ const expression:Expression=answers.length?(answers[answers.length-1]?'encourage':'listen'):'welcome';
  return <View style={s.stack}>
   <Button secondary onPress={()=>nav.push({name:'counseling',initialText:question})}>타로와 함께 마음 이야기</Button>
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
-  {response?<><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
+  {response?<><View style={{alignItems:'center'}}><Character expression={response.expression} giga={store.tone==='giga'} reduced={store.reduced} size={130} framed={false}/></View><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
    <View><ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
-    <View style={{backgroundColor:theme.soft,borderRadius:24,minHeight:160,padding:24,justifyContent:'center',alignItems:'center',gap:16}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
+    <View style={{backgroundColor:theme.soft,borderRadius:24,padding:16,alignItems:'center',gap:6}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><View pointerEvents="none"><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={164} framed={false}/></View><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
    </ChoiceStage></View>
    <View><StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/></View>
    {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}
@@ -59,7 +61,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
 <Copy kind="small" muted>{question.length} / {config.maxCounselQuestion}</Copy>
 
 </>:null}
-   {config.aiAvailable?<View style={{gap:8}}> <View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View><Copy kind="small" muted>{config.aiAvailable?'이야기 방식을 고른 뒤 목적별 동의와 전송 범위를 확인하고 직접 보내 주세요.':'현재 기본 가이드로 대화할 수 있어요. GPT 연결은 준비 중이에요.'}</Copy></View>:null}
+   {config.aiAvailable?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>:null}
    {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">내 이야기 보내기</Button>}{voice?<Notice>{voice}</Notice>:null}
   </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button icon="edit" secondary onPress={()=>nav.push({name:'journal',sourceTurnId:response.id,initialText:response.question+'\n\n지금의 조언: '+response.advice+'\n작은 행동: '+response.action+'\n\n내 마음은 '})}>마음기록으로 이어가기</Button><ResourceDelete kind="legacy-counsel" id={response.id} nav={nav}/><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');}}>새로운 이야기 시작</Button></>}
   {error||draftError?<Notice error>{error||draftError}</Notice>:null}
