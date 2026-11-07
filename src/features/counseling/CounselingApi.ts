@@ -7,7 +7,7 @@ export interface CounselResult{empathy:string;facts:{text:string;source_ids:stri
 export interface CounselingSession{id:string;topic:Topic;version:number;phase:'listening'|'clarifying'|'confirmation'|'advice'|'support';acknowledgement:string;understanding:string|null;clarification_question:string|null;perspective:string|null;response_mode:'advice'|'listen';search_queries:string[];search_status:string;cards:SelectedCard[];draw:{id:string;method:string;at:string;without_replacement:boolean}|null;result:CounselResult|null;sources:Source[];glossary_used:Definition[];history:{role:'user'|'assistant';text:string}[];job:{id:string;state:'queued'|'running'|'succeeded'|'failed';error_code:string|null}|null;}
 export interface SessionSummary{id:string;topic:Topic;phase:string;summary:string;updated_at:string;}
 export interface Capabilities{available:boolean;policy_version:string;card_counts:number[];glossary_limit:number;max_message_chars:number;}
-export interface MessageInput{text:string;expected_version:number;consent_event_id:string;remember_definitions:boolean;}
+export interface MessageInput{text:string;expected_version:number;consent_event_id:string;remember_definitions:boolean;auto_read?:boolean;card_count?:1|3|5;web_search?:boolean;}
 export interface ConfirmInput{confirmed:true;expected_version:number;consent_event_id:string;web_search:boolean;card_count:1|3|5;}
 
 const invalid=()=>new Error('대화 응답을 확인하지 못했어요. 다시 연결해 주세요.');
@@ -78,7 +78,7 @@ export class CounselingApi {
  async create(topic:Topic,key:string,sourceReadingId?:string){return decode(await this.http.request('/v2/counseling/sessions',post({topic,...(sourceReadingId?{source_reading_id:sourceReadingId}:{})},key)));}
  async get(id:string){return decode(await this.http.request(sessionPath(id)));}
  async message(id:string,input:MessageInput,key:string){
-  const body={text:input.text,expected_version:input.expected_version,consent_event_id:input.consent_event_id,remember_definitions:input.remember_definitions};
+  const body={text:input.text,expected_version:input.expected_version,consent_event_id:input.consent_event_id,remember_definitions:input.remember_definitions,...(input.auto_read?{auto_read:true,card_count:input.card_count,web_search:input.web_search}: {})};
   return decode(await this.http.request(sessionPath(id)+'/messages',post(body,key)));
  }
  async confirm(id:string,input:ConfirmInput,key:string){

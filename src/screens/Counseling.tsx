@@ -49,7 +49,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   setSendError('');
   if(!caps?.available&&!await controller.refreshCapabilities()){setSendError('지금은 답변을 받지 못했어요. 잠시 후 다시 보내 주세요.');return;}
   const permission=await requestConsent(['ai_processing']);
-  if(permission?.ai_processing){followLatest.current=true;await controller.send(permission.ai_processing.id,remember);}
+  if(permission?.ai_processing){followLatest.current=true;await controller.send(permission.ai_processing.id,remember,{cardCount:count,webSearch:web});}
  }
  async function confirm(){const permission=await requestConsent(['ai_processing']);if(permission?.ai_processing){followLatest.current=true;await controller.confirm(permission.ai_processing.id,count,web);}}
  async function openSettings(){setSettings(true);await controller.loadManagement();}

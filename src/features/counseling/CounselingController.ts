@@ -47,7 +47,7 @@ export class CounselingController{
   this.attempt=undefined;this.restore=undefined;this.draftKey='new';this.creation=this.nextId();this.patch(empty());
  }
  setText(text:string){this.patch({text});this.persist();}
- async send(consent:string,remember=true):Promise<boolean>{
+ async send(consent:string,remember=true,reading?:{cardCount:1|3|5;webSearch:boolean}):Promise<boolean>{
   if(!this.ready||!consent||!this.state.text.trim())return false;
   const epoch=this.fence.capture(),text=this.state.text.trim();this.patch({busy:true,error:''});
   try{
@@ -55,7 +55,8 @@ export class CounselingController{
    if(!session){session=await this.api.create(this.options.topic||'care',this.creation,this.options.sourceReadingId);
     if(!this.fence.valid(epoch))return false;this.publish(session);}
    return await this.execute({kind:'message',id:session.id,key:this.nextId(),payload:{text,
-    expected_version:session.version,consent_event_id:consent,remember_definitions:remember}});
+    expected_version:session.version,consent_event_id:consent,remember_definitions:remember,
+    ...(reading?{auto_read:true,card_count:reading.cardCount,web_search:reading.webSearch}:{})}});
   }catch(error){if(this.fence.valid(epoch))this.patch({error:message(error)});return false;}
   finally{if(this.fence.valid(epoch))this.patch({busy:false});}
  }
