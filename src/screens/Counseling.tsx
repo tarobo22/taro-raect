@@ -9,7 +9,7 @@ import {useStore} from '../state/store';
 import {color} from '../design/tokens';
 import {counselingRepository} from '../composition';
 import {requestId} from '../infrastructure/requestId';
-import {currentConsent} from '../features/p0/model';
+import {useSendConsent} from '../features/consent/SendConsentProvider';
 import type {Topic} from '../features/p0/model';
 import {CounselingController} from '../features/counseling/CounselingController';
 import {useCounselingDraft} from '../features/counseling/DraftProvider';
@@ -21,7 +21,7 @@ import {useSkin} from '../features/skins/SkinProvider';
 import {skins} from '../features/skins/catalog';
 import {useSkinTheme} from '../features/skins/useSkinTheme';
 
-const fail=(code:string|null)=>({UNKNOWN_PROVIDER_OUTCOME:'앞선 요청의 처리 여부를 확인하지 못했어요. 새 요청은 추가 비용이 생길 수 있어요.',CONSENT_REQUIRED:'AI 이용 동의가 바뀌었어요. 설정을 확인해 주세요.',GLOSSARY_CHANGED:'사전이 바뀌었어요. 이야기를 다시 보내 뜻을 확인해 주세요.',AI_RATE_LIMITED:'요청이 몰려 잠시 쉬고 있어요. 조금 뒤 다시 시도해 주세요.'} as Record<string,string>)[code||'']||'답변을 마치지 못했어요. 이야기는 남아 있고, 뽑은 카드는 유지돼요.';
+const fail=(code:string|null)=>({UNKNOWN_PROVIDER_OUTCOME:'앞선 요청의 처리 여부를 확인하지 못했어요. 새 요청은 추가 비용이 생길 수 있어요.',CONSENT_REQUIRED:'이야기를 다시 보내면 전송 여부를 확인할 수 있어요.',GLOSSARY_CHANGED:'사전이 바뀌었어요. 이야기를 다시 보내 뜻을 확인해 주세요.',AI_RATE_LIMITED:'요청이 몰려 잠시 쉬고 있어요. 조금 뒤 다시 시도해 주세요.'} as Record<string,string>)[code||'']||'답변을 마치지 못했어요. 이야기는 남아 있고, 뽑은 카드는 유지돼요.';
 function SourceLink({source}:{source:Source}){return source.url?.startsWith('https://')?<Text accessibilityRole="link" onPress={()=>{void Linking.openURL(source.url!);}} style={{fontSize:13,lineHeight:21,color:color.action,textDecorationLine:'underline'}}>{source.title}</Text>:<Copy kind="small" muted>{source.title}</Copy>;}
 
 export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
@@ -35,7 +35,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const [settings,setSettings]=useState(false),[term,setTerm]=useState(''),[meaning,setMeaning]=useState('');
  const [editing,setEditing]=useState(false),[history,setHistory]=useState(true),[deleting,setDeleting]=useState(false),[references,setReferences]=useState(false);
  const input=useRef<TextInput>(null),scroll=useRef<ScrollView>(null);
- const consent=store.bootstrap?currentConsent(store.consents,'ai_processing',store.bootstrap.policy_version):undefined;
+ const requestConsent=useSendConsent(),[sendError,setSendError]=useState('');
  useEffect(()=>{void controller.initialize();return()=>controller.dispose();},[controller]);
  useEffect(()=>{
   if(!processing)return;let disposed=false;let timer:ReturnType<typeof setTimeout>;
@@ -46,11 +46,12 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  async function refresh(){await controller.refreshCapabilities();await controller.refresh();}
  async function send(){
   if(busy||processing||pending||!text.trim())return;
-  if(!consent){nav.push({name:'consents'});return;}
-  if(!caps?.available&&!await controller.refreshCapabilities())return;
-  await controller.send(consent.id,remember);
+  setSendError('');
+  if(!caps?.available&&!await controller.refreshCapabilities()){setSendError('지금은 답변을 받지 못했어요. 잠시 후 다시 보내 주세요.');return;}
+  const permission=await requestConsent(['ai_processing']);
+  if(permission?.ai_processing)await controller.send(permission.ai_processing.id,remember);
  }
- function confirm(){if(consent)void controller.confirm(consent.id,count,web);}
+ async function confirm(){const permission=await requestConsent(['ai_processing']);if(permission?.ai_processing)await controller.confirm(permission.ai_processing.id,count,web);}
  async function openSettings(){setSettings(true);await controller.loadManagement();}
  async function saveDefinition(){if(await controller.define(term,meaning)){setTerm('');setMeaning('');setEditing(false);}}
  async function forget(entry:Definition){await controller.forget(entry.id);}
@@ -66,17 +67,16 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   </View>
   <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{padding:20,gap:14}} onContentSizeChange={()=>scroll.current?.scrollToEnd({animated:!store.reduced})}>
    {!value||value.phase==='listening'?<View style={{flexDirection:'row',gap:14,alignItems:'center'}}><Character size={76} expression="welcome" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:6}}><Copy kind="subtitle">{route.sourceReadingId?'어떤 이야기를 더 나누고 싶나요?':'어떤 마음으로 오셨나요?'}</Copy><Copy muted>{route.sourceReadingId?'뽑은 카드와 앞선 고민을 기억하고 있어요. 지금 마음을 편하게 들려주세요.':'먼저 이야기를 듣고, 고른 장수의 카드와 함께 살펴볼게요.'}</Copy></View></View>:null}
-   {!caps?.available&&caps?<View style={{gap:8}}><Notice>AI 상담 서버가 아직 연결되지 않았어요. 연결 후 다시 시도해 주세요. 작성한 이야기는 그대로 유지돼요.</Notice><Button secondary disabled={busy||processing||pending} onPress={()=>void refresh()}>연결 다시 확인</Button></View>:null}
-   {!consent?<><Copy kind="small" muted>처음 한 번, AI 이용을 허용해 주세요. 설정을 다녀와도 작성한 이야기는 유지돼요.</Copy><Button secondary onPress={()=>nav.push({name:'consents'})}>AI 이용 설정</Button></>:null}
    {value&&value.history.length>2?<Pressable accessibilityRole="button" onPress={()=>setHistory(!history)} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small" muted>{history?'앞선 이야기 접기':'앞선 이야기 보기'}</Copy></Pressable>:null}
    {history?value?.history.slice(0,Math.max(0,lastUserIndex)).map((h,i)=><Panel key={i} tone={h.role==='user'?theme.tint:theme.surface} style={{alignSelf:h.role==='user'?'flex-end':'flex-start',maxWidth:'94%',padding:16,gap:6}}><Copy kind="small" muted>{h.role==='user'?'나의 이야기':'함께 나눈 말'}</Copy><Copy>{h.text}</Copy></Panel>):null}
    {lastUser?<Panel tone={theme.tint} style={{alignSelf:'flex-end',maxWidth:'94%',padding:16}}><Copy>{lastUser.text}</Copy></Panel>:null}
    {processing?<View accessibilityLiveRegion="polite" style={{flexDirection:'row',gap:10,alignItems:'center',paddingVertical:12}}><ActivityIndicator color={theme.action}/><Copy muted>{value?.cards.length?'카드와 이야기를 함께 살펴보고 있어요.':'말씀해주신 마음을 천천히 듣고 있어요.'}</Copy></View>:null}
    {!processing&&value?.acknowledgement&&!result?<View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="listen" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{value.acknowledgement}</Copy></View></View>:null}
    {!processing&&value?.phase==='clarifying'?<Panel style={{padding:16}}><Copy style={{fontSize:17,lineHeight:28}}>{value.clarification_question}</Copy></Panel>:null}
-   {!processing&&value?.phase==='confirmation'?<><Panel style={{padding:18,gap:10}}>{value.perspective?<Copy kind="label" muted>{value.perspective}의 입장에서</Copy>:null}<Copy style={{fontSize:17,lineHeight:28}}>{value.understanding}</Copy>{!/[?？]\s*$/.test(value.understanding||'')?<Copy muted>제가 이해한 내용이 맞을까요?</Copy>:null}</Panel>{value.response_mode!=='listen'&&!value.cards.length?<View style={{flexDirection:'row',gap:8}}><Chip selected={count===1} onPress={()=>setCount(1)}>1장</Chip><Chip selected={count===3} onPress={()=>setCount(3)}>3장</Chip><Chip selected={count===5} onPress={()=>setCount(5)}>5장</Chip></View>:null}<Button busy={busy} disabled={!consent||!caps?.available||!!pending} onPress={confirm}>{value.response_mode==='listen'?'맞아요, 이야기 이어갈게요':'맞아요, 함께 살펴봐요'}</Button><Button secondary onPress={()=>input.current?.focus()}>조금 달라요 · 이야기 보태기</Button></>:null}
+   {!processing&&value?.phase==='confirmation'?<><Panel style={{padding:18,gap:10}}>{value.perspective?<Copy kind="label" muted>{value.perspective}의 입장에서</Copy>:null}<Copy style={{fontSize:17,lineHeight:28}}>{value.understanding}</Copy>{!/[?？]\s*$/.test(value.understanding||'')?<Copy muted>제가 이해한 내용이 맞을까요?</Copy>:null}</Panel>{value.response_mode!=='listen'&&!value.cards.length?<View style={{flexDirection:'row',gap:8}}><Chip selected={count===1} onPress={()=>setCount(1)}>1장</Chip><Chip selected={count===3} onPress={()=>setCount(3)}>3장</Chip><Chip selected={count===5} onPress={()=>setCount(5)}>5장</Chip></View>:null}<Button busy={busy} disabled={!caps?.available||!!pending} onPress={confirm}>{value.response_mode==='listen'?'맞아요, 이야기 이어갈게요':'맞아요, 함께 살펴봐요'}</Button><Button secondary onPress={()=>input.current?.focus()}>조금 달라요 · 이야기 보태기</Button></>:null}
    {!processing&&result?<><View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="encourage" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{result.empathy}</Copy></View></View><Panel style={{padding:18,gap:10}}><Copy style={{fontSize:17,lineHeight:28}}>{result.advice}</Copy></Panel>{result.actions.map((a,i)=><Panel key={i} tone={theme.warm} style={{padding:16,gap:8}}><Copy kind="label">오늘의 작은 행동 {result.actions.length>1?i+1:''}</Copy><Copy>{a}</Copy><Pressable accessibilityRole="button" onPress={()=>{setText('이 방법을 해봤어요. '+a+'\n해보니 ');input.current?.focus();}} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">해본 이야기 나누기 →</Copy></Pressable></Panel>)}<>{resultOptions&&result.facts.length?<><Pressable accessibilityRole="button" onPress={()=>setReferences(!references)} style={{minHeight:44,justifyContent:"center"}}><Copy kind="small" muted>{references?"참고한 내용 접기":"이야기에 참고한 내용"}</Copy></Pressable>{references?result.facts.map((f,i)=><Panel key={i} style={{padding:16,gap:7}}><Copy>{f.text}</Copy>{f.source_ids.map(id=>{const source=value?.sources.find(s=>s.id===id);return source?<SourceLink key={id} source={source}/>:null;})}</Panel>):null}</>:null}</>{result.follow_up_question?<Copy>{result.follow_up_question}</Copy>:null}<Button secondary onPress={()=>input.current?.focus()}>이어서 이야기하기</Button><Pressable accessibilityRole="button" accessibilityLabel={resultOptions?'추가 옵션 접기':'추가 옵션 열기'} accessibilityState={{expanded:resultOptions}} onPress={()=>setResultOptions(!resultOptions)} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small" muted>{resultOptions?'추가 옵션 접기 −':'추가 옵션 · 마음기록과 참고 내용 +'}</Copy></Pressable>{resultOptions?<Button secondary onPress={()=>nav.push({name:'journal',initialText:(lastUser?.text||'')+'\n\n마음에 남은 말: '+result.advice})}>내 마음을 기록하기</Button>:null}<Copy kind="small" muted>타로는 마음을 돌아보는 관점이에요. 선택은 내가 정해요.</Copy></>:null}
    {value?.job?.state==='failed'?<Notice error>{fail(value.job.error_code)}</Notice>:null}
+   {sendError?<View accessibilityLiveRegion="polite"><Copy kind="small" muted>{sendError}</Copy></View>:null}
    {error?<><Notice error>{error}</Notice>{pending?<Button secondary busy={busy} onPress={()=>{void controller.retry();}}>같은 요청으로 상태 확인</Button>:<Button secondary onPress={()=>void refresh()}>상태 다시 확인</Button>}</>:null}
   </ScrollView>
   <View style={{paddingHorizontal:16,paddingTop:10,paddingBottom:16,gap:8,borderTopWidth:1,borderColor:theme.line,backgroundColor:theme.surface}}>

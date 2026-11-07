@@ -43,7 +43,7 @@ export function Settings({nav}:{nav:Nav}){
   finally{setBusy(false);}
  }
  return <View style={s.stack}>{store.preferenceBusy?<Notice>설정을 서버에 저장하고 있어요.</Notice>:null}{store.preferenceError?<><Notice error>{store.preferenceError}</Notice><Button secondary onPress={()=>void store.retryPreferences()}>설정 저장 다시 시도</Button></>:null}
-  <Panel style={{paddingVertical:12,gap:4}}><Copy kind="subtitle">타로와 AI</Copy><SettingLink title="AI 이용 설정" detail="대화·음성·마음기록의 사용 범위" icon="heart" onPress={()=>nav.push({name:'consents'})}/><View style={{height:1,backgroundColor:theme.line}}/><SettingLink title="카드 덱과 그림" detail="사용할 카드 그림과 출처 확인" icon="cards" onPress={()=>nav.push({name:'decks'})}/></Panel>
+  <Panel style={{paddingVertical:12,gap:4}}><Copy kind="subtitle">타로</Copy><SettingLink title="카드 덱과 그림" detail="사용할 카드 그림과 출처 확인" icon="cards" onPress={()=>nav.push({name:'decks'})}/></Panel>
   <Panel style={{gap:16}}><Copy kind="subtitle">이야기를 건네는 방식</Copy><View style={s.wrap}><Chip selected={store.tone==='warm'} onPress={()=>store.setTone('warm')}>다정하게</Chip><Chip selected={store.tone==='giga'} onPress={()=>store.setTone('giga')}>기가차드 모드</Chip></View><Copy kind="small" muted>{store.tone==='giga'?'단호하게 응원해요. 비난하거나 몰아붙이지 않아요.':'천천히 듣고, 다정하게 함께 정리해요.'}</Copy><Button secondary onPress={()=>setFaces(true)}>캐릭터 표정 살펴보기</Button></Panel>
   <Panel style={{gap:12,padding:14}}><Copy kind="subtitle">오늘, 마음이 쉬어갈 곳</Copy><SkinPicker/><Copy kind="small" muted>진료실은 의사 콘셉트의 AI 안내 공간이에요.</Copy></Panel>
   <Panel style={{gap:20}}><Copy kind="subtitle">손끝과 소리의 감각</Copy>

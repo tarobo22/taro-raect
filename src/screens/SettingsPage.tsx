@@ -8,14 +8,14 @@ import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {useStore} from '../state/store';
 import type {Nav,Route,ScreenName} from '../navigation';
 import {Settings} from './Settings';
-import {Consents,CardDetail,Sources,DataControls,Feedback} from './P0';
+import {CardDetail,Sources,DataControls,Feedback} from './P0';
 import {Decks} from './DeckCatalog';
 import {AccountScreen} from './Account';
 import {RemindersScreen} from './Reminders';
 import {BillingScreen} from './Billing';
 import {AdminScreen} from './Admin';
 
-const titles:Partial<Record<ScreenName,string>>={settings:'설정',consents:'AI 이용 설정',decks:'카드 덱과 그림',card:'카드 상세',sources:'그림과 소리의 출처',data:'내 기록과 데이터',feedback:'의견 남기기',account:'계정 연결',reminders:'마음기록 알림',billing:'구매와 이용 권한',admin:'운영관리'};
+const titles:Partial<Record<ScreenName,string>>={settings:'설정',decks:'카드 덱과 그림',card:'카드 상세',sources:'그림과 소리의 출처',data:'내 기록과 데이터',feedback:'의견 남기기',account:'계정 연결',reminders:'마음기록 알림',billing:'구매와 이용 권한',admin:'운영관리'};
 export function isSettingsRoute(name:ScreenName){return name!=='card'&&name!=='decks'&&name in titles;}
 
 // Keep the conversation mounted while preferences and their detail pages are open.
@@ -33,7 +33,6 @@ export function SettingsPage({initialRoute,onClose,onNavigate,onTab}:{initialRou
  let screen:React.ReactNode=null;
  switch(route.name){
   case 'settings':screen=<Settings nav={nav}/>;break;
-  case 'consents':screen=<Consents/>;break;
   case 'decks':screen=<Decks nav={nav}/>;break;
   case 'card':screen=<CardDetail nav={nav} route={route}/>;break;
   case 'sources':screen=<Sources route={route}/>;break;
