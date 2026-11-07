@@ -1,4 +1,4 @@
-name: React web checks
+name: React web CI and demo deployment
 on:
   push:
     paths-ignore: ['docs/**', '**/*.md']
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 permissions:
   contents: read
 jobs:
@@ -28,3 +28,34 @@ jobs:
         with:
           name: react-web
           path: web-dist
+          if-no-files-found: error
+          retention-days: 14
+  deploy:
+    needs: build-and-behavior
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: react-web
+          path: web-dist
+      - name: Package verified site
+        run: |
+          test -f web-dist/index.html
+          mkdir -p .local/release
+          tar -czf .local/release/web.tar.gz -C web-dist .
+      - name: Publish checked site
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python deploy/publish_release.py web .local/release/web.tar.gz
+      - name: Confirm public deployment
+        env:
+          RELEASE_TAG: ${{ steps.publish.outputs.tag }}
+        run: python deploy/wait_deployed.py web "$RELEASE_TAG"
+      - name: Deployment summary
+        run: echo 'Deployed and verified at https://yeoun-43-201-209-249.sslip.io/' >> "$GITHUB_STEP_SUMMARY"
