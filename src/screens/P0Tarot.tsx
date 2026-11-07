@@ -58,11 +58,22 @@ export function ReadingV2({route,nav}:{route:Route;nav:Nav}){
   </>:null}
  </>:null}</View>;
 }
-function BasicBlocks({basic}:{basic:BasicReading}){return <>
- {basic.cards.map((card,index)=><PageSection key={card.position} title={(index+1)+'번째 카드 해석'}>{index===0?<Panel tone={color.mint}><Copy kind="subtitle">{basic.summary}</Copy></Panel>:null}<Panel style={{gap:10}}><Copy kind="subtitle">{card.position_label} · {card.card.name_ko}</Copy><Copy>{card.card.basic_meaning}</Copy></Panel></PageSection>)}
- <PageSection title="조언과 작은 행동"><Panel tone={color.sage} style={{gap:10}}><Copy kind="subtitle">지금의 조언</Copy><Copy>{basic.advice}</Copy></Panel><Panel tone={color.peach} style={{gap:10}}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy>{basic.action}</Copy></Panel></PageSection>
+function ReadingText({text}:{text:string}){
+ const sentences=text.trim().replace(/([.!?。！？])\s+/g,'$1\n').split(/\n+/).map(line=>line.trim()).filter(Boolean);
+ const paragraphs:string[]=[];
+ for(let index=0;index<sentences.length;index+=2)paragraphs.push(sentences.slice(index,index+2).join(' '));
+ return <View style={{gap:12}}>{paragraphs.map((paragraph,index)=><Copy key={index} style={{fontSize:17,lineHeight:28,fontWeight:'400'}}>{paragraph}</Copy>)}</View>;
+}
+function TarotResultBlocks({result}:{result:NonNullable<V2Reading['result']>}){return <>
+ <PageSection title="마음 살펴보기"><ReadingText text={result.empathy}/><Panel tone={color.mint} style={{gap:10}}><Copy kind="subtitle">한눈에 보는 해설</Copy><ReadingText text={result.summary}/></Panel></PageSection>
+ {result.card_insights.map((card,index)=><PageSection key={card.position} title={(index+1)+'번째 카드 해석'}><Panel style={{gap:14}}><Copy kind="subtitle">{index+1}번째 카드의 이야기</Copy><ReadingText text={card.meaning}/>{card.reflection.trim()?<><Copy kind="label" muted>내 질문과 연결해 보면</Copy><ReadingText text={card.reflection}/></>:null}</Panel></PageSection>)}
+ <PageSection title="조언과 작은 행동"><Panel tone={color.sage} style={{gap:10}}><Copy kind="subtitle">지금의 조언</Copy><ReadingText text={result.advice}/></Panel><Panel tone={color.peach} style={{gap:10}}><Copy kind="subtitle">지금 할 수 있는 한 가지</Copy>{result.actions.map((action,index)=><ReadingText key={index} text={action}/>)}</Panel><Copy kind="small" muted>{result.safety_mode==='support'?'지금은 안전한 곳에서 함께할 사람을 찾는 것이 먼저예요.':'GPT가 함께 정리한 이야기예요. 선택을 돕는 참고로 만나 주세요.'}</Copy></PageSection>
  </>;}
-export function ResultBlocks({result}:{result:NonNullable<V2Reading['result']>}){return <>
+function BasicBlocks({basic}:{basic:BasicReading}){return <>
+ {basic.cards.map((card,index)=><PageSection key={card.position} title={(index+1)+'번째 카드 해석'}><Panel style={{gap:10}}><Copy kind="subtitle">{card.position_label} · {card.card.name_ko}</Copy><ReadingText text={card.card.basic_meaning}/></Panel></PageSection>)}
+ <PageSection title="조언과 작은 행동"><Panel tone={color.sage} style={{gap:10}}><Copy kind="subtitle">지금의 조언</Copy><ReadingText text={basic.advice}/></Panel><Panel tone={color.peach} style={{gap:10}}><Copy kind="subtitle">오늘의 작은 행동</Copy><ReadingText text={basic.action}/></Panel></PageSection>
+ </>;}
+export function ResultBlocks({result}:{result:NonNullable<V2Reading['result']>}){if(result.kind==='tarot')return <TarotResultBlocks result={result}/>;return <>
  <PageSection title="마음 살펴보기"><Copy>{result.empathy}</Copy><Panel tone={color.mint}><Copy kind="subtitle">{result.summary}</Copy></Panel></PageSection>
  {result.card_insights.map((c,index)=><PageSection key={c.position} title={(index+1)+'번째 카드 해석'}><Panel style={{gap:10}}><Copy>{c.meaning}</Copy><Copy kind="small" muted>{c.reflection}</Copy></Panel></PageSection>)}
  <PageSection title="조언과 작은 행동"><Panel tone={color.sage} style={{gap:10}}><Copy kind="subtitle">지금의 조언</Copy><Copy>{result.advice}</Copy></Panel><Panel tone={color.peach} style={{gap:10}}><Copy kind="subtitle">지금 할 수 있는 한 가지</Copy>{result.actions.map((a,i)=><Copy key={i}>{a}</Copy>)}</Panel><Copy kind="small" muted>{result.safety_mode==='support'?'지금은 안전한 곳에서 함께할 사람을 찾는 것이 먼저예요.':'GPT가 함께 정리한 이야기예요. 선택을 돕는 참고로 만나 주세요.'}</Copy></PageSection>
