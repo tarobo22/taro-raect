@@ -46,8 +46,7 @@ export function ReadingV2({route,nav}:{route:Route;nav:Nav}){
  return <View style={s.stack}><LoadState {...data} reload={data.reload}/>{reading?<>
   <PageSection title="카드 확인">
    <Copy kind="label" muted>{reading.local_day||topics.find(v=>v[0]===reading.topic)?.[1]} · {result?'GPT 해석':'기본 카드 해석'}</Copy>
-   <Copy kind="title">지금의 나를 위한 힌트.</Copy>
-   {reading.question?<Panel><Copy>{reading.question}</Copy></Panel>:null}
+   <Copy kind="hero">{reading.question.trim()||(reading.kind==='daily'?'오늘 나에게 필요한 조언은 무엇일까요?':'지금 내 마음을 위해 무엇을 살펴보면 좋을까요?')}</Copy>
    {!reading.selected_cards.length?<><Notice>아직 카드를 확정하지 않았어요.</Notice><Button onPress={()=>nav.replace({name:'draw',readingV2:reading})}>카드 선택 이어가기</Button></>:null}
    <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:14}}>{reading.selected_cards.map(card=><Pressable key={card.position} accessibilityRole="button" accessibilityLabel={card.card.name_ko+' 카드 상세'} onPress={()=>nav.push({name:'card',deckId:reading.deck_version_id,cardId:card.card_id,positionLabel:card.position_label,orientation:card.orientation})} style={{alignItems:'center',gap:8}}><RevealingAssetImage asset={card.card.image_asset} label={card.card.name_ko} width={90} eventKey={reading.id+':'+card.position+':'+card.card_id} delay={(card.position-1)*220}/><Copy kind="label">{card.position_label}</Copy><Copy kind="small">{card.card.name_ko}</Copy><Copy kind="label" muted>{card.orientation==='reversed'?'역방향':'정방향'}</Copy></Pressable>)}</View>
   </PageSection>
