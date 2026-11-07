@@ -1,5 +1,6 @@
+import {PageView as View,PageFlow,PageSection} from '../components/PageFlow';
 import React,{useEffect,useRef,useState} from 'react';
-import {Animated,Platform,Pressable,TextInput,View,useWindowDimensions} from 'react-native';
+import {Animated,Platform,Pressable,TextInput,useWindowDimensions} from 'react-native';
 import {Copy,Panel,Button,Notice,s} from '../components/UI';
 import {Icon} from '../components/Icon';
 import {TarotArt,FlippingCard} from '../components/TarotArt';
@@ -32,9 +33,9 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
  if(!config)return <LoadingConfig/>;
  const selectedTopic=topic||config.topics[0],spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
  return <View testID="tarot-setup" style={{gap:12}}>
-  <TarotSetupIntro count={spread.positions.length} reduced={store.reduced}/>
-  <CompactTopicPicker options={config.topics} value={selectedTopic} onChange={setTopic} reduced={store.reduced}/>
-  <TarotDepthPicker spreads={config.spreads} value={spreadId} onChange={setSpread} reduced={store.reduced}/>
+  <View><TarotSetupIntro count={spread.positions.length} reduced={store.reduced}/></View>
+  <View><CompactTopicPicker options={config.topics} value={selectedTopic} onChange={setTopic} reduced={store.reduced}/></View>
+  <View><TarotDepthPicker spreads={config.spreads} value={spreadId} onChange={setSpread} reduced={store.reduced}/></View>
   <View style={{gap:6}}>
    <View style={{flexDirection:'row',alignItems:'center',gap:6,flexWrap:'wrap'}}><Copy kind="small" style={{flex:1,fontWeight:'600'}}>질문 (선택)</Copy><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})} value={question} onText={setQuestion} onStatus={setVoice}/><Pressable accessibilityRole="button" accessibilityLabel="클라우드 음성 파일로 질문 쓰기" onPress={()=>nav.push({name:'cloud-voice',cloudTarget:'tarot'})} style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',borderRadius:12,backgroundColor:color.sage}}><Icon name="book" size={17}/><Copy kind="label" muted>파일</Copy></Pressable></View>
    <TextInput accessibilityLabel="타로 질문 입력" value={question} onChangeText={setQuestion} multiline maxLength={config.maxTarotQuestion} placeholder="지금 어떤 마음인가요?" placeholderTextColor={color.muted} style={[s.input,{height:64,minHeight:64,maxHeight:88,padding:12,fontSize:14,lineHeight:21}]}/>
@@ -76,20 +77,20 @@ export function Daily({nav}:{nav:Nav}){
  const current=topic||config.topics[0];
  async function draw(){const result=await submit({day:localDay(),topic:current});if(result){await store.refresh();nav.push({name:'reading',reading:result});}}
  return <View style={[s.stack,{alignItems:'center'}]}><Copy kind="label" muted>{localDay().replaceAll('-','. ')}</Copy><Copy kind="hero" style={{textAlign:'center'}}>오늘을 위한, 한 장.</Copy><Copy muted style={{textAlign:'center'}}>같은 날, 같은 주제의 카드를 간직해요.</Copy><View style={{paddingVertical:12}}><TarotArt back width={130}/></View>
-  <SelectionDial label="오늘의 카드 주제" options={config.topics} value={current} onChange={setTopic}/>
+  <View><SelectionDial label="오늘의 카드 주제" options={config.topics} value={current} onChange={setTopic}/></View>
   {error?<Notice error>{error}</Notice>:null}<Button busy={busy} onPress={draw} style={{alignSelf:'stretch'}}>오늘의 카드 열기</Button>
  </View>;
 }
 
 export function ReadingResult({nav,reading}:{nav:Nav;reading:Reading}){
  const store=useStore();
- return <View style={s.stack}><Copy kind="label" muted>{reading.day?'오늘의 한 장':reading.topic+' · '+reading.cards.length+'장의 리딩'}</Copy><Copy kind="hero">{reading.cards[0].keyword},{'\n'}지금의 나를 위한 힌트.</Copy>
+ return <View style={s.stack}><PageSection title="카드 확인"><Copy kind="label" muted>{reading.day?'오늘의 한 장':reading.topic+' · '+reading.cards.length+'장의 리딩'}</Copy><Copy kind="hero">{reading.cards[0].keyword},{'\n'}지금의 나를 위한 힌트.</Copy>
   {reading.question?<Panel><Copy kind="label" muted>나의 질문</Copy><Copy style={{marginTop:6}}>{reading.question}</Copy></Panel>:null}
   <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:14,paddingVertical:10}}>{reading.cards.map((card,i)=><View key={card.id} style={{alignItems:'center',gap:8}}><FlippingCard card={card} owner={store.bootstrap?.user.id||'local'} eventKey={reading.id?reading.id+':'+i+':'+card.id:undefined} width={reading.cards.length>3?86:100} delay={i*130} reduced={store.reduced}/><Copy kind="label" muted style={{textAlign:'center',maxWidth:100}}>{card.position}</Copy></View>)}</View>
-  <Panel tone={color.mint} style={{borderWidth:0}}><Copy kind="subtitle">{reading.summary}</Copy></Panel>
-  {reading.cards.map(card=><Panel key={card.id}><Copy kind="label" muted>{card.position}</Copy><Copy kind="subtitle" style={{marginTop:6,marginBottom:10}}>{card.name} · {card.keyword}</Copy><Copy>{card.message}</Copy></Panel>)}
-  <Panel tone={color.sage}><Copy kind="subtitle">지금의 조언</Copy><Copy style={{marginTop:10}}>{reading.advice}</Copy></Panel><Panel tone={color.peach}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy style={{marginTop:10}}>{reading.action}</Copy></Panel>
-  <Button icon="edit" onPress={()=>nav.push({name:'journal',sourceReadingId:reading.id,initialText:reading.question+'\n\n오늘의 힌트: '+reading.summary+'\n작은 행동: '+reading.action+'\n\n지금 내 마음은 '})}>이 마음을 기록으로 남기기</Button><Button secondary onPress={()=>nav.tab('records')}>내 기록 보러 가기</Button>
+  </PageSection><PageSection title="리딩의 메시지"><Panel tone={color.mint} style={{borderWidth:0}}><Copy kind="subtitle">{reading.summary}</Copy></Panel>
+  </PageSection>{reading.cards.map((card,index)=><PageSection key={card.id} title={(index+1)+'번째 카드 해석'}><Panel><Copy kind="label" muted>{card.position}</Copy><Copy kind="subtitle" style={{marginTop:6,marginBottom:10}}>{card.name} · {card.keyword}</Copy><Copy>{card.message}</Copy></Panel></PageSection>)}
+  <PageSection title="조언과 작은 행동"><Panel tone={color.sage}><Copy kind="subtitle">지금의 조언</Copy><Copy style={{marginTop:10}}>{reading.advice}</Copy></Panel><Panel tone={color.peach}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy style={{marginTop:10}}>{reading.action}</Copy></Panel>
+  </PageSection><PageSection title="저장·이어가기"><Button icon="edit" onPress={()=>nav.push({name:'journal',sourceReadingId:reading.id,initialText:reading.question+'\n\n오늘의 힌트: '+reading.summary+'\n작은 행동: '+reading.action+'\n\n지금 내 마음은 '})}>이 마음을 기록으로 남기기</Button><Button secondary onPress={()=>nav.tab('records')}>내 기록 보러 가기</Button>
   {reading.id?<ResourceDelete kind="legacy-reading" id={reading.id} nav={nav}/>:null}<Copy kind="small" muted style={{textAlign:'center'}}>카드 해석은 선택을 돕는 참고로 만나 주세요.</Copy>
- </View>;
+ </PageSection></View>;
 }

@@ -1,5 +1,6 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import React,{useEffect,useRef,useState,useSyncExternalStore} from 'react';
-import {View} from 'react-native';
+import {} from 'react-native';
 import {accountApi,accountFlow,accountRuntime,session} from '../composition';
 import {Account,AccountSession,Provider,ProviderStatus} from '../features/account/contracts';
 import {social} from '../services/social';

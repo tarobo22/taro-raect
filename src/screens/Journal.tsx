@@ -1,5 +1,6 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,Modal,Pressable,ScrollView,TextInput,View} from 'react-native';
+import {ActivityIndicator,Modal,Pressable,TextInput} from 'react-native';
 import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
 import {Icon} from '../components/Icon';
 import {VoiceButton} from '../components/VoiceButton';
@@ -55,7 +56,7 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   <Copy kind="small" muted>한 줄이어도 충분해요.</Copy>{editor.draft.sourceReadingId||editor.draft.sourceTurnId?<Notice>{editor.draft.sourceReadingId?'이 타로 리딩과 연결해 남기는 기록이에요.':'이 대화 답변과 연결해 남기는 기록이에요.'}</Notice>:null}
   <View style={{marginTop:4}}>
    <FieldLabel>지금 내 마음 · 하나를 골라 주세요</FieldLabel>
-   {policy?<MoodDial options={policy.moods} value={mood} disabled={busy} onConfirm={value=>{if(!busy)editor.change({mood:value});}}/>:null}
+   {policy?<View><MoodDial options={policy.moods} value={mood} disabled={busy} onConfirm={value=>{if(!busy)editor.change({mood:value});}}/></View>:null}
   </View>
   <View>
    <FieldLabel>오늘의 이야기</FieldLabel>
@@ -78,14 +79,14 @@ export function JournalForm({nav,route}:{nav:Nav;route:Route}){
   <Copy kind="small" muted>입력 중인 글과 마음은 뒤로 가도 기기에 임시로 남겨 둬요.</Copy>
   <Modal transparent visible={resolving} animationType={store.reduced?'none':'fade'} onRequestClose={()=>setResolving(false)}>
    <View style={{flex:1,backgroundColor:'rgba(32,44,36,.24)',justifyContent:'center',padding:24}}>
-    <Panel style={{gap:16}}>
+    <PageFlow title="기록 확인" style={{height:'90%',flex:0,backgroundColor:color.paper,borderRadius:24}}>
      <Copy kind="subtitle">지금 저장된 기록이에요.</Copy>
-     <ScrollView style={{maxHeight:280}}><Copy>{latest.entry?.body||'글 없이 마음만 남긴 기록이에요.'}</Copy></ScrollView>
+     <View><Copy>{latest.entry?.body||'글 없이 마음만 남긴 기록이에요.'}</Copy></View>
      <Copy kind="small" muted>입력한 글은 그대로 있어요. 어떤 글로 이어갈지 골라 주세요.</Copy>
      <Button onPress={()=>adopt(false)}>내 글 유지하고 다시 편집</Button>
      <Button secondary onPress={()=>adopt(true)}>저장된 글 불러오기</Button>
      <Button secondary onPress={()=>setResolving(false)}>닫기</Button>
-    </Panel>
+    </PageFlow>
    </View>
   </Modal>
  </View>;

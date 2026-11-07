@@ -1,10 +1,12 @@
+import {PageView as View,PageText as Text} from './PageFlow';
 import React,{useRef} from 'react';
-import {ActivityIndicator,Animated,Platform,Pressable,StyleSheet,Text,View,TextStyle,ViewStyle,StyleProp} from 'react-native';
+import {ActivityIndicator,Animated,Platform,Pressable,StyleSheet,TextStyle,ViewStyle,StyleProp} from 'react-native';
 import {color,radius,type} from '../design/tokens';
 import {Icon,IconName} from './Icon';
 import {feedback} from '../services/feedback';
 import {useStore} from '../state/store';
 import {useSkinTheme,surfaceTone} from '../features/skins/useSkinTheme';
+const MotionView=Animated.createAnimatedComponent(View);
 export function Copy({children,kind='body',muted=false,style}:{children:React.ReactNode;kind?:keyof typeof type;muted?:boolean;style?:TextStyle}){const theme=useSkinTheme();return <Text allowFontScaling style={[{color:muted?theme.muted:theme.ink},type[kind],style]}>{children}</Text>;}
 type ButtonProps={children:React.ReactNode;onPress:()=>void;secondary?:boolean;disabled?:boolean;busy?:boolean;icon?:IconName;style?:ViewStyle};
 export function Button(props:ButtonProps){
@@ -14,7 +16,7 @@ export function Button(props:ButtonProps){
 export function ButtonControl({children,onPress,secondary=false,disabled=false,busy=false,icon,style,reducedMotion=true}:ButtonProps&{reducedMotion?:boolean}){
  const theme=useSkinTheme();const scale=useRef(new Animated.Value(1)).current;
  const animate=(toValue:number)=>{if(reducedMotion){scale.setValue(1);return;}Animated.spring(scale,{toValue,speed:35,bounciness:2,useNativeDriver:Platform.OS!=='web'}).start();};
- return <Animated.View style={[style,{transform:[{scale}]}]}><Pressable accessibilityRole="button" accessibilityLabel={typeof children==='string'?children:undefined} accessibilityState={{disabled:disabled||busy,busy}} disabled={disabled||busy} onPressIn={()=>animate(.975)} onPressOut={()=>animate(1)} onPress={()=>{feedback('tap');onPress();}} style={({pressed})=>[s.button,{backgroundColor:secondary?theme.soft:theme.action,opacity:disabled?.45:pressed?.9:1}]}>{busy?<ActivityIndicator color={secondary?theme.action:color.white}/>:<>{icon&&<Icon name={icon} tint={secondary?theme.action:color.white}/>}<Copy style={{color:secondary?theme.action:color.white,fontWeight:'600'}}>{children}</Copy></>}</Pressable></Animated.View>;
+ return <MotionView style={[style,{transform:[{scale}]}]}><Pressable accessibilityRole="button" accessibilityLabel={typeof children==='string'?children:undefined} accessibilityState={{disabled:disabled||busy,busy}} disabled={disabled||busy} onPressIn={()=>animate(.975)} onPressOut={()=>animate(1)} onPress={()=>{feedback('tap');onPress();}} style={({pressed})=>[s.button,{backgroundColor:secondary?theme.soft:theme.action,opacity:disabled?.45:pressed?.9:1}]}>{busy?<ActivityIndicator color={secondary?theme.action:color.white}/>:<>{icon&&<Icon name={icon} tint={secondary?theme.action:color.white}/>}<Copy style={{color:secondary?theme.action:color.white,fontWeight:'600'}}>{children}</Copy></>}</Pressable></MotionView>;
 }
 export function Chip({children,selected,onPress}:{children:React.ReactNode;selected?:boolean;onPress:()=>void}){const theme=useSkinTheme();return <Pressable accessibilityRole="button" accessibilityLabel={typeof children==='string'?children:undefined} accessibilityState={{selected}} aria-pressed={!!selected} onPress={()=>{feedback('select');onPress();}} style={({pressed})=>[s.chip,{backgroundColor:selected?theme.tint:theme.surface,borderColor:selected?theme.action:theme.line,transform:[{scale:pressed?.97:1}]}]}><Copy kind="small" style={{color:selected?theme.action:theme.muted,fontWeight:selected?'600':'400'}}>{selected?'✓ ':''}{children}</Copy></Pressable>;}
 export function Panel({children,tone,style}:{children:React.ReactNode;tone?:string;style?:StyleProp<ViewStyle>}){const theme=useSkinTheme();return <View style={[s.panel,{backgroundColor:surfaceTone(tone,theme),borderColor:theme.line},style]}>{children}</View>;}

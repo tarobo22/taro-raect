@@ -1,6 +1,7 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import {useCounselingDraft} from '../features/counseling/DraftProvider';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,Image,Linking,TextInput,View} from 'react-native';
+import {ActivityIndicator,Image,Linking,TextInput} from 'react-native';
 import AsyncStorage from '../features/account/storage';
 import {Copy,Panel,Button,Chip,FieldLabel,Notice,s} from '../components/UI';
 import {Character} from '../components/Character';

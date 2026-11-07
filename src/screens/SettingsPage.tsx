@@ -1,5 +1,6 @@
-import React,{useMemo,useState} from 'react';
-import {KeyboardAvoidingView,Modal,Platform,Pressable,ScrollView,View,useWindowDimensions} from 'react-native';
+import {PageView as View,PageFlow} from '../components/PageFlow';
+import React,{useMemo,useRef,useState} from 'react';
+import {KeyboardAvoidingView,Modal,Platform,Pressable,useWindowDimensions} from 'react-native';
 import {SafeAreaView,useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Copy,Header,s} from '../components/UI';
 import {Icon} from '../components/Icon';
@@ -20,7 +21,7 @@ export function isSettingsRoute(name:ScreenName){return name!=='card'&&name in t
 export function SettingsPage({initialRoute,onClose,onNavigate,onTab}:{initialRoute:Route;onClose:()=>void;onNavigate:(route:Route)=>void;onTab:Nav['tab']}){
  const theme=useSkinTheme(),store=useStore(),insets=useSafeAreaInsets(),window=useWindowDimensions();
  const [stack,setStack]=useState<Route[]>(()=>initialRoute.name==='settings'?[initialRoute]:[{name:'settings'},initialRoute]);
- const route=stack[stack.length-1];
+ const route=stack[stack.length-1],offsets=useRef(new Map<string,number>()),pageKey=route.name+':'+(route.cardId||'');
  const nav:Nav=useMemo(()=>({
   push:next=>{if(next.name in titles)setStack(old=>[...old,next]);else onNavigate(next);},
   replace:next=>{if(next.name in titles)setStack(old=>[...old.slice(0,-1),next]);else onNavigate(next);},
@@ -49,7 +50,7 @@ export function SettingsPage({initialRoute,onClose,onNavigate,onTab}:{initialRou
     <SafeAreaView edges={['top','left','right']} style={{flex:1}}>
      <Header title={titles[route.name]||'설정'} back={nav.back} right={<Pressable accessibilityRole="button" accessibilityLabel="설정 닫기" onPress={onClose} style={{width:48,height:48,alignItems:'center',justifyContent:'center'}}><Icon name="close" tint={theme.action}/></Pressable>}/>
      <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':undefined}>
-      <ScrollView key={route.name+':'+(route.cardId||'')} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={[s.stack,{padding:20,paddingBottom:Math.max(24,insets.bottom+16)}]}>{screen}</ScrollView>
+      <PageFlow key={pageKey} initialOffset={offsets.current.get(pageKey)||0} onPageChange={offset=>offsets.current.set(pageKey,offset)} title={titles[route.name]} contentContainerStyle={{padding:20,paddingBottom:Math.max(24,insets.bottom+16)}}>{screen}</PageFlow>
      </KeyboardAvoidingView>
     </SafeAreaView>
    </View>

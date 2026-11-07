@@ -1,7 +1,8 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import {ChoiceStage} from '../components/ChoiceStage';
 import {BottomSheet} from '../components/BottomSheet';
 import React,{useState} from 'react';
-import {View} from 'react-native';
+import {} from 'react-native';
 import {Button,Copy,Notice,Panel,s} from '../components/UI';
 import {Character} from '../components/Character';
 import {color} from '../design/tokens';

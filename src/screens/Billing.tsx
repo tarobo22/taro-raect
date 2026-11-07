@@ -1,5 +1,6 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {AppState,Linking,View} from 'react-native';
+import {AppState,Linking} from 'react-native';
 import {Button,Copy,Notice,Panel,s} from '../components/UI';
 import {http} from '../composition';
 import {BillingApi} from '../features/billing/BillingApi';

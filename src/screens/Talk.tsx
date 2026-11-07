@@ -1,8 +1,9 @@
+import {PageView as View,PageFlow} from '../components/PageFlow';
 import {ChoiceStage} from '../components/ChoiceStage';
 import {OptionRail} from '../components/OptionRail';
 import {StepProgress} from '../components/StepProgress';
 import React,{useEffect,useState} from 'react';
-import {Pressable,Switch,TextInput,View} from 'react-native';
+import {Pressable,Switch,TextInput} from 'react-native';
 import AsyncStorage from '../features/account/storage';
 import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {VoiceButton} from '../components/VoiceButton';
@@ -47,10 +48,10 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
   <Button secondary onPress={()=>nav.push({name:'counseling',initialText:question})}>타로와 함께 마음 이야기</Button>
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
   {response?<><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
-   <ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
+   <View><ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
     <View style={{backgroundColor:theme.soft,borderRadius:24,minHeight:160,padding:24,justifyContent:'center',alignItems:'center',gap:16}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
-   </ChoiceStage>
-   <StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/>
+   </ChoiceStage></View>
+   <View><StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/></View>
    {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}
   </>:null}
   {!response||followup?<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel="상담 직접 쓰기 열기" onPress={()=>setWriting(!writing)} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small" style={{fontWeight:'600'}}>{writing?'입력 접기 ↑':question.trim()?'작성한 이야기 보기 ↓':'직접 쓰기 ↓'}</Copy></Pressable><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'talk'})} value={question} onText={value=>{setQuestion(value);setInputSource('voice');setWriting(true);}} onStatus={setVoice}/></View>
