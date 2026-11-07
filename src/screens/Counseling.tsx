@@ -43,8 +43,13 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   timer=setTimeout(()=>void poll(),500);return()=>{disposed=true;clearTimeout(timer);};
  },[controller,processing,value?.id]);
  useEffect(()=>{if(value?.job?.state==='succeeded'){feedback('confirm');setActiveCard(0);}},[value?.job?.id,value?.job?.state]);
- async function refresh(){await controller.refresh();}
- async function send(){if(consent)await controller.send(consent.id,remember);}
+ async function refresh(){await controller.refreshCapabilities();await controller.refresh();}
+ async function send(){
+  if(busy||processing||pending||!text.trim())return;
+  if(!consent){nav.push({name:'consents'});return;}
+  if(!caps?.available&&!await controller.refreshCapabilities())return;
+  await controller.send(consent.id,remember);
+ }
  function confirm(){if(consent)void controller.confirm(consent.id,count,web);}
  async function openSettings(){setSettings(true);await controller.loadManagement();}
  async function saveDefinition(){if(await controller.define(term,meaning)){setTerm('');setMeaning('');setEditing(false);}}
@@ -52,7 +57,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  async function remove(){if(await controller.deleteCurrent()){setSettings(false);setDeleting(false);nav.replace({name:'counseling'});}}
  const result=value?.result,lastUser=[...(value?.history||[])].reverse().find(item=>item.role==='user');
  const card=value?.cards[activeCard],reflection=result?.tarot.find(item=>item.card_id===card?.card_id);
- const canSend=!!consent&&!!caps?.available&&!busy&&!processing&&!pending&&!!text.trim();
+ const canSend=!busy&&!processing&&!pending&&!!text.trim();
  return <View style={{flex:1,backgroundColor:theme.paper}}>
   <View style={{paddingHorizontal:20,paddingTop:6,paddingBottom:12,borderBottomWidth:1,borderColor:theme.line,backgroundColor:theme.paper}}>
    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:8}}><Copy kind="label" muted>{value?.phase==='support'?'지금은 안전이 먼저예요':value?.cards.length?'지금 함께 살펴보는 카드':'이야기를 먼저 들을게요'}</Copy><Pressable accessibilityRole="button" onPress={()=>void openSettings()} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">사전·대화기록</Copy></Pressable></View>
@@ -61,8 +66,8 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
   </View>
   <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{padding:20,gap:14}} onContentSizeChange={()=>{if(!history)scroll.current?.scrollTo({y:0,animated:!store.reduced});}}>
    {!value?<View style={{flexDirection:'row',gap:14,alignItems:'center'}}><Character size={76} expression="welcome" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:6}}><Copy kind="subtitle">어떤 마음으로 오셨나요?</Copy><Copy muted>잘 정리된 말이 아니어도 괜찮아요. 먼저 듣고, 제가 이해한 게 맞는지 여쭤볼게요.</Copy></View></View>:null}
-   {!caps?.available&&caps?<Notice>지금은 AI 대화 연결을 준비하고 있어요. 기본 가이드와 마음기록은 계속 이용하실 수 있어요.</Notice>:null}
-   {!consent?<><Copy kind="small" muted>오른쪽 위 설정에서 AI 이용을 허용하면 이야기를 보낼 수 있어요.</Copy></>:null}
+   {!caps?.available&&caps?<View style={{gap:8}}><Notice>AI 상담 서버가 아직 연결되지 않았어요. 연결 후 다시 시도해 주세요. 작성한 이야기는 그대로 유지돼요.</Notice><Button secondary disabled={busy||processing||pending} onPress={()=>void refresh()}>연결 다시 확인</Button></View>:null}
+   {!consent?<><Copy kind="small" muted>처음 한 번, AI 이용을 허용해 주세요. 설정을 다녀와도 작성한 이야기는 유지돼요.</Copy><Button secondary onPress={()=>nav.push({name:'consents'})}>AI 이용 설정</Button></>:null}
    {value&&value.history.length>2?<Pressable accessibilityRole="button" onPress={()=>setHistory(!history)} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small" muted>{history?'앞선 이야기 접기':'앞선 이야기 보기'}</Copy></Pressable>:null}
    {history?value?.history.slice(0,-2).map((h,i)=><Panel key={i} tone={h.role==='user'?theme.tint:theme.surface}><Copy kind="small" muted>{h.role==='user'?'나의 이야기':'함께 나눈 말'}</Copy><Copy>{h.text}</Copy></Panel>):null}
    {lastUser?<Panel tone={theme.tint} style={{alignSelf:'flex-end',maxWidth:'94%',padding:16}}><Copy>{lastUser.text}</Copy></Panel>:null}

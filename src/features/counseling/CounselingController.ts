@@ -79,6 +79,15 @@ export class CounselingController{
   }finally{if(this.fence.valid(epoch))this.patch({busy:false});}
  }
  async retry():Promise<boolean>{return this.attempt&&!this.state.busy?this.execute(this.attempt):false;}
+ async refreshCapabilities():Promise<boolean>{
+  if(this.state.busy||this.processing||this.attempt)return false;
+  const epoch=this.fence.capture();this.patch({busy:true,error:''});
+  try{
+   const caps=await this.api.capabilities();if(!this.fence.valid(epoch))return false;
+   this.patch({caps});return caps.available;
+  }catch(error){if(this.fence.valid(epoch))this.patch({caps:null,error:message(error)});return false;}
+  finally{if(this.fence.valid(epoch))this.patch({busy:false});}
+ }
  async refresh():Promise<void>{
   const id=this.state.value?.id,epoch=this.fence.capture();if(!id)return;
   try{const value=await this.api.get(id);if(this.fence.valid(epoch)){this.publish(value);this.patch({error:''});}}
