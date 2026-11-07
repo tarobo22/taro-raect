@@ -1,0 +1,30 @@
+{
+  "calm": {
+    "mouth": "M129 122 Q140 129 151 122",
+    "catMouth": "M-10 12 Q0 20 10 12"
+  },
+  "welcome": {
+    "mouth": "M127 121 Q140 134 153 121",
+    "catMouth": "M-11 11 Q0 23 11 11"
+  },
+  "listen": {
+    "mouth": "M130 123 Q140 128 150 123",
+    "catMouth": "M-9 13 Q0 18 9 13"
+  },
+  "encourage": {
+    "mouth": "M127 121 Q140 133 153 121",
+    "catMouth": "M-10 12 Q0 22 10 12"
+  },
+  "joy": {
+    "mouth": "M127 121 Q140 134 153 121",
+    "catMouth": "M-11 11 Q0 24 11 11"
+  },
+  "concern": {
+    "mouth": "M130 124 Q140 127 150 124",
+    "catMouth": "M-9 14 Q0 18 9 14"
+  },
+  "serious": {
+    "mouth": "M130 124 Q140 125 150 124",
+    "catMouth": "M-9 14 L9 14"
+  }
+}

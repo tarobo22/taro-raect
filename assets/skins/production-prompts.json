@@ -1,0 +1,27 @@
+{
+  "tool": "built-in image_gen",
+  "version": "three-companion-skins-v1",
+  "style": "simple pastel, no accessories",
+  "basePrompts": {
+    "cafe": "Minimal flat vector-style illustration for a game asset. Adult male torso only, with a short neck but NO head, NO face. Plain pastel sage green T-shirt, peach skin, hands resting gently together at lower abdomen. Natural elbows and fingers. Exactly four SOLID flat colors, NO shading or gradients. Simple clean friendly shapes. Uniform solid warm ivory #F7F5EF background. Keep the WHOLE torso, arms and all fingertips in the image with generous margins. The shirt is continuous and fully filled. No accessories or extra objects. No text.",
+    "clinic": "Minimal flat vector-style illustration for a game asset. Adult doctor torso only, with a short neck but NO head, NO face. Simple plain ivory coat over a pale mint shirt, peach hands resting gently together at lower abdomen. Natural elbows and fingers. Exactly four SOLID flat colors, NO shading or gradients. Simple clean friendly shapes. Uniform solid warm ivory #F7F5EF background. Keep the WHOLE torso, arms and all fingertips inside the image with generous margins. No stethoscope, no badge, no medical tools, no accessories. No text.",
+    "cat": "Minimal flat vector-style illustration for a game asset. One very simple cream cat seated front-on, entire body including both ears and both front paws, no tail. Friendly rounded head and compact body. Round face must be completely BLANK: no eyes, mouth, nose or whiskers because facial features are drawn separately by code. Solid warm cream fur and two tiny solid pale pink inner ears, paw separation with only two simple darker cream curves. Exactly three SOLID flat colors, NO shading, gradients, fur texture or outline. Uniform solid warm ivory #F7F5EF background. Full silhouette with generous margins, ears and paws fully visible. No collar, bow, clothes or extra objects. No text."
+  },
+  "posePrompts": {
+    "cafe.greeting": "Change only the pose: raise one forearm naturally beside the shoulder for a very small friendly wave with a complete relaxed hand, other hand resting low. Preserve the reference adult torso, clothes, exact colors, simple illustration style, centered neck position and scale. No head or face. All arms and fingertips remain inside generous frame margins. Uniform solid warm ivory #F7F5EF background. No accessories, no gradients, no extra objects, no text.",
+    "cafe.explain": "Change only the pose: one forearm opens gently at waist level, palm facing upward with natural complete fingers, as a quiet explanation, other hand remains low. Preserve the reference adult torso, clothes, colors, minimal illustration style, centered neck position and scale. No head or face. Keep all limbs inside generous margins. Uniform solid warm ivory #F7F5EF background. No accessories, no gradients, no extra objects, no text.",
+    "clinic.greeting": "Change only the pose: raise one forearm naturally beside the shoulder for a very small friendly wave with a complete relaxed hand, other hand resting low. Preserve the reference adult torso, clothes, exact colors, simple illustration style, centered neck position and scale. No head or face. All arms and fingertips remain inside generous frame margins. Uniform solid warm ivory #F7F5EF background. No accessories, no gradients, no extra objects, no text.",
+    "clinic.explain": "Change only the pose: one forearm opens gently at waist level, palm facing upward with natural complete fingers, as a quiet explanation, other hand remains low. Preserve the reference adult torso, clothes, colors, minimal illustration style, centered neck position and scale. No head or face. Keep all limbs inside generous margins. Uniform solid warm ivory #F7F5EF background. No accessories, no gradients, no extra objects, no text.",
+    "playroom.greeting": "Change only the cat's front paws: one front paw lifts beside its chest as a gentle greeting, other paw on the floor. Preserve the reference simple cream cat, blank featureless face, both ears, centered head position and scale. Entire silhouette visible with generous margins. No tail, no facial features, no accessories. Uniform solid warm ivory #F7F5EF background, minimal flat colors, no shading or texture.",
+    "playroom.explain": "Change only the cat's front paws: both front paws rest softly together in front of its chest, as a small comforting gesture. Preserve the reference simple cream cat, blank featureless face, both ears, centered head position and scale. Entire silhouette visible with generous margins. No tail, no facial features, no accessories. Uniform solid warm ivory #F7F5EF background, minimal flat colors, no shading or texture."
+  },
+  "selectedPoseFiles": {
+    "cafe.greeting": "exec-1696603f-5ede-4edd-bc21-17cac8c7800d.png",
+    "cafe.explain": "exec-6ca021d1-ea07-4d12-80f7-a53ede023834.png",
+    "clinic.greeting": "exec-9563df8b-90c9-40d8-b12c-ca91c8034374.png",
+    "clinic.explain": "exec-eafc3752-8497-4b22-b713-b52f960473e4.png",
+    "playroom.greeting": "exec-216de698-2365-469b-913e-318c4593407d.png",
+    "playroom.explain": "exec-a40b491f-d399-4eec-9d0c-72e274c4d1f2.png"
+  },
+  "alphaNote": "Transparent generations had damaged interiors/halos and were rejected. Selected PNG masters use an ivory matte. Runtime SVG clipping separates them from each scene without changing the original PNG."
+}

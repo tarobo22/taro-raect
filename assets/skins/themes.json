@@ -1,0 +1,5 @@
+{
+ "cafe":{"wall":"#E0E8DB","paper":"#F4F4E9","surface":"#FFFDF7","ink":"#303F3A","muted":"#66766D","action":"#426A56","line":"#C7D6C3","tint":"#DCE8D7","soft":"#E9EEDF","blush":"#EBDCD2","warm":"#EFE2CC","frame":"#9EB79D"},
+ "clinic":{"wall":"#DEE9EA","paper":"#F0F5F4","surface":"#FBFEFD","ink":"#303F3A","muted":"#61757A","action":"#496C76","line":"#C4D7D9","tint":"#DBE9EB","soft":"#E7F0F0","blush":"#E6DFDE","warm":"#EDE9DC","frame":"#A3BEC3"},
+ "playroom":{"wall":"#EBD7C7","paper":"#F8EFE5","surface":"#FFFAF3","ink":"#443C36","muted":"#796B61","action":"#805D47","line":"#DEC6B4","tint":"#EBD5C2","soft":"#F1E3D4","blush":"#EDD0C6","warm":"#F1DDC1","frame":"#CAA98E"}
+}

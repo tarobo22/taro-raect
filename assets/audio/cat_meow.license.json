@@ -1,0 +1,14 @@
+{
+  "asset":"cat_meow.wav",
+  "sourceTitle":"Meow of a Siamese cat",
+  "author":"freemaster2",
+  "sourcePage":"https://commons.wikimedia.org/wiki/File:Meow_of_a_Siamese_cat_-_freemaster2.wav",
+  "sourceFile":"https://upload.wikimedia.org/wikipedia/commons/8/81/Meow_of_a_Siamese_cat_-_freemaster2.wav",
+  "license":"CC0 1.0",
+  "licenseUrl":"https://creativecommons.org/publicdomain/zero/1.0/",
+  "downloadedAt":"2026-11-07",
+  "sourceSha256":"c5ae80383913b599b697bdb03481807dce908b44497f68583183530c6490f9d4",
+  "assetSha256":"27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
+  "processing":"FFmpeg: trim leading silence, 15ms fade-in, 150ms fade-out, gain 0.7, max 1.2s, mono PCM 22050Hz.",
+  "playback":"Explicit space selection or character tap only. Existing sound preference defaults off; muted during voice capture/background; 1400ms cooldown."
+}
