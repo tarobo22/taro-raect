@@ -1,10 +1,12 @@
-import {PageView as View,PageFlow} from '../components/PageFlow';
+import {PageView as View} from '../components/PageFlow';
 import React,{useEffect,useState} from 'react';
-import {Modal,Platform,Pressable,Switch} from 'react-native';
+import {Modal,Platform,Pressable,ScrollView,Switch,Text as NativeText,View as NativeView} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Character,Expression,expressionNames} from '../components/Character';
 import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {BreathingDial} from '../components/BreathingDial';
-import {color} from '../design/tokens';
+import {color,type} from '../design/tokens';
+import {feedback} from '../services/feedback';
 import {useStore} from '../state/store';
 import {release} from '../domain/content';
 import {voiceAvailable} from '../services/voice';
@@ -23,7 +25,7 @@ function SettingLink({title,detail,icon,onPress}:{title:string;detail:string;ico
 }
 
 export function Settings({nav}:{nav:Nav}){
- const theme=useSkinTheme(),store=useStore();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
+ const theme=useSkinTheme(),store=useStore(),insets=useSafeAreaInsets();const [faces,setFaces]=useState(false),[voice,setVoice]=useState<boolean|null>(null),[busy,setBusy]=useState(false),[downloaded,setDownloaded]=useState(isUpdateReady),[status,setStatus]=useState(getUpdateNotice);
  const admin=useAdminEligibility(store.bootstrap?.user.id);
  useEffect(()=>{voiceAvailable().then(setVoice).catch(()=>setVoice(false));return subscribeUpdateNotice(()=>{setStatus(getUpdateNotice());setDownloaded(isUpdateReady());});},[]);
  async function update(){
@@ -58,6 +60,13 @@ export function Settings({nav}:{nav:Nav}){
   <Panel style={{gap:12}}><Copy kind="subtitle">여운의 새로운 이야기</Copy><Copy kind="small" muted>앱을 다시 설치하지 않고 새로운 화면과 이야기를 받을 수 있어요.</Copy>{status?<Notice>{status}</Notice>:null}<Button secondary busy={busy} onPress={downloaded?apply:update}>{downloaded?'지금 다시 열어 적용하기':'업데이트 확인'}</Button></Panel>
   {admin?.eligible?<Panel style={{gap:10}}><Copy kind="subtitle">운영 도구</Copy><Copy kind="small" muted>허용된 역할로만 짧은 운영 세션을 열어요.</Copy><Button secondary onPress={()=>nav.push({name:'admin'})}>운영관리</Button></Panel>:null}
   <Copy kind="small" muted style={{textAlign:'center'}}>여운 {release.version} · {release.label}</Copy>
-  <Modal visible={faces} animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}><PageFlow style={{backgroundColor:theme.paper}} contentContainerStyle={{padding:24,paddingTop:52,gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}><Copy kind="title">상황에 맞게, 따뜻하게.</Copy><Copy muted>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</Copy><View style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><View key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><Copy kind="label">{expressionNames[e]}</Copy></View>)}</View><Button onPress={()=>setFaces(false)}>닫기</Button></PageFlow></Modal>
+  {faces?<Modal visible animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}>
+   <ScrollView accessibilityLabel="캐릭터 표정 목록" style={{flex:1,backgroundColor:theme.paper}} contentContainerStyle={{padding:24,paddingTop:Math.max(52,insets.top+24),paddingBottom:Math.max(24,insets.bottom+16),gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}>
+    <NativeText allowFontScaling style={[type.title,{color:theme.ink}]}>상황에 맞게, 따뜻하게.</NativeText>
+    <NativeText allowFontScaling style={[type.body,{color:theme.muted}]}>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</NativeText>
+    <NativeView style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><NativeView key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><NativeText allowFontScaling style={[type.label,{color:theme.ink}]}>{expressionNames[e]}</NativeText></NativeView>)}</NativeView>
+    <Pressable accessibilityRole="button" accessibilityLabel="표정 살펴보기 닫기" onPress={()=>{feedback('tap');setFaces(false);}} style={({pressed})=>[s.button,{backgroundColor:theme.action,opacity:pressed?.9:1}]}><NativeText allowFontScaling style={[type.body,{color:color.white,fontWeight:'600'}]}>닫기</NativeText></Pressable>
+   </ScrollView>
+  </Modal>:null}
  </View>;
 }
