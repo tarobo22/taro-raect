@@ -16,7 +16,7 @@ DOC = ROOT / "docs/quality/three-skins-20261107"
 NATIVE = MOBILE / "docs/quality/three-skins-20261107/native"
 RN_REPO = "tarobo22/taro"
 BRANCH = "codex/three-companion-skins-20261107"
-WEB_CODE = "abd5feb3daf31f6ec211130ad00301887a303a22"
+WEB_CODE = "7da0d54881a138adc9bc75b73f295ccefc26206d"
 APP_INPUTS = (".", ":(exclude).github/workflows/ios.yml", ":(exclude)docs/quality/three-skins-20261107/**")
 REQUIRED_IOS_STEPS = ("Test native rules", "Build unsigned simulator application", "Launch on a clean simulator")
 
@@ -129,7 +129,7 @@ def update_report(details):
     draft_url = details["apkRelease"]
     ios_result = {
         "success": "macOS 러너 Swift 6건, 시뮬레이터 빌드·설치, 실행 5초 후 PID와 실행 파일 확인, 화면 캡처·딥링크 열기 통과",
-        "in_progress": "Swift 6건·빌드·설치 확인. PID가 반환된 뒤 기존 프로세스 검사가 실패해 검사 방식을 바꿔 재검증 중",
+        "in_progress": "빌드·설치를 확인했다. 최초 연결 오류에서 발생한 앱 종료를 수정하고, 최신 커밋으로 실행을 재검증 중",
         "failure": "시뮬레이터 실행 검증 미완료. 실패 단계는 실행 기록 참고",
     }[ios["result"]]
     report_path = DOC / "REPORT.md"
@@ -143,8 +143,10 @@ def update_report(details):
         r" iOS 시뮬레이터 CI는 보고서 작성 시 진행 중이며 .*?에서 확인할 수 있다\.",
         "", report,
     )
-    report = report.replace("actions/runs/42330099460", "actions/runs/42334931931")
-    report = report.replace("actions/runs/42330103172", "actions/runs/42335124459")
+    for previous in ("42330099460", "42334931931"):
+        report = report.replace(f"actions/runs/{previous}", "actions/runs/42340677884")
+    for previous in ("42330103172", "42335124459"):
+        report = report.replace(f"actions/runs/{previous}", "actions/runs/42340678125")
     heading = "\n## 네이티브 검증\n"
     report = report.split(heading, 1)[0].rstrip() + "\n" + heading + "\n"
     report += (
@@ -153,6 +155,8 @@ def update_report(details):
         "- [Android 놀이방 복원 화면](screens/native-android-restored-playroom.png): 전체 테마와 고양이 얼굴을 확인할 수 있다.\n"
         "- Android 빌드는 SDK 기본 테스트 서명을 사용하고 JSON과 에셋을 번들 입력으로 추적한다. "
         "미리보기는 별도 패키지로 로컬 QA API에 연결한다.\n"
+        "- [초기 연결 복구 검증](evidence/STARTUP-RECOVERY.json): 계정 Store가 준비되기 전 표시되는 재시도 버튼에서 "
+        "앱이 종료되던 오류를 수정했다. 웹과 Android에서 연결이 끊긴 상태로 재현하고 수정본의 재시도를 확인했다.\n"
         f"- [iOS 검증 기록]({ios['url']}): {ios_result}. Android와 iOS의 앱 소스는 같고, CI 설정과 검증 문서만 달라졌다.\n"
         "- 기존 기능 테스트 코드는 유지했다. iOS 실행 설정에서 러너 CPU와 제한 시간을 조정하고, "
         "앱 PID·실행 파일 대조와 실패 시 로그 수집을 적용했다.\n"
@@ -180,6 +184,7 @@ def main():
         "apkRelease": draft["html_url"], "isDraft": True, "androidApks": apks, "androidDevice": device,
         "remoteApkDigestsMatch": True, "androidBundleInputs": read_json(NATIVE / "android-bundle-input-proof.json"),
         "sameApplicationInputs": True, "ios": ios,
+        "startupRecovery": read_json(DOC / "evidence/STARTUP-RECOVERY.json"),
     }
     path = DOC / "DELIVERY-VERIFICATION.json"
     verification = read_json(path)

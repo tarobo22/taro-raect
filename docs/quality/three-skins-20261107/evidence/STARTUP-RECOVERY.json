@@ -1,0 +1,43 @@
+{
+  "scenario": "Start with an isolated stored test session and interrupt account bootstrap before Store is mounted.",
+  "cause": "The themed retry button read Store before the account boundary could mount it.",
+  "fix": "Keep the button view separate from the component that reads the motion preference.",
+  "web": {
+    "sourceCommit": "7da0d54881a138adc9bc75b73f295ccefc26206d",
+    "red": {
+      "exitCode": 1,
+      "bootstrapAttempts": 1,
+      "retryVisible": false,
+      "pageError": "Store provider is required"
+    },
+    "green": {
+      "exitCode": 0,
+      "bootstrapAttempts": 2,
+      "retryVisible": true,
+      "retryActionWorks": true,
+      "pageErrors": 0
+    },
+    "workflow": "https://github.com/tarobo22/taro-raect/actions/runs/42340677884"
+  },
+  "android": {
+    "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
+    "oldAppStoreProviderErrorReproduced": true,
+    "offlineRetryVisible": true,
+    "offlineRetryShowsRecoverableError": true,
+    "processSurvivesOfflineRetry": true,
+    "restoredAfterReconnectAndColdLaunch": "playroom",
+    "screenshot": "android-startup-recovery.png",
+    "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+  },
+  "iosDiagnosis": {
+    "workflow": "https://github.com/tarobo22/taro/actions/runs/42337300637",
+    "crash": "Unhandled JS Exception: Error: Store provider is required",
+    "stack": [
+      "Button",
+      "AccountBoundary",
+      "SkinProvider"
+    ],
+    "finalRun": "https://github.com/tarobo22/taro/actions/runs/42340677998"
+  },
+  "existingTestsModified": false
+}

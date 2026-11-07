@@ -80,8 +80,8 @@
   "iosLocalBuild": "Xcode validation runs on the GitHub macOS runner.",
   "iosCI": "in_progress",
   "codeHeads": {
-    "web": "abd5feb3daf31f6ec211130ad00301887a303a22",
-    "rn": "4d14bd319443d32b328b44fe2b49ef26348c85db"
+    "web": "7da0d54881a138adc9bc75b73f295ccefc26206d",
+    "rn": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
   },
   "finalTestEvidence": [
     "S04-whole-room-theme-regression.json"
@@ -92,16 +92,16 @@
     "truePeakDbfs": -1.5
   },
   "assetsZipSha256": "7b705f8aae3e07332ad3bfad9b4c59248921ee3c60d6ce59e48748ae2e3295e2",
-  "pdfSha256": "9944cd4752f0588e934010f4f1b409ef476935602ab8f5bc423cefec182d7895",
+  "pdfSha256": "c0aa4e435f8831f122c08dd703cea8298546e1450f4bc9d60e2864f19b18779c",
   "mediaCommit": "69435a0",
   "nativeCompletion": {
-    "apkRelease": "https://github.com/tarobo22/taro/releases/tag/untagged-fb1e11eeb96f1244849f",
+    "apkRelease": "https://github.com/tarobo22/taro/releases/tag/untagged-e3f0a7ff0b87244ccae8",
     "isDraft": true,
     "androidApks": [
       {
         "artifact": "yeoun-preview-arm64-v8a.apk",
-        "bytes": 65999471,
-        "sha256": "260268af7a6e6a78fa4fd4638a1f6ce32a96d04f055de2f581940db820aed820",
+        "bytes": 65999651,
+        "sha256": "7bc64099043681dd2319c2b8d66da7079c2b05592c1f1aec2d86606fed0a0a66",
         "applicationId": "com.yeoun.preview.skins",
         "abi": [
           "arm64-v8a"
@@ -123,12 +123,12 @@
         "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
         "apiUrlVerifiedInBundle": true,
         "bundledJavaScript": true,
-        "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db"
+        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
       },
       {
         "artifact": "yeoun-preview-x86_64.apk",
-        "bytes": 66822585,
-        "sha256": "6473a8d6082c53d49a7d2cb20444341f2e830ade373451ba82eaed2cef2435d0",
+        "bytes": 66822765,
+        "sha256": "bf0419a50bb44d870f535416dd8921e70db841f6b5609864fa1bdc3b33dc2390",
         "applicationId": "com.yeoun.preview.skins",
         "abi": [
           "x86_64"
@@ -150,14 +150,14 @@
         "nativeMeowSha256": "27e7a498e07815eff8798fb3dfdda5b06decf06d014e62c70f1736a57b2967a9",
         "apiUrlVerifiedInBundle": true,
         "bundledJavaScript": true,
-        "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db"
+        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9"
       }
     ],
     "androidDevice": {
-      "recordedAt": "2026-11-07T03:47:00.638382+00:00",
-      "method": "Manual taps based on the observed screen, then screenshot review and cold launch. The animated scene prevented the idle wait of uiautomator dump.",
+      "recordedAt": "2026-11-07T05:08:04.521433+00:00",
+      "method": "Observed taps and theme screenshots on the Android 35 preview. UiAutomator verified the offline retry response.",
       "apkReceipt": "android-x86.json",
-      "sourceCommit": "4d14bd319443d32b328b44fe2b49ef26348c85db",
+      "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
       "package": "com.yeoun.preview.skins",
       "androidApi": 35,
       "architecture": "x86_64",
@@ -174,25 +174,34 @@
       "screenCaptures": {
         "cafe": {
           "file": "android-cafe.png",
-          "sha256": "94190305e3d556b87e5afd521e5ebda2dedc151fe553f3d82cb49abbb0fb85f5"
+          "sha256": "4f031fa6fbfeba2a4068fe74f0274a42d239801dcd7e7f71badea32c424878f2"
         },
         "clinic": {
           "file": "android-clinic.png",
-          "sha256": "15a913643cb4acc5aa59e6c2bebddb80f369b093fa45f4c52c539556f471ac80"
+          "sha256": "e40161a07eb4117b0c1089fb6dfa37b0d2048a740e835830646e577c3d8dcda1"
         },
         "playroom": {
           "file": "android-playroom.png",
-          "sha256": "6a32d951cc46b57a26c4674be11350276143750476e57b3fdc895f8e389de2bb"
+          "sha256": "9e9beed8979c3dce20e90694f83abc764dbea10e7b520f6b986c2226b7e36891"
         },
         "restored-playroom": {
           "file": "android-restored-playroom.png",
-          "sha256": "fc8ada02b9710689fe3fc330d5b23f8ecc874c375b6c4fc98e913745b1fd837d"
+          "sha256": "b60169a2e7ca41ede03a1a2fae50aa986013fd22c4a31cf20d00bcb05828423b"
         }
       },
       "backend": "ADB reverse to the existing local synthetic QA API",
       "realGptCalls": 0,
       "audiblePlaybackMeasured": false,
-      "testReceipt": "Recorded from ADB install Success, am start COLD Status ok, post-relaunch PID and reviewed final screenshots."
+      "testReceipt": "ADB install succeeded; offline startup and retry preserved the app process; reconnection and cold launch restored playroom.",
+      "startupRecovery": {
+        "oldAppStoreProviderErrorReproduced": true,
+        "offlineRetryVisible": true,
+        "offlineRetryShowsRecoverableError": true,
+        "processSurvivesOfflineRetry": true,
+        "restoredAfterReconnectAndColdLaunch": "playroom",
+        "screenshot": "android-startup-recovery.png",
+        "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+      }
     },
     "remoteApkDigestsMatch": true,
     "androidBundleInputs": {
@@ -206,18 +215,18 @@
     },
     "sameApplicationInputs": true,
     "ios": {
-      "runId": 42337300637,
-      "url": "https://github.com/tarobo22/taro/actions/runs/42337300637",
-      "sourceCommit": "59392ca41b3b2211514413ef0014d5daad113003",
+      "runId": 42340677998,
+      "url": "https://github.com/tarobo22/taro/actions/runs/42340677998",
+      "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
       "result": "in_progress",
       "workflowConclusion": "",
       "checkedSteps": {
         "Test native rules": {
-          "completedAt": "2026-11-07T04:12:36Z",
+          "completedAt": "2026-11-07T04:59:05Z",
           "conclusion": "success",
           "name": "Test native rules",
           "number": 5,
-          "startedAt": "2026-11-07T04:11:48Z",
+          "startedAt": "2026-11-07T04:58:27Z",
           "status": "completed"
         },
         "Build unsigned simulator application": {
@@ -225,8 +234,8 @@
           "conclusion": "",
           "name": "Build unsigned simulator application",
           "number": 7,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-11-07T04:59:48Z",
+          "status": "in_progress"
         },
         "Launch on a clean simulator": {
           "completedAt": "0001-01-01T00:00:00Z",
@@ -237,6 +246,49 @@
           "status": "pending"
         }
       }
+    },
+    "startupRecovery": {
+      "scenario": "Start with an isolated stored test session and interrupt account bootstrap before Store is mounted.",
+      "cause": "The themed retry button read Store before the account boundary could mount it.",
+      "fix": "Keep the button view separate from the component that reads the motion preference.",
+      "web": {
+        "sourceCommit": "7da0d54881a138adc9bc75b73f295ccefc26206d",
+        "red": {
+          "exitCode": 1,
+          "bootstrapAttempts": 1,
+          "retryVisible": false,
+          "pageError": "Store provider is required"
+        },
+        "green": {
+          "exitCode": 0,
+          "bootstrapAttempts": 2,
+          "retryVisible": true,
+          "retryActionWorks": true,
+          "pageErrors": 0
+        },
+        "workflow": "https://github.com/tarobo22/taro-raect/actions/runs/42340677884"
+      },
+      "android": {
+        "sourceCommit": "115cc48995e5d0daa52bc2b9aa2a236f16bdfaa9",
+        "oldAppStoreProviderErrorReproduced": true,
+        "offlineRetryVisible": true,
+        "offlineRetryShowsRecoverableError": true,
+        "processSurvivesOfflineRetry": true,
+        "restoredAfterReconnectAndColdLaunch": "playroom",
+        "screenshot": "android-startup-recovery.png",
+        "screenshotSha256": "80323ccc843d3763a18963283615384a4ff00e145d3df3d1b9e979919b61fa23"
+      },
+      "iosDiagnosis": {
+        "workflow": "https://github.com/tarobo22/taro/actions/runs/42337300637",
+        "crash": "Unhandled JS Exception: Error: Store provider is required",
+        "stack": [
+          "Button",
+          "AccountBoundary",
+          "SkinProvider"
+        ],
+        "finalRun": "https://github.com/tarobo22/taro/actions/runs/42340677998"
+      },
+      "existingTestsModified": false
     }
   }
 }

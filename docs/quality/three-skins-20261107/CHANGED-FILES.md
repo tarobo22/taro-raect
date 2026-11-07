@@ -98,6 +98,7 @@
 | A | docs/quality/three-skins-20261107/evidence/S03-integration-regression.txt |
 | A | docs/quality/three-skins-20261107/evidence/S04-whole-room-theme-regression.json |
 | A | docs/quality/three-skins-20261107/evidence/S04-whole-room-theme-regression.txt |
+| A | docs/quality/three-skins-20261107/evidence/STARTUP-RECOVERY.json |
 | A | docs/quality/three-skins-20261107/screens/advice-panel.png |
 | A | docs/quality/three-skins-20261107/screens/asset-overview.png |
 | A | docs/quality/three-skins-20261107/screens/audio-switch.png |
@@ -175,6 +176,7 @@
 | A | output/pdf/여운_세공간_캐릭터_전체스킨_제작보고서.pdf |
 | M | src/components/Character.tsx |
 | M | src/components/UI.tsx |
+| M | src/features/account/AccountBoundary.tsx |
 | A | src/features/skins/CharacterCue.ts |
 | A | src/features/skins/RoomWallpaper.tsx |
 | A | src/features/skins/SceneArt.tsx |
@@ -308,11 +310,13 @@
 | A | docs/quality/three-skins-20261107/native/android-device-proof.json |
 | A | docs/quality/three-skins-20261107/native/android-playroom.png |
 | A | docs/quality/three-skins-20261107/native/android-restored-playroom.png |
+| A | docs/quality/three-skins-20261107/native/android-startup-recovery.png |
 | A | docs/quality/three-skins-20261107/native/android-x86.json |
 | M | ios/Yeoun/Native/YeounFeedback.swift |
 | A | ios/Yeoun/Sounds/cat_meow.wav |
 | M | src/components/Character.tsx |
 | M | src/components/UI.tsx |
+| M | src/features/account/AccountBoundary.tsx |
 | A | src/features/skins/CharacterCue.ts |
 | A | src/features/skins/RoomWallpaper.tsx |
 | A | src/features/skins/SceneArt.tsx |

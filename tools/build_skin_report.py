@@ -87,10 +87,10 @@ for i,line in enumerate(code):txt(line,54,430+i*12,9,'Code','#FFFDF8')
 if native:
     ios_status = {
         'success': 'iOS는 Swift 6건과 시뮬레이터 빌드·설치·실행을 통과했습니다.',
-        'in_progress': 'iOS 빌드·설치를 확인했고, 실행 후 프로세스를 재검증 중입니다.',
+        'in_progress': 'iOS는 초기 연결 오류를 수정한 뒤 실행을 재검증 중입니다.',
         'failure': 'iOS 시뮬레이터 실행 검증은 완료되지 않았습니다.',
     }[native['ios']['result']]
-    para('<b>네이티브 검증</b><br/>Android APK 두 개의 서명과 리소스를 확인했습니다. x86_64 설치·실행, 세 공간 전환과 놀이방 복원을 검증했습니다.<br/>'+ios_status+' APK는 로컬 테스트용입니다.',464,423,331,9,14)
+    para('<b>네이티브 검증</b><br/>Android APK 두 개의 서명과 리소스를 확인했습니다. x86_64에서 세 공간 전환, 놀이방 복원과 연결 실패 후 재시도를 검증했습니다.<br/>'+ios_status+' APK는 로컬 테스트용입니다.',464,423,331,9,14)
     txt('Android 설치본 열기',464,516,9,'KRB','#426A56')
     c.linkURL(native['apkRelease'],(464,H-531,565,H-513),relative=0)
     txt('iOS 검증 기록',598,516,9,'KRB','#426A56')
