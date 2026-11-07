@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-07T02:51:00.788Z",
+  "mode": "portrait",
+  "width": 1080,
+  "height": 1920,
+  "duration": 60,
+  "fps": 60,
+  "frames": 3600,
+  "encoder": "H264 CRF18 / AAC192k / faststart",
+  "pageErrors": [],
+  "renderSeconds": 128,
+  "source": "Real React app captures plus editorial SVG/DOM motion; example dialogue uses a synthetic local QA provider. Encoded 60fps is not a measured app performance result."
+}

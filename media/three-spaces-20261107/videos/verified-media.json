@@ -1,0 +1,23 @@
+[
+  {
+    "file": "yeoun-three-spaces-guide-30s.mp4",
+    "duration": 30.0,
+    "video_frames": 1800,
+    "rate": "60/1",
+    "audio_codec": "aac"
+  },
+  {
+    "file": "yeoun-three-spaces-landscape-60s.mp4",
+    "duration": 60.0,
+    "video_frames": 3600,
+    "rate": "60/1",
+    "audio_codec": "aac"
+  },
+  {
+    "file": "yeoun-three-spaces-portrait-60s.mp4",
+    "duration": 60.0,
+    "video_frames": 3600,
+    "rate": "60/1",
+    "audio_codec": "aac"
+  }
+]

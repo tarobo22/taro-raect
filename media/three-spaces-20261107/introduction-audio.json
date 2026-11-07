@@ -1,0 +1,51 @@
+{
+  "narration": "Microsoft Heami Desktop, local System.Speech, rate 0",
+  "voiceSegments": [
+    {
+      "id": "01-opening",
+      "at": 1.0,
+      "text": "누군가에게 꺼내기 어려웠던 말, 있나요?",
+      "duration": 4.029,
+      "gain": 1.644
+    },
+    {
+      "id": "02-spaces",
+      "at": 7.8,
+      "text": "오늘은, 내가 편한 곳에서 이야기해요. 카페에서도, 차분한 진료실에서도, 고양이가 있는 놀이방에서도요.",
+      "duration": 10.143,
+      "gain": 1.682
+    },
+    {
+      "id": "03-listen",
+      "at": 19.0,
+      "text": "잘 정리된 말이 아니어도 괜찮아요. 여운이 먼저 듣고, 이해한 마음이 맞는지 물어볼게요.",
+      "duration": 8.128,
+      "gain": 1.421
+    },
+    {
+      "id": "04-tarot",
+      "at": 30.0,
+      "text": "타로 카드를 한 장씩 펼치며, 나를 위한 작은 관점을 찾아봐요.",
+      "duration": 5.968,
+      "gain": 1.745
+    },
+    {
+      "id": "05-record",
+      "at": 41.0,
+      "text": "지금 할 수 있는 한 가지를 살펴보고, 마음에 남은 말은 기록으로.",
+      "duration": 5.758,
+      "gain": 1.718
+    },
+    {
+      "id": "06-ending",
+      "at": 52.0,
+      "text": "말하지 못했던 마음에, 작은 여운을. 타로 AI 마음 대화, 여운.",
+      "duration": 7.154,
+      "gain": 1.643
+    }
+  ],
+  "duration": 60,
+  "music": "Original procedural soft piano at 88 BPM",
+  "catSource": "freemaster2 / CC0, see assets/audio/cat_meow.license.json",
+  "mastering": "FFmpeg loudnorm I=-16 TP=-1.5 LRA=7"
+}

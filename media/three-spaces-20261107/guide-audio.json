@@ -1,0 +1,37 @@
+{
+  "narration": "Microsoft Heami Desktop, local System.Speech, rate 0",
+  "voiceSegments": [
+    {
+      "id": "07-guide-space",
+      "at": 0.6,
+      "text": "홈에서, 이야기할 공간을 골라보세요.",
+      "duration": 3.984,
+      "gain": 1.756
+    },
+    {
+      "id": "08-guide-cat",
+      "at": 5.6,
+      "text": "놀이방을 고르면 화면 전체가 바뀌어요. 고양이에게 인사해 볼까요?",
+      "duration": 6.159,
+      "gain": 1.396
+    },
+    {
+      "id": "09-guide-settings",
+      "at": 12.6,
+      "text": "효과음과 움직임은, 내 공간에서 편하게 고를 수 있어요.",
+      "duration": 5.154,
+      "gain": 1.513
+    },
+    {
+      "id": "10-guide-clinic",
+      "at": 20.5,
+      "text": "차분한 진료실도 준비했어요. 오늘, 내 마음에 맞는 곳에서 시작해요.",
+      "duration": 7.143,
+      "gain": 1.749
+    }
+  ],
+  "duration": 30,
+  "music": "Original procedural soft piano at 88 BPM",
+  "catSource": "freemaster2 / CC0, see assets/audio/cat_meow.license.json",
+  "mastering": "FFmpeg loudnorm I=-16 TP=-1.5 LRA=7"
+}
