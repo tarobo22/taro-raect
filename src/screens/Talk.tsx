@@ -2,14 +2,14 @@ import {PageView as View} from '../components/PageFlow';
 import {ChoiceStage} from '../components/ChoiceStage';
 import {OptionRail} from '../components/OptionRail';
 import {StepProgress} from '../components/StepProgress';
-import React,{useEffect,useState} from 'react';
-import {Pressable,Switch,TextInput} from 'react-native';
+import React,{useCallback,useEffect,useRef,useState} from 'react';
+import {AppState,Pressable,Switch,TextInput} from 'react-native';
 import AsyncStorage from '../features/account/storage';
 import {Character,type Expression} from '../components/Character';
 import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
 import {VoiceButton} from '../components/VoiceButton';
 import {color} from '../design/tokens';
-import type {Advice} from '../domain/content';
+import {localDay,type Advice} from '../domain/content';
 import {submitCounsel,counselRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
 import {useSkinTheme} from '../features/skins/useSkinTheme';
@@ -19,6 +19,8 @@ import {Nav,Route} from '../navigation';
 import {AIConversationSubmit} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 
+const TALK_DRAFT_KEY='yeoun.talk.draft';
+
 export function Talk({nav,route}:{nav:Nav;route?:Route}){
  const theme=useSkinTheme(),store=useStore(),config=store.config;
  const [topic,setTopicState]=useState(''),[question,setQuestionState]=useState(''),[answers,setAnswersState]=useState<boolean[]>([]);
@@ -27,44 +29,114 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
  const setQuestion=(value:string)=>{draftSession.changed();setQuestionState(value);};
  const setAnswers=(value:React.SetStateAction<boolean[]>)=>{draftSession.changed();setAnswersState(value);};
  const [response,setResponse]=useState<Counsel|null>(null),[parentId,setParent]=useState<string|undefined>(),[followup,setFollowup]=useState(false);
- const [useAI,setUseAI]=useState(!!route?.conversationId),[aiConversationId,setAIConversation]=useState<string|undefined>(route?.conversationId),[inputSource,setInputSource]=useState<'text'|'voice'>('text'),[voice,setVoice]=useState(''),[preview,setPreview]=useState(0);
+ const [useAI,setUseAI]=useState(!!route?.conversationId),[aiConversationId,setAIConversation]=useState<string|undefined>(route?.conversationId),[inputSource,setInputSource]=useState<'text'|'voice'>('text'),[voice,setVoice]=useState('');
  const [hydrated,setHydrated]=useState(false),[writing,setWriting]=useState(true);
+ const [resetCount,setResetCount]=useState(0),[showSubmitError,setShowSubmitError]=useState(false);
+ const draftDay=useRef(localDay()),generation=useRef(0);
  const {submit,busy,error,acknowledge}=useSubmit(submitCounsel,counselRetries);
- useEffect(()=>{let mounted=true;void draftSession.restore(()=>AsyncStorage.getItem('yeoun.talk.draft'),v=>{if(v&&mounted){const d=JSON.parse(v);if(typeof d.question==='string')setQuestionState(d.question);if(Array.isArray(d.answers)&&d.answers.every((x:unknown)=>typeof x==='boolean'))setAnswersState(d.answers);if(typeof d.topic==='string')setTopicState(d.topic);if(typeof d.aiConversationId==='string')setAIConversation(d.aiConversationId);if(d.useAI===true)setUseAI(true);if(d.inputSource==='voice')setInputSource('voice');if(typeof d.parentId==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(d.parentId)){setParent(d.parentId);setFollowup(true);}}}).catch(()=>{if(mounted)setDraftError('이전 이야기를 불러오지 못했어요. 지금 입력한 내용은 유지해요.');}).finally(()=>{if(mounted)setHydrated(true);});return()=>{mounted=false;draftSession.dispose();};},[]);
- useEffect(()=>{if(hydrated&&(!response||followup))void draftSession.write(()=>AsyncStorage.setItem('yeoun.talk.draft',JSON.stringify({question,answers,topic,parentId,aiConversationId,useAI,inputSource}))).catch(()=>setDraftError('이야기를 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));},[question,answers,topic,parentId,aiConversationId,useAI,inputSource,hydrated,response,followup]);
+ const resetDraft=useCallback((day:string)=>{
+  generation.current++;
+  draftSession.changed();
+  draftDay.current=day;
+  setResetCount(count=>count+1);
+  setTopicState('');
+  setQuestionState('');
+  setAnswersState([]);
+  setResponse(null);
+  setParent(undefined);
+  setFollowup(false);
+  setAIConversation(undefined);
+  setUseAI(false);
+  setInputSource('text');
+  setVoice('');
+  setWriting(true);
+  setDraftError('');
+  setShowSubmitError(false);
+  if(route?.conversationId)nav.update({conversationId:undefined});
+ },[draftSession,nav,route?.conversationId]);
+ useEffect(()=>{
+  let mounted=true;
+  void draftSession.restore(()=>AsyncStorage.getItem(TALK_DRAFT_KEY),raw=>{
+   if(!raw||!mounted)return;
+   const draft=JSON.parse(raw);
+   if(typeof draft.day==='string'&&draft.day!==draftDay.current)return;
+   if(typeof draft.question==='string')setQuestionState(draft.question);
+   if(Array.isArray(draft.answers)&&draft.answers.every((value:unknown)=>typeof value==='boolean'))setAnswersState(draft.answers);
+   if(typeof draft.topic==='string')setTopicState(draft.topic);
+   if(typeof draft.aiConversationId==='string')setAIConversation(draft.aiConversationId);
+   if(draft.useAI===true)setUseAI(true);
+   if(draft.inputSource==='voice')setInputSource('voice');
+   if(typeof draft.parentId==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(draft.parentId)){
+    setParent(draft.parentId);
+    setFollowup(true);
+   }
+  }).catch(()=>{if(mounted)setDraftError('이전 이야기를 불러오지 못했어요. 지금 입력한 내용은 유지해요.');})
+   .finally(()=>{if(mounted)setHydrated(true);});
+  return()=>{mounted=false;draftSession.dispose();};
+ },[draftSession]);
+ useEffect(()=>{
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  function syncDay(){
+   clearTimeout(timer);
+   const day=localDay();
+   if(day!==draftDay.current)resetDraft(day);
+   const midnight=new Date();
+   midnight.setHours(24,0,0,0);
+   timer=setTimeout(syncDay,Math.max(1,midnight.getTime()-Date.now()));
+  }
+  syncDay();
+  const foreground=AppState.addEventListener('change',state=>{if(state==='active')syncDay();});
+  return()=>{foreground.remove();clearTimeout(timer);};
+ },[resetDraft]);
+ useEffect(()=>{
+  if(!hydrated||response&&!followup)return;
+  const draft={day:draftDay.current,question,answers,topic,parentId,aiConversationId,useAI,inputSource};
+  void draftSession.write(()=>AsyncStorage.setItem(TALK_DRAFT_KEY,JSON.stringify(draft)))
+   .catch(()=>setDraftError('이야기를 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));
+ },[draftSession,question,answers,topic,parentId,aiConversationId,useAI,inputSource,hydrated,response,followup,resetCount]);
  const choicesComplete=!!config&&answers.length>=config.questions.length;
  function choose(yes:boolean){
-  if(busy||response||choicesComplete||!config)return false;
+  if(!hydrated||busy||response||choicesComplete||!config)return false;
   setAnswers(v=>[...v,yes].slice(0,config.questions.length));return true;
  }
  if(!config)return <View style={s.stack}><Notice error={!!store.error}>{store.error||'이야기를 준비하고 있어요.'}</Notice><Button secondary onPress={store.refresh}>다시 불러오기</Button></View>;
  const currentTopic=config.topics.includes(topic)?topic:config.topics[0];
  async function ask(){
   if(useAI||busy||(!question.trim()&&!answers.length))return;
+  setShowSubmitError(true);
+  const requestGeneration=generation.current;
   const saved=await submit({topic:currentTopic,question,answers,tone:store.tone,useAI,consent:useAI,parentId});
-  if(saved){feedback('confirm');setResponse(saved);setFollowup(false);try{await draftSession.write(()=>AsyncStorage.removeItem('yeoun.talk.draft'));await acknowledge();}catch{}await store.refresh();}
+  if(!saved)return;
+  if(requestGeneration===generation.current){
+   feedback('confirm');
+   setResponse(saved);
+   setFollowup(false);
+   try{await draftSession.write(()=>AsyncStorage.removeItem(TALK_DRAFT_KEY));}catch{}
+  }
+  try{await acknowledge();}catch{}
+  await store.refresh();
  }
- const canChoose=!busy&&!response&&!choicesComplete;
+ const canChoose=hydrated&&!busy&&!response&&!choicesComplete;
  const expression:Expression=answers.length?(answers[answers.length-1]?'encourage':'listen'):'welcome';
  return <View style={s.stack}>
   <Button secondary onPress={()=>nav.push({name:'counseling',initialText:question})}>타로와 함께 마음 이야기</Button>
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
   {response?<><View style={{alignItems:'center'}}><Character expression={response.expression} giga={store.tone==='giga'} reduced={store.reduced} size={130} framed={false}/></View><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
-   <View><ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
+   <View><ChoiceStage key={resetCount} showButtons={false} disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
     <View style={{backgroundColor:theme.soft,borderRadius:24,padding:16,alignItems:'center',gap:6}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><View pointerEvents="none"><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={164} framed={false}/></View><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'질문에 모두 답했어요. 아래에서 대화를 시작해요.':config.questions[answers.length]}</Copy></View>
    </ChoiceStage></View>
    <View><StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/></View>
-   {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}
   </>:null}
+  <Button secondary disabled={!hydrated||busy} onPress={()=>resetDraft(localDay())}>초기화</Button>
   {!response||followup?<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel="상담 직접 쓰기 열기" onPress={()=>setWriting(!writing)} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small" style={{fontWeight:'600'}}>{writing?'입력 접기 ↑':question.trim()?'작성한 이야기 보기 ↓':'직접 쓰기 ↓'}</Copy></Pressable><VoiceButton onCloud={()=>nav.push({name:'cloud-voice',cloudTarget:'talk'})} value={question} onText={value=>{setQuestion(value);setInputSource('voice');setWriting(true);}} onStatus={setVoice}/></View>
    {writing||!!parentId?<><TextInput accessibilityLabel="상담 내용 입력" editable={!busy} multiline maxLength={config.maxCounselQuestion} value={question} onChangeText={value=>{setQuestion(value);setInputSource('text');}} placeholder={parentId?'조금 더 이야기해 주세요.':'선택 대신, 하고 싶은 이야기를 직접 적어도 좋아요.'} placeholderTextColor={color.muted} style={[s.input,{minHeight:104}]}/>
 <Copy kind="small" muted>{question.length} / {config.maxCounselQuestion}</Copy>
 
 </>:null}
    {config.aiAvailable?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>:null}
-   {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">대화하기</Button>}{voice?<Notice>{voice}</Notice>:null}
-  </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');}}>새로운 이야기 시작</Button></>}
-  {error||draftError?<Notice error>{error||draftError}</Notice>:null}
+   {useAI?<AIConversationSubmit key={resetCount} nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">대화하기</Button>}{voice?<Notice>{voice}</Notice>:null}
+  </>:<Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button>}
+  {(showSubmitError&&error)||draftError?<Notice error>{(showSubmitError&&error)||draftError}</Notice>:null}
  </View>;
 }
 export function AdviceBlocks({data}:{data:Advice&{source?:Counsel['source']}}){

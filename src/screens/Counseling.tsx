@@ -39,7 +39,22 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const [editing,setEditing]=useState(false),[deleting,setDeleting]=useState(false),[references,setReferences]=useState(false);
  const input=useRef<TextInput>(null),scroll=useRef<ScrollView>(null),followLatest=useRef(true);
  const requestConsent=useSendConsent(),[sendError,setSendError]=useState('');
- useEffect(()=>{followLatest.current=true;void controller.initialize();return()=>controller.dispose();},[controller]);
+ const mountedController=useRef<CounselingController|null>(null),sendingController=useRef<CounselingController|null>(null);
+ const consumedDraft=useRef<string|null>(null);
+ useEffect(()=>{
+  followLatest.current=true;
+  mountedController.current=controller;
+  let active=true;
+  void controller.initialize().then(()=>{
+   const draft=route.counselingDraftKey;
+   if(!active||!owner||route.sendQuestionForOwner!==owner||!draft||consumedDraft.current===draft)return;
+   consumedDraft.current=draft;
+   nav.update({sendQuestionForOwner:undefined});
+   const current=controller.getSnapshot();
+   if(!current.value&&current.text.trim()===route.initialText?.trim())void send();
+  });
+  return()=>{active=false;mountedController.current=null;controller.dispose();};
+ },[controller]);
  useEffect(()=>{
   if(!processing)return;let disposed=false;let timer:ReturnType<typeof setTimeout>;
   async function poll(){await controller.refresh();if(!disposed&&controller.processing)timer=setTimeout(()=>void poll(),500);}
@@ -48,11 +63,23 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  useEffect(()=>{if(value?.job?.state==='succeeded'){feedback('confirm');}},[value?.job?.id,value?.job?.state]);
  async function refresh(){await controller.refreshCapabilities();await controller.refresh();}
  async function send(){
-  if(busy||processing||pending||!text.trim())return;
+  const current=controller.getSnapshot();
+  if(mountedController.current!==controller||sendingController.current===controller||current.busy||controller.processing||current.pending||!current.text.trim())return;
+  sendingController.current=controller;
   setSendError('');
-  if(!caps?.available&&!await controller.refreshCapabilities()){setSendError('지금은 답변을 받지 못했어요. 잠시 후 다시 보내 주세요.');return;}
-  const permission=await requestConsent(['ai_processing']);
-  if(permission?.ai_processing){followLatest.current=true;await controller.send(permission.ai_processing.id,remember,{cardCount:count,webSearch:web});}
+  try{
+   if(!current.caps?.available&&!await controller.refreshCapabilities()){
+    if(mountedController.current===controller)setSendError('지금은 답변을 받지 못했어요. 잠시 후 다시 보내 주세요.');
+    return;
+   }
+   const stillSendingSameText=()=>mountedController.current===controller&&controller.getSnapshot().text===current.text;
+   if(!stillSendingSameText())return;
+   const permission=await requestConsent(['ai_processing']);
+   if(permission?.ai_processing&&stillSendingSameText()){
+    followLatest.current=true;
+    await controller.send(permission.ai_processing.id,remember,{cardCount:count,webSearch:web});
+   }
+  }finally{if(sendingController.current===controller)sendingController.current=null;}
  }
  async function confirm(){const permission=await requestConsent(['ai_processing']);if(permission?.ai_processing){followLatest.current=true;await controller.confirm(permission.ai_processing.id,count,web);}}
  async function openSettings(){setSettings(true);await controller.loadManagement();}
@@ -87,8 +114,22 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
     </View>
     <Panel style={{padding:18,gap:8}}>
      <Copy>{result.empathy}</Copy>
+     {result.tarot.length>0?<View style={{gap:12,marginVertical:6}}>
+      <Copy kind="subtitle">카드가 들려주는 말</Copy>
+      {result.tarot.map((meaning,index)=>{
+       const card=value?.cards.find(item=>item.card_id===meaning.card_id);
+       return <View key={meaning.card_id} style={{gap:3}}>
+        <Copy kind="label">{card?.card.name_ko??(index+1)+'번째 카드'}</Copy>
+        <Copy>{meaning.reflection}</Copy>
+       </View>;
+      })}
+      <Copy kind="subtitle">카드를 함께 보면</Copy>
+     </View>:null}
      <Copy>{result.advice}</Copy>
-     {result.actions.map((action,index)=><Copy key={index}>{action}</Copy>)}
+     {result.actions.length>0?<View style={{gap:4,marginTop:6}}>
+      <Copy kind="label">지금 해 볼 일</Copy>
+      {result.actions.map((action,index)=><Copy key={index}>{action}</Copy>)}
+     </View>:null}
      {result.follow_up_question?<Copy>{result.follow_up_question}</Copy>:null}
     </Panel>
     {result.facts.length?<>
@@ -100,7 +141,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
       {fact.source_ids.map(id=>{const source=value?.sources.find(item=>item.id===id);return source?<SourceLink key={id} source={source}/>:null;})}
      </Panel>):null}
     </>:null}
-    <Copy kind="small" muted>타로는 마음을 돌아보는 관점이에요. 선택은 내가 정해요.</Copy>
+    <Copy kind="small" muted>카드는 생각을 돕는 힌트예요.</Copy>
    </>:null}
    {value?.job?.state==='failed'?<Notice error>{fail(value.job.error_code)}</Notice>:null}
    {sendError?<View accessibilityLiveRegion="polite"><Copy kind="small" muted>{sendError}</Copy></View>:null}

@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {color} from '../design/tokens';
 import {feedback} from '../services/feedback';
 import type {ChoiceStageProps} from './ChoiceStage.types';
-export function ChoiceStage({children,onChoice,disabled=false,reduced,label='대화 선택'}:ChoiceStageProps){
+export function ChoiceStage({children,onChoice,disabled=false,reduced,label='대화 선택',showButtons=true}:ChoiceStageProps){
  const node=useRef<HTMLDivElement>(null),left=useRef<HTMLDivElement>(null),right=useRef<HTMLDivElement>(null),latest=useRef({onChoice,disabled,reduced});latest.current={onChoice,disabled,reduced};
  const m=useRef({x:0,target:0,v:0,raf:0,last:0,drag:false,startX:0,startY:0,locked:false,alive:true,ticked:false,width:320,exit:0 as number,commit:false,pointer:0});
  const [locked,setLocked]=useState(false),[hint,setHint]=useState(true);
@@ -17,12 +17,16 @@ export function ChoiceStage({children,onChoice,disabled=false,reduced,label='대
  const button:React.CSSProperties={flex:1,minHeight:48,border:0,borderRadius:17,fontSize:15,fontFamily:'inherit',fontWeight:600,color:color.ink,cursor:disabled||locked?'default':'pointer',opacity:disabled||locked?.5:1};
  return <div style={{display:'flex',flexDirection:'column',gap:10}}>
   <div style={{position:'relative'}}><div ref={left} aria-hidden style={{position:'absolute',inset:0,background:color.pink,borderRadius:24,opacity:0}}/><div ref={right} aria-hidden style={{position:'absolute',inset:0,background:color.mintDeep,borderRadius:24,opacity:0}}/>
-   <div ref={node} data-testid="choice-profile" onPointerDown={e=>{const s=m.current;if(latest.current.disabled||s.locked||e.button!==0)return;s.width=e.currentTarget.clientWidth;s.startX=e.clientX;s.startY=e.clientY;s.pointer=e.pointerId;s.drag=true;s.ticked=false;s.v=0;e.currentTarget.setPointerCapture(e.pointerId);}}
+   <div ref={node} data-testid="choice-profile"
+    role={showButtons?undefined:'group'} aria-label={showButtons?undefined:label+' 카드. 왼쪽 방향키는 아니요, 오른쪽 방향키는 예.'}
+    tabIndex={!showButtons&&!disabled?0:undefined}
+    onKeyDown={showButtons?undefined:e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(e.key==='ArrowRight');}}}
+    onPointerDown={e=>{const s=m.current;if(latest.current.disabled||s.locked||e.button!==0)return;s.width=e.currentTarget.clientWidth;s.startX=e.clientX;s.startY=e.clientY;s.pointer=e.pointerId;s.drag=true;s.ticked=false;s.v=0;e.currentTarget.setPointerCapture(e.pointerId);}}
     onPointerMove={e=>{const s=m.current;if(!s.drag)return;const dx=e.clientX-s.startX,dy=e.clientY-s.startY;if(Math.abs(dy)>20&&Math.abs(dy)>Math.abs(dx)){reset();return;}s.x=dx*.92;s.target=s.x;if(Math.abs(dx)>8)setHint(false);if(Math.abs(dx)>s.width*.22&&!s.ticked){s.ticked=true;feedback('select');}paint();}}
     onPointerUp={e=>{const s=m.current;if(!s.drag)return;s.drag=false;const dx=e.clientX-s.startX;if(Math.abs(dx)>s.width*.22)choose(dx>0);else reset();if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}}
     onPointerCancel={reset} style={{touchAction:'pan-y',userSelect:'none',willChange:'transform',cursor:disabled||locked?'default':'grab'}}>{children}</div>
   </div>
-  <div style={{display:'flex',gap:8}}><button aria-label="아니요 선택" disabled={disabled||locked} onClick={()=>choose(false)} style={{...button,background:color.pink}}>← 아니요</button><button aria-label="예 선택" disabled={disabled||locked} onClick={()=>choose(true)} style={{...button,background:color.mint}}>예 →</button></div>
-  {hint&&!disabled?<div style={{textAlign:'center',fontSize:11,color:color.muted}}>{label+' · 왼쪽 아니요, 오른쪽 예'}</div>:null}
+  {showButtons?<div style={{display:'flex',gap:8}}><button aria-label="아니요 선택" disabled={disabled||locked} onClick={()=>choose(false)} style={{...button,background:color.pink}}>← 아니요</button><button aria-label="예 선택" disabled={disabled||locked} onClick={()=>choose(true)} style={{...button,background:color.mint}}>예 →</button></div>:null}
+  {(hint||!showButtons)&&!disabled?<div style={{textAlign:'center',fontSize:showButtons?11:13,color:color.muted}}>{showButtons?label+' · 왼쪽 아니요, 오른쪽 예':'카드를 밀어 답해요. 왼쪽은 아니요, 오른쪽은 예.'}</div>:null}
  </div>;
 }

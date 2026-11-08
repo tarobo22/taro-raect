@@ -27,6 +27,7 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
  const store=useStore(),config=store.config;
  const [topic,setTopicState]=useState(route?.topic||''),[spreadId,setSpreadState]=useState(route?.spreadId||'three'),[question,setQuestionState]=useState(route?.question||''),[voice,setVoice]=useState(''),[hydrated,setHydrated]=useState(false);
  const draftSession=useScreenDraft(),[draftError,setDraftError]=useState('');
+ const startLocked=useRef(false);
  const setTopic=(value:string)=>{draftSession.changed();setTopicState(value);};
  const setSpread=(value:string)=>{draftSession.changed();setSpreadState(value);};
  const setQuestion=(value:string)=>{draftSession.changed();setQuestionState(value);};
@@ -34,6 +35,14 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
  useEffect(()=>{if(hydrated){nav.update({topic,spreadId,question});void draftSession.write(()=>AsyncStorage.multiSet([['yeoun.tarot.question',question],['yeoun.tarot.options',JSON.stringify({topic,spreadId})]])).catch(()=>setDraftError('질문을 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));}},[topic,spreadId,question,hydrated]);
  if(!config)return <LoadingConfig/>;
  const selectedTopic=topic||config.topics[0],spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
+ function startCounseling(cardCount:3|5){
+  const sendQuestionForOwner=cardCount===3&&question.trim()?store.bootstrap?.user.id:undefined;
+  if(sendQuestionForOwner){
+   if(startLocked.current)return;
+   startLocked.current=true;
+  }
+  nav.push({name:'counseling',counselingDraftKey:requestId(),topic:topicCode(selectedTopic),initialText:question,cardCount,sendQuestionForOwner});
+ }
  return <View testID="tarot-setup" style={{gap:12}}>
   <View><TarotSetupIntro count={spread.positions.length} reduced={store.reduced}/></View>
   <View><CompactTopicPicker options={config.topics} value={selectedTopic} onChange={setTopic} reduced={store.reduced}/></View>
@@ -45,7 +54,7 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
   </View>
   {voice?<Notice>{voice}</Notice>:null}{draftError?<Notice error>{draftError}</Notice>:null}
   <DeckChoice nav={nav} compact/>
-  {spread.positions.length===3||spread.positions.length===5?<Button icon="cards" onPress={()=>nav.push({name:'counseling',counselingDraftKey:requestId(),topic:topicCode(selectedTopic),initialText:question,cardCount:spread.positions.length as 3|5})}>{spread.positions.length}장 타로로 이야기하기</Button>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
+  {spread.positions.length===3||spread.positions.length===5?<Button icon="cards" onPress={()=>startCounseling(spread.positions.length as 3|5)}>{spread.positions.length}장 타로로 이야기하기</Button>:<Button icon="cards" onPress={()=>nav.push({name:'draw',topic:selectedTopic,question,spreadId,deck:shuffled(config.cards.map(c=>c.id)).slice(0,config.deckPreviewSize),selected:[]})}>{spread.positions.length}장의 카드 만나기</Button>}
  </View>;
 }
 
