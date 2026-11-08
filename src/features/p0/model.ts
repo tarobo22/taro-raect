@@ -1,5 +1,12 @@
-export const topics=[['relationship','관계'],['work','일과 진로'],['self','나 자신'],['daily','오늘 하루'],['care','마음 돌봄'],['start','새로운 시작']] as const;
+export const topics=[
+ ['relationship','관계','연애·관계'],['work','일과 진로','일·진로'],['self','나 자신'],
+ ['daily','오늘 하루','오늘의 선택'],['care','마음 돌봄'],['start','새로운 시작'],
+] as const;
 export type Topic=typeof topics[number][0];
+export const topicCodes=topics.map(([id])=>id);
+export function findTopicCode(value:string):Topic|undefined{
+ return topics.find(([id,label,legacyLabel])=>value===id||value===label||value===legacyLabel)?.[0];
+}
 export type ConsentKind='ai_processing'|'journal_context'|'cloud_transcription';
 export interface Consent{id:string;kind:ConsentKind;policy_version:string;granted:boolean;occurred_at:string;}
 export interface Preferences{tone:'warm'|'giga';reduced_motion:boolean;voice_mode:'device'|'cloud';}
@@ -9,7 +16,7 @@ export interface OtaPolicy{channel:string;min_native_version:string;updates_enab
 export interface Bootstrap{api_version:string;policy_version:string;server_time:string;user:Me;consents:Consent[];ota_policy:OtaPolicy;limits:{daily_ai_requests:number;question_max_chars:number;journal_max_chars:number;audio_max_seconds:number;audio_max_bytes:number};}
 export interface Asset{id:string;url:string;sha256:string;width:number;height:number;source_page:string|null;license_name:string;license_url:string|null;}
 export interface Deck{id:string;code:string;version:string;name:string;card_count:number;status:'candidate'|'published'|'retired';back_asset:Asset;}
-export interface CatalogCard{id:number;code:string;name_ko:string;name_en:string;arcana:'major'|'minor';suit:'wands'|'cups'|'swords'|'pentacles'|null;basic_meaning:string;image_asset:Asset|null;}
+export interface CatalogCard{id:number;code:string;name_ko:string;name_en:string;arcana:'major'|'minor';suit:'wands'|'cups'|'swords'|'pentacles'|null;basic_meaning:string;short_meaning?:string;image_asset:Asset|null;}
 export interface SelectedCard{card_id:number;position:number;position_label:string;orientation:'upright'|'reversed';card:CatalogCard;}
 export interface AIResult{kind:'tarot'|'chat'|'insight';empathy:string;summary:string;card_insights:{card_id:number;position:number;meaning:string;reflection:string}[];advice:string;actions:string[];expression:'calm'|'welcome'|'listen'|'encourage'|'joy'|'concern'|'serious';follow_up_questions:string[];safety_mode:'standard'|'support';}
 export interface V2Reading{id:string;kind:'daily'|'three_card';topic:Topic;question:string;deck_version_id:string;local_day:string|null;captured_timezone:string;state:'draft'|'selected'|'generating'|'ready'|'failed';version:number;slots:{id:string;index:number}[];selected_cards:SelectedCard[];result:AIResult|null;created_at:string;}

@@ -26,8 +26,9 @@ import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {journalMoodLabel} from '../features/journal/moodMapping';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 import {cardMeaningLine} from '../domain/cardMeaning';
+import {findTopicCode} from '../features/p0/model';
 
-export function topicCode(value:string):Topic{return topics.find(([code,label])=>code===value||label===value)?.[0]||'self';}
+export function topicCode(value:string):Topic{return findTopicCode(value)||'self';}
 export function DeckChoice({nav,compact=false}:{nav:Nav;compact?:boolean}){
  const store=useStore(),decks=useP0Read(()=>p0Repository.decks());
  useEffect(()=>{if(!store.selectedDeck&&decks.value?.items[0])store.setSelectedDeck(decks.value.items[0].id);},[decks.value?.items[0]?.id]);
@@ -55,7 +56,7 @@ export function ReadingV2({route,nav}:{route:Route;nav:Nav}){
    <View style={{flexDirection:'row',justifyContent:'center',gap:14}}>{reading.selected_cards.map(card=><Pressable key={card.position} accessibilityRole="button" accessibilityLabel={card.card.name_ko+' 카드 해석 보기'} onPress={()=>{const insight=result?.card_insights.find(item=>item.position===card.position);nav.push({name:'card',deckId:reading.deck_version_id,cardId:card.card_id,cardData:card.card,cardMeaning:insight?.meaning,cardReflection:insight?.reflection,positionLabel:card.position_label,orientation:card.orientation});}} style={{alignItems:'center',gap:7,flexShrink:1}}><RevealingAssetImage asset={card.card.image_asset} label={card.card.name_ko} width={82} eventKey={reading.id+':'+card.position+':'+card.card_id} delay={(card.position-1)*170}/>{singleCard?null:<Copy kind="label">{card.card.name_ko}</Copy>}<Copy kind="small" muted style={{fontSize:12}}>{card.position_label}</Copy></Pressable>)}</View>
    {singleCard?<Panel style={{gap:8}}>
     <Copy kind="label" muted>카드의 뜻</Copy>
-    <Copy>{cardMeaningLine(singleCard.card_id,singleCard.card.basic_meaning)}</Copy>
+    <Copy>{cardMeaningLine(singleCard.card.short_meaning,singleCard.card.basic_meaning)}</Copy>
    </Panel>:null}
    {reading.selected_cards.length?<Copy kind="small" muted style={{textAlign:'center'}}>카드를 누르면 자세한 해석을 볼 수 있어요.</Copy>:null}
   </View>

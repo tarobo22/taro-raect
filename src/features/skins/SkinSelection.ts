@@ -1,17 +1,18 @@
-export type SkinId='cafe'|'clinic'|'playroom';
+import {defaultSkinId,skins,type SkinId} from './catalog';
+export type {SkinId} from './catalog';
 export interface SkinStorage{getItem(key:string):Promise<string|null>;setItem(key:string,value:string):Promise<void>;}
 export interface SkinSelection{id:SkinId;loaded:boolean;error:string;}
 const key='yeoun.companion-skin.v1';
-export const isSkinId=(value:unknown):value is SkinId=>value==='cafe'||value==='clinic'||value==='playroom';
+export const isSkinId=(value:unknown):value is SkinId=>typeof value==='string'&&Object.hasOwn(skins,value);
 export class SkinSelectionStore{
- state:SkinSelection={id:'cafe',loaded:false,error:''};
+ state:SkinSelection={id:defaultSkinId,loaded:false,error:''};
  private listeners=new Set<()=>void>();private revision=0;private writes:Promise<unknown>=Promise.resolve();
  constructor(private storage:SkinStorage){}
  subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener);};};
  getSnapshot=()=>this.state;
  private update(change:Partial<SkinSelection>){this.state={...this.state,...change};for(const listener of this.listeners)listener();}
  async load():Promise<void>{
-  const revision=this.revision;let id:SkinId='cafe';
+  const revision=this.revision;let id:SkinId=defaultSkinId;
   try{const saved=JSON.parse(await this.storage.getItem(key)||'null');if(saved?.version===1&&isSkinId(saved.id))id=saved.id;}
   catch{/* Public appearance preference only: a broken record must not block the app. */}
   if(revision===this.revision)this.update({id,loaded:true});else this.update({loaded:true});

@@ -1,5 +1,6 @@
 import type {JsonTransport} from '../../infrastructure/http/FetchClient';
 import type {Card} from '../../domain/content';
+import {findTopicCode} from '../p0/model';
 import type {Counsel,CounselDraft,ExperienceConfig,ExperienceRepository,Reading,ReadingDraft} from './model';
 
 interface Endpoints {config:string;readings:string;daily:string;counsel:string;}
@@ -13,7 +14,8 @@ function integer(value:unknown):number{if(typeof value!=='number'||!Number.isInt
 function card(value:unknown):Card{
   const v=object(value);const art=v.art;
   if(art!=='sun'&&art!=='leaf'&&art!=='path')throw new Error('카드를 확인하지 못했어요.');
-  return {id:integer(v.id),name:text(v.name),keyword:text(v.keyword),message:text(v.message),action:text(v.action),art};
+  return {id:integer(v.id),name:text(v.name),keyword:text(v.keyword),message:text(v.message),action:text(v.action),art,
+    ...(v.short_meaning==null?{}:{short_meaning:text(v.short_meaning)})};
 }
 function optionalText(value:unknown){return value==null?undefined:text(value);}
 export function decodeReading(value:unknown):Reading{
@@ -40,8 +42,19 @@ export class ExperienceApi implements ExperienceRepository{
     if(!Array.isArray(v.cards)||typeof v.aiAvailable!=='boolean')throw new Error('설정을 불러오지 못했어요.');
     const topics=strings(v.topics),questions=strings(v.questions);
     if(!topics.length||!questions.length||!Object.keys(spreads).length||!v.cards.length)throw new Error('준비된 설정이 없어요.');
-    return {topics,questions,spreads,cards:v.cards.map(card),aiAvailable:v.aiAvailable,
+    const topicOptions=v.topicOptions==null?undefined:this.topicOptions(v.topicOptions,topics);
+    return {topics,questions,spreads,cards:v.cards.map(card),aiAvailable:v.aiAvailable,...(topicOptions?{topicOptions}:{}),
       maxTarotQuestion:integer(v.maxTarotQuestion),maxCounselQuestion:integer(v.maxCounselQuestion),deckPreviewSize:integer(v.deckPreviewSize)};
+  }
+  private topicOptions(value:unknown,topics:string[]){
+    if(!Array.isArray(value)||value.length!==topics.length)throw new Error('고민 주제 설정을 확인하지 못했어요.');
+    const options=value.map((option,index)=>{
+      const row=object(option),id=findTopicCode(text(row.id)),label=text(row.label);
+      if(!id||id!==row.id||label!==topics[index])throw new Error('고민 주제 설정을 확인하지 못했어요.');
+      return {id,label};
+    });
+    if(new Set(options.map(option=>option.id)).size!==options.length)throw new Error('고민 주제 설정을 확인하지 못했어요.');
+    return options;
   }
   async readings(){const v=await this.http.request(this.paths.readings);if(!Array.isArray(v))throw new Error('기록을 불러오지 못했어요.');return v.map(decodeReading);}
   async deleteReading(id:string){await this.http.request(this.paths.readings+'/'+encodeURIComponent(id),{method:'DELETE'});}

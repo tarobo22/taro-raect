@@ -12,11 +12,13 @@ import {color} from '../design/tokens';
 import {useStore,Reading} from '../state/store';
 import {submitReading,submitDaily,readingRetries} from '../composition';
 import {useSubmit} from '../features/experience/useSubmit';
+import {selectExperienceTopic} from '../features/experience/model';
+import {findTopicCode} from '../features/p0/model';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
 import {requestId} from '../infrastructure/requestId';
 import AsyncStorage from '../features/account/storage';
-import {DeckChoice,DrawV2,topicCode} from './P0Tarot';
+import {DeckChoice,DrawV2} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 import {TarotSetupIntro,CompactTopicPicker,TarotDepthPicker} from '../components/TarotSetup';
 
@@ -28,20 +30,30 @@ export function Topics({nav,route}:{nav:Nav;route?:Route}){
  const [topic,setTopicState]=useState(route?.topic||''),[spreadId,setSpreadState]=useState(route?.spreadId||'three'),[question,setQuestionState]=useState(route?.question||''),[voice,setVoice]=useState(''),[hydrated,setHydrated]=useState(false);
  const draftSession=useScreenDraft(),[draftError,setDraftError]=useState('');
  const startLocked=useRef(false);
- const setTopic=(value:string)=>{draftSession.changed();setTopicState(value);};
+ const selectedOption=config&&(selectExperienceTopic(config,topic)||selectExperienceTopic(config,config.topics[0]));
+ const selectedTopicId=selectedOption?.id;
+ const legacyTopicLabel=selectedOption?.label||topic;
  const setSpread=(value:string)=>{draftSession.changed();setSpreadState(value);};
  const setQuestion=(value:string)=>{draftSession.changed();setQuestionState(value);};
- useEffect(()=>{let active=true;void draftSession.restore(async()=>{const pairs=await AsyncStorage.multiGet(['yeoun.tarot.question','yeoun.tarot.options']);return Object.fromEntries(pairs);},saved=>{if(!active)return;if(saved['yeoun.tarot.question']!==null&&route?.question===undefined)setQuestionState(saved['yeoun.tarot.question']!);const raw=saved['yeoun.tarot.options'];if(raw){const options=JSON.parse(raw);if(route?.topic===undefined&&typeof options.topic==='string')setTopicState(options.topic);if(route?.spreadId===undefined&&typeof options.spreadId==='string')setSpreadState(options.spreadId);}}).catch(()=>{if(active)setDraftError('이전 질문을 불러오지 못했어요. 지금 입력한 내용은 유지해요.');}).finally(()=>{if(active)setHydrated(true);});return()=>{active=false;draftSession.dispose();};},[]);
- useEffect(()=>{if(hydrated){nav.update({topic,spreadId,question});void draftSession.write(()=>AsyncStorage.multiSet([['yeoun.tarot.question',question],['yeoun.tarot.options',JSON.stringify({topic,spreadId})]])).catch(()=>setDraftError('질문을 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));}},[topic,spreadId,question,hydrated]);
+ useEffect(()=>{let active=true;void draftSession.restore(async()=>{const pairs=await AsyncStorage.multiGet(['yeoun.tarot.question','yeoun.tarot.options']);return Object.fromEntries(pairs);},saved=>{if(!active)return;if(saved['yeoun.tarot.question']!==null&&route?.question===undefined)setQuestionState(saved['yeoun.tarot.question']!);const raw=saved['yeoun.tarot.options'];if(raw){const options=JSON.parse(raw);if(route?.topic===undefined){const id=typeof options.topicId==='string'?findTopicCode(options.topicId):undefined;if(id)setTopicState(id);else if(typeof options.topic==='string')setTopicState(options.topic);}if(route?.spreadId===undefined&&typeof options.spreadId==='string')setSpreadState(options.spreadId);}}).catch(()=>{if(active)setDraftError('이전 질문을 불러오지 못했어요. 지금 입력한 내용은 유지해요.');}).finally(()=>{if(active)setHydrated(true);});return()=>{active=false;draftSession.dispose();};},[]);
+ useEffect(()=>{
+  if(!hydrated||!selectedTopicId)return;
+  nav.update({topic:selectedTopicId,spreadId,question});
+  const options={topic:legacyTopicLabel,topicId:selectedTopicId,spreadId};
+  void draftSession.write(()=>AsyncStorage.multiSet([['yeoun.tarot.question',question],['yeoun.tarot.options',JSON.stringify(options)]])).catch(()=>setDraftError('질문을 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));
+ },[selectedTopicId,legacyTopicLabel,spreadId,question,hydrated]);
  if(!config)return <LoadingConfig/>;
- const selectedTopic=topic||config.topics[0],spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
+ const selectedTopic=selectedOption?.label||config.topics[0];
+ const spread=config.spreads[spreadId]||Object.values(config.spreads)[0];
+ const setTopic=(label:string)=>{draftSession.changed();setTopicState(selectExperienceTopic(config,label)?.id||label);};
  function startCounseling(cardCount:3|5){
+  if(!selectedOption){setDraftError('고민 주제를 다시 골라 주세요.');return;}
   const sendQuestionForOwner=cardCount===3&&question.trim()?store.bootstrap?.user.id:undefined;
   if(sendQuestionForOwner){
    if(startLocked.current)return;
    startLocked.current=true;
   }
-  nav.push({name:'counseling',counselingDraftKey:requestId(),topic:topicCode(selectedTopic),initialText:question,cardCount,sendQuestionForOwner});
+  nav.push({name:'counseling',counselingDraftKey:requestId(),topic:selectedOption.id,initialText:question,cardCount,sendQuestionForOwner});
  }
  return <View testID="tarot-setup" style={{gap:12}}>
   <View><TarotSetupIntro count={spread.positions.length} reduced={store.reduced}/></View>
@@ -103,7 +115,7 @@ export function ReadingResult({nav,reading}:{nav:Nav;reading:Reading}){
   <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:14,paddingVertical:10}}>{reading.cards.map((card,i)=><View key={card.id} style={{alignItems:'center',gap:8}}><FlippingCard card={card} owner={store.bootstrap?.user.id||'local'} eventKey={reading.id?reading.id+':'+i+':'+card.id:undefined} width={reading.cards.length>3?86:100} delay={i*130} reduced={store.reduced}/><Copy kind="label" muted style={{textAlign:'center',maxWidth:singleCard?200:100}}>{card.position}</Copy></View>)}</View>
   {singleCard?<Panel style={{gap:8}}>
    <Copy kind="label" muted>카드의 뜻</Copy>
-   <Copy>{cardMeaningLine(singleCard.id,singleCard.message)}</Copy>
+   <Copy>{cardMeaningLine(singleCard.short_meaning,singleCard.message)}</Copy>
   </Panel>:null}
   {singleCard?question:null}
   </PageSection><PageSection title="리딩의 메시지"><Panel tone={color.mint} style={{borderWidth:0}}><Copy kind="subtitle">{reading.summary}</Copy></Panel>
