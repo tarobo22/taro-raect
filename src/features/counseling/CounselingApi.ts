@@ -6,9 +6,11 @@ export interface Source{id:string;kind:'web'|'user_definition'|'tarot_reference'
 export interface CounselResult{empathy:string;facts:{text:string;source_ids:string[]}[];tarot:{card_id:number;reflection:string}[];advice:string;actions:string[];follow_up_question:string|null;safety_mode:'standard'|'support';}
 export interface CounselingSession{id:string;topic:Topic;version:number;phase:'listening'|'clarifying'|'confirmation'|'advice'|'support';acknowledgement:string;understanding:string|null;clarification_question:string|null;perspective:string|null;response_mode:'advice'|'listen';search_queries:string[];search_status:string;cards:SelectedCard[];draw:{id:string;method:string;at:string;without_replacement:boolean}|null;result:CounselResult|null;sources:Source[];glossary_used:Definition[];history:{role:'user'|'assistant';text:string}[];job:{id:string;state:'queued'|'running'|'succeeded'|'failed';error_code:string|null}|null;}
 export interface SessionSummary{id:string;topic:Topic;phase:string;summary:string;updated_at:string;}
-export interface Capabilities{available:boolean;policy_version:string;card_counts:number[];glossary_limit:number;max_message_chars:number;}
-export interface MessageInput{text:string;expected_version:number;consent_event_id:string;remember_definitions:boolean;auto_read?:boolean;card_count?:1|3|5;web_search?:boolean;}
-export interface ConfirmInput{confirmed:true;expected_version:number;consent_event_id:string;web_search:boolean;card_count:1|3|5;}
+export type CounselingCardCount=1|3|5;
+export const defaultCounselingCardCount:CounselingCardCount=3;
+export interface Capabilities{available:boolean;policy_version:string;card_counts:CounselingCardCount[];glossary_limit:number;max_message_chars:number;}
+export interface MessageInput{text:string;expected_version:number;consent_event_id:string;remember_definitions:boolean;auto_read?:boolean;card_count?:CounselingCardCount;web_search?:boolean;}
+export interface ConfirmInput{confirmed:true;expected_version:number;consent_event_id:string;web_search:boolean;card_count:CounselingCardCount;}
 
 const invalid=()=>new Error('대화 응답을 확인하지 못했어요. 다시 연결해 주세요.');
 function record(value:unknown):Record<string,unknown>{

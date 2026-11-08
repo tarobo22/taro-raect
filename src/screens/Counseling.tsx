@@ -13,7 +13,7 @@ import {useSendConsent} from '../features/consent/SendConsentProvider';
 import type {Topic} from '../features/p0/model';
 import {CounselingController} from '../features/counseling/CounselingController';
 import {useCounselingDraft} from '../features/counseling/DraftProvider';
-import type {Definition,Source} from '../features/counseling/CounselingApi';
+import {defaultCounselingCardCount,type CounselingCardCount,type Definition,type Source} from '../features/counseling/CounselingApi';
 import type {Nav,Route} from '../navigation';
 import {feedback} from '../services/feedback';
 import {Character} from '../components/Character';
@@ -23,18 +23,26 @@ import {useSkinTheme} from '../features/skins/useSkinTheme';
 
 const fail=(code:string|null)=>({UNKNOWN_PROVIDER_OUTCOME:'앞선 요청의 처리 여부를 확인하지 못했어요. 새 요청은 추가 비용이 생길 수 있어요.',CONSENT_REQUIRED:'이야기를 다시 보내면 전송 여부를 확인할 수 있어요.',GLOSSARY_CHANGED:'사전이 바뀌었어요. 이야기를 다시 보내 뜻을 확인해 주세요.',AI_RATE_LIMITED:'요청이 몰려 잠시 쉬고 있어요. 조금 뒤 다시 시도해 주세요.'} as Record<string,string>)[code||'']||'답변을 마치지 못했어요. 이야기는 남아 있고, 뽑은 카드는 유지돼요.';
 function SourceLink({source}:{source:Source}){return source.url?.startsWith('https://')?<Text accessibilityRole="link" onPress={()=>{void Linking.openURL(source.url!);}} style={{fontSize:13,lineHeight:21,color:color.action,textDecorationLine:'underline'}}>{source.title}</Text>:<Copy kind="small" muted>{source.title}</Copy>;}
+function resolveCardCount(requested:CounselingCardCount|undefined,supported:readonly CounselingCardCount[]){
+ if(requested!==undefined)return requested;
+ if(!supported.length||supported.includes(defaultCounselingCardCount))return defaultCounselingCardCount;
+ return supported[0];
+}
 
 export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const store=useStore(),owner=store.bootstrap?.user.id||'',draftMemory=useCounselingDraft(),skin=useSkin(),theme=useSkinTheme();
  const controller=useMemo(()=>new CounselingController(counselingRepository,requestId,draftMemory,
   {owner,topic:route.topic as Topic,sessionId:route.counselingSessionId,initialText:route.initialText,sourceReadingId:route.sourceReadingId,draftKey:route.counselingDraftKey}),
   [owner,route.counselingSessionId,route.initialText,route.topic,route.sourceReadingId,route.counselingDraftKey,draftMemory]);
- const {value,text,busy,error,caps,definitions,sessions,pending}=useSyncExternalStore(controller.subscribe,controller.getSnapshot,controller.getSnapshot);
+ const {value,text,busy,error,caps,definitions,sessions,pending,statusUnavailable}=useSyncExternalStore(controller.subscribe,controller.getSnapshot,controller.getSnapshot);
  const setText=(next:string)=>controller.setText(next),processing=controller.processing;
  const processingStart=useRef<{id:string;version:number}|null>(null);
  if(value?.job&&processingStart.current?.id!==value.job.id)processingStart.current={id:value.job.id,version:value.version};
  const preparedAcknowledgement=processing&&value?.job?.state==='running'&&value.phase==='confirmation'&&value.version>(processingStart.current?.version??value.version);
- const [voice,setVoice]=useState(''),[count,setCount]=useState<1|3|5>(route.cardCount||3),[web,setWeb]=useState(true),[remember,setRemember]=useState(true);
+ const [voice,setVoice]=useState(''),[requestedCount,setCount]=useState(route.cardCount),[web,setWeb]=useState(true),[remember,setRemember]=useState(true);
+ const cardCounts=caps?.card_counts??[],count=resolveCardCount(requestedCount,cardCounts),maxMessageChars=caps?.max_message_chars;
+ const countUnavailable=!!caps?.available&&!cardCounts.includes(count);
+ const cardChoices=cardCounts.length>0?<View style={{flexDirection:'row',gap:8}}>{cardCounts.map(cardCount=><Chip key={cardCount} selected={count===cardCount} onPress={()=>{setCount(cardCount);nav.update({cardCount});}}>{`${cardCount}장`}</Chip>)}</View>:null;
  const [settings,setSettings]=useState(false),[term,setTerm]=useState(''),[meaning,setMeaning]=useState('');
  const [editing,setEditing]=useState(false),[deleting,setDeleting]=useState(false),[references,setReferences]=useState(false);
  const input=useRef<TextInput>(null),scroll=useRef<ScrollView>(null),followLatest=useRef(true);
@@ -57,14 +65,14 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  },[controller]);
  useEffect(()=>{
   if(!processing)return;let disposed=false;let timer:ReturnType<typeof setTimeout>;
-  async function poll(){await controller.refresh();if(!disposed&&controller.processing)timer=setTimeout(()=>void poll(),500);}
+  async function poll(){const next=await controller.refresh();if(!disposed&&next!==null)timer=setTimeout(()=>void poll(),next);}
   timer=setTimeout(()=>void poll(),100);return()=>{disposed=true;clearTimeout(timer);};
  },[controller,processing,value?.id]);
  useEffect(()=>{if(value?.job?.state==='succeeded'){feedback('confirm');}},[value?.job?.id,value?.job?.state]);
- async function refresh(){await controller.refreshCapabilities();await controller.refresh();}
+ async function refresh(){if(!controller.getSnapshot().caps?.available)await controller.refreshCapabilities();await controller.refresh();}
  async function send(){
   const current=controller.getSnapshot();
-  if(mountedController.current!==controller||sendingController.current===controller||current.busy||controller.processing||current.pending||!current.text.trim())return;
+  if(mountedController.current!==controller||sendingController.current===controller||current.busy||controller.processing||current.pending||current.statusUnavailable||!current.text.trim())return;
   sendingController.current=controller;
   setSendError('');
   try{
@@ -74,10 +82,14 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
    }
    const stillSendingSameText=()=>mountedController.current===controller&&controller.getSnapshot().text===current.text;
    if(!stillSendingSameText())return;
+   const policy=controller.getSnapshot().caps;
+   if(!policy||Array.from(current.text.trim()).length>policy.max_message_chars)return;
+   const selectedCount=resolveCardCount(requestedCount,policy.card_counts);
+   if(!policy.card_counts.includes(selectedCount))return;
    const permission=await requestConsent(['ai_processing']);
    if(permission?.ai_processing&&stillSendingSameText()){
     followLatest.current=true;
-    await controller.send(permission.ai_processing.id,remember,{cardCount:count,webSearch:web});
+    await controller.send(permission.ai_processing.id,remember,{cardCount:selectedCount,webSearch:web});
    }
   }finally{if(sendingController.current===controller)sendingController.current=null;}
  }
@@ -91,7 +103,10 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const transcript=value?.history||[];
  const hasCurrentReply=!processing&&!!(result||value?.acknowledgement||value?.clarification_question||value?.understanding);
  const earlierMessages=hasCurrentReply&&transcript.at(-1)?.role==='assistant'?transcript.slice(0,-1):transcript;
- const canSend=!busy&&!processing&&!pending&&!!text.trim();
+ const messageTooLong=maxMessageChars!==undefined&&Array.from(text.trim()).length>maxMessageChars;
+ // TextInput can count two UTF-16 units for a single server-side code point.
+ const inputLengthLimit=maxMessageChars===undefined?undefined:maxMessageChars*2;
+ const canSend=!busy&&!processing&&!pending&&!statusUnavailable&&!countUnavailable&&!messageTooLong&&!!text.trim();
  const composerHint=result?'이어서 하고 싶은 말을 적어 주세요.':'지금 하고 싶은 말, 편하게 적어주세요.';
  return <View style={{flex:1,backgroundColor:theme.paper}}>
   <View style={{paddingHorizontal:20,paddingTop:6,paddingBottom:12,borderBottomWidth:1,borderColor:theme.line,backgroundColor:theme.paper}}>
@@ -106,7 +121,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
    {processing?<View accessibilityLiveRegion="polite" style={{flexDirection:'row',gap:10,alignItems:'center',paddingVertical:12}}><ActivityIndicator color={theme.action}/><Copy muted>{value?.cards.length?'뽑은 카드로 답변을 정리하고 있어요.':'답변을 준비하고 있어요.'}</Copy></View>:null}
    {(!processing||preparedAcknowledgement)&&value?.acknowledgement&&!result?<View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="listen" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{value.acknowledgement}</Copy></View></View>:null}
    {!processing&&value?.phase==='clarifying'?<Panel style={{padding:16}}><Copy style={{fontSize:17,lineHeight:28}}>{value.clarification_question}</Copy></Panel>:null}
-   {!processing&&value?.phase==='confirmation'?<><Panel style={{padding:18,gap:10}}>{value.perspective?<Copy kind="label" muted>{value.perspective}의 입장에서</Copy>:null}<Copy style={{fontSize:17,lineHeight:28}}>{value.understanding}</Copy>{!/[?？]\s*$/.test(value.understanding||'')?<Copy muted>제가 이해한 내용이 맞을까요?</Copy>:null}</Panel>{value.response_mode!=='listen'&&!value.cards.length?<View style={{flexDirection:'row',gap:8}}><Chip selected={count===1} onPress={()=>setCount(1)}>1장</Chip><Chip selected={count===3} onPress={()=>setCount(3)}>3장</Chip><Chip selected={count===5} onPress={()=>setCount(5)}>5장</Chip></View>:null}<Button busy={busy} disabled={!caps?.available||!!pending} onPress={confirm}>{value.response_mode==='listen'?'맞아요, 이야기 이어갈게요':'맞아요, 함께 살펴봐요'}</Button><Button secondary onPress={()=>input.current?.focus()}>조금 달라요 · 이야기 보태기</Button></>:null}
+   {!processing&&value?.phase==='confirmation'?<><Panel style={{padding:18,gap:10}}>{value.perspective?<Copy kind="label" muted>{value.perspective}의 입장에서</Copy>:null}<Copy style={{fontSize:17,lineHeight:28}}>{value.understanding}</Copy>{!/[?？]\s*$/.test(value.understanding||'')?<Copy muted>제가 이해한 내용이 맞을까요?</Copy>:null}</Panel>{value.response_mode!=='listen'&&!value.cards.length&&!countUnavailable?cardChoices:null}<Button busy={busy} disabled={!caps?.available||countUnavailable||pending||statusUnavailable} onPress={confirm}>{value.response_mode==='listen'?'맞아요, 이야기 이어갈게요':'맞아요, 함께 살펴봐요'}</Button><Button secondary onPress={()=>input.current?.focus()}>조금 달라요 · 이야기 보태기</Button></>:null}
    {!processing&&result?<>
     <View style={{flexDirection:'row',gap:10,alignItems:'center'}}>
      <Character size={60} expression="encourage" reduced={store.reduced} framed={false}/>
@@ -148,7 +163,9 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
    {error?<><Notice error>{error}</Notice>{pending?<Button secondary busy={busy} onPress={()=>{void controller.retry();}}>같은 요청으로 상태 확인</Button>:<Button secondary onPress={()=>void refresh()}>상태 다시 확인</Button>}</>:null}
   </ScrollView>
   <View style={{paddingHorizontal:16,paddingTop:10,paddingBottom:16,gap:8,borderTopWidth:1,borderColor:theme.line,backgroundColor:theme.surface}}>
-   <TextInput ref={input} accessibilityLabel="여운 상담 이야기 입력" multiline maxLength={2000} editable={!busy&&!processing} value={text} onChangeText={setText} placeholder={value?.phase==='clarifying'?'편하게 더 들려주세요.':composerHint} placeholderTextColor={theme.muted} style={[s.input,{minHeight:58,maxHeight:120,padding:12,fontSize:16,lineHeight:25}]}/>
+   {countUnavailable?<View accessibilityLiveRegion="polite" style={{gap:8}}><Copy kind="small" muted>{cardCounts.length?`${count}장은 지금 고를 수 없어요. 다른 장수를 골라 주세요.`:'지금은 고를 수 있는 카드가 없어요.'}</Copy>{cardChoices}</View>:null}
+   <TextInput ref={input} accessibilityLabel="여운 상담 이야기 입력" multiline maxLength={inputLengthLimit} editable={!busy&&!processing} value={text} onChangeText={setText} placeholder={value?.phase==='clarifying'?'편하게 더 들려주세요.':composerHint} placeholderTextColor={theme.muted} style={[s.input,{minHeight:58,maxHeight:120,padding:12,fontSize:16,lineHeight:25}]}/>
+   {messageTooLong?<Copy kind="small" muted>이야기는 {maxMessageChars}자까지 보낼 수 있어요.</Copy>:null}
    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:8}}><VoiceButton value={text} onText={setText} onStatus={setVoice} onCloud={()=>{draftMemory.write(value?.id||'new',{text,sessionId:value?.id});nav.push({name:'cloud-voice',cloudTarget:'counseling',counselingSessionId:value?.id});}}/><Button busy={busy} disabled={!canSend} onPress={()=>void send()} style={{minWidth:112}}>이야기 보내기</Button></View>{voice?<Copy kind="small" muted>{voice}</Copy>:null}
   </View>
   <Modal visible={settings} transparent animationType={store.reduced?'none':'fade'} onRequestClose={()=>setSettings(false)}><View style={{flex:1,backgroundColor:'rgba(32,44,36,.3)',justifyContent:'center',padding:20}}><Panel style={{height:'88%',padding:18,gap:10}}><View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="subtitle">내 사전과 대화</Copy><Button secondary onPress={()=>setSettings(false)}>닫기</Button></View><PageFlow title="내 사전과 대화" style={{flex:1}} contentContainerStyle={{gap:14,padding:0}}>

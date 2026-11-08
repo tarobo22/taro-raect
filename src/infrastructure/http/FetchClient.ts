@@ -24,14 +24,14 @@ export class FetchClient implements JsonTransport {
       if(!(typeof FormData!=='undefined'&&options.body instanceof FormData))headers.set('Content-Type', 'application/json');
       if (token) headers.set('Authorization', `Bearer ${token}`);
       const response = await this.fetcher(this.baseUrl + path, {...options, headers, signal: controller.signal});
-      const result: unknown = response.status===204?null:await response.json();
       if (!response.ok) {
+        const result: unknown = await response.json().catch(()=>null);
         const detail=typeof result==='object'&&result!==null&&'error' in result?result.error:null;
         const value=typeof detail==='object'&&detail!==null?detail as Record<string,unknown>:null;
         const message=typeof detail==='string'?detail:typeof value?.message==='string'?value.message:'연결을 확인하고 다시 시도해 주세요.';
         throw new HttpError(message,response.status,typeof value?.code==='string'?value.code:'',value?.retryable===true);
       }
-      return result;
+      return response.status===204?null:await response.json();
     } catch (error) {
       if (controller.signal.aborted) throw new Error('연결이 늦어지거나 중단됐어요. 입력한 내용은 유지됩니다.');
       throw error;
