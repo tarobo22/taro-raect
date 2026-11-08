@@ -3,7 +3,7 @@ import React,{useEffect,useState} from 'react';
 import {Modal,Platform,Pressable,ScrollView,Switch,Text as NativeText,View as NativeView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Character,Expression,expressionNames} from '../components/Character';
-import {Copy,Panel,Button,Chip,Notice,s} from '../components/UI';
+import {Copy,Panel,Button,Chip,Header,Notice,s} from '../components/UI';
 import {BreathingDial} from '../components/BreathingDial';
 import {color,type} from '../design/tokens';
 import {feedback} from '../services/feedback';
@@ -60,12 +60,17 @@ export function Settings({nav}:{nav:Nav}){
   {admin?.eligible?<Panel style={{gap:10}}><Copy kind="subtitle">운영 도구</Copy><Copy kind="small" muted>허용된 역할로만 짧은 운영 세션을 열어요.</Copy><Button secondary onPress={()=>nav.push({name:'admin'})}>운영관리</Button></Panel>:null}
   <Copy kind="small" muted style={{textAlign:'center'}}>여운 {release.version} · {release.label}</Copy>
   {faces?<Modal visible animationType={store.reduced?'none':'slide'} onRequestClose={()=>setFaces(false)}>
-   <ScrollView accessibilityLabel="캐릭터 표정 목록" style={{flex:1,backgroundColor:theme.paper}} contentContainerStyle={{padding:24,paddingTop:Math.max(52,insets.top+24),paddingBottom:Math.max(24,insets.bottom+16),gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}>
+   <NativeView style={{flex:1,backgroundColor:theme.paper,paddingTop:insets.top}}>
+    <NativeView style={{width:'100%',maxWidth:430,alignSelf:'center'}}>
+     <Header title="캐릭터 표정 살펴보기" back={()=>setFaces(false)}/>
+    </NativeView>
+    <ScrollView accessibilityLabel="캐릭터 표정 목록" style={{flex:1}} contentContainerStyle={{padding:24,paddingBottom:Math.max(24,insets.bottom+16),gap:20,width:'100%',maxWidth:430,alignSelf:'center'}}>
     <NativeText allowFontScaling style={[type.title,{color:theme.ink}]}>상황에 맞게, 따뜻하게.</NativeText>
     <NativeText allowFontScaling style={[type.body,{color:theme.muted}]}>걱정되는 순간에는 배려하고, 중요한 순간에는 진지하게 들어요.</NativeText>
     <NativeView style={s.wrap}>{(Object.keys(expressionNames) as Expression[]).map(e=><NativeView key={e} style={{width:'47%',alignItems:'center',backgroundColor:color.sage,borderRadius:20,paddingBottom:12}}><Character size={118} expression={e} giga={store.tone==='giga'} reduced={store.reduced}/><NativeText allowFontScaling style={[type.label,{color:theme.ink}]}>{expressionNames[e]}</NativeText></NativeView>)}</NativeView>
     <Pressable accessibilityRole="button" accessibilityLabel="표정 살펴보기 닫기" onPress={()=>{feedback('tap');setFaces(false);}} style={({pressed})=>[s.button,{backgroundColor:theme.action,opacity:pressed?.9:1}]}><NativeText allowFontScaling style={[type.body,{color:color.white,fontWeight:'600'}]}>닫기</NativeText></Pressable>
-   </ScrollView>
+    </ScrollView>
+   </NativeView>
   </Modal>:null}
  </View>;
 }
