@@ -26,33 +26,38 @@ export function BreathingDial() {
   }), [progress]);
 
   useActivityEffect(current => {
-    const secondsInPhase = elapsedRef.current % phaseSeconds;
-    const expanding = elapsedRef.current < phaseSeconds;
-    const fraction = secondsInPhase / phaseSeconds;
-    const target = expanding ? 1 : 0;
-    progress.setValue(reduced ? 0 : expanding ? fraction : 1 - fraction);
+    let phaseAnimation: Animated.CompositeAnimation | undefined;
+    function animatePhase() {
+      phaseAnimation?.stop();
+      if (reduced) {
+        progress.setValue(0);
+        return;
+      }
+      const secondsInPhase = elapsedRef.current % phaseSeconds;
+      const expanding = elapsedRef.current < phaseSeconds;
+      const easing = Easing.inOut(Easing.sin);
+      const fraction = easing(secondsInPhase / phaseSeconds);
+      progress.setValue(expanding ? fraction : 1 - fraction);
+      phaseAnimation = Animated.timing(progress, {
+        toValue: expanding ? 1 : 0,
+        duration: (phaseSeconds - secondsInPhase) * 1000,
+        easing,
+        useNativeDriver: Platform.OS !== 'web',
+        isInteraction: false,
+      });
+      phaseAnimation.start();
+    }
+    animatePhase();
     const interval = setInterval(() => {
       if (!current()) return;
       elapsedRef.current = (elapsedRef.current + 1) % (phaseSeconds * 2);
       setElapsed(elapsedRef.current);
+      if (elapsedRef.current % phaseSeconds === 0) animatePhase();
     }, 1000);
-
-    const timing = (toValue: number, duration: number) => Animated.timing(progress, {
-      toValue, duration, easing: Easing.inOut(Easing.sin),
-      useNativeDriver: Platform.OS !== 'web', isInteraction: false,
-    });
-    const loop = Animated.sequence([
-      timing(target, (phaseSeconds - secondsInPhase) * 1000),
-      Animated.loop(Animated.sequence([
-        timing(1 - target, phaseSeconds * 1000),
-        timing(target, phaseSeconds * 1000),
-      ])),
-    ]);
-    if (!reduced) loop.start();
 
     return () => {
       clearInterval(interval);
-      loop.stop();
+      phaseAnimation?.stop();
       progress.setValue(0);
     };
   }, [reduced, progress], running);
