@@ -15,7 +15,7 @@ import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
 import {requestId} from '../infrastructure/requestId';
 import AsyncStorage from '../features/account/storage';
-import {DeckChoice,DrawV2,topicCode,ResourceDelete} from './P0Tarot';
+import {DeckChoice,DrawV2,topicCode} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 import {TarotSetupIntro,CompactTopicPicker,TarotDepthPicker} from '../components/TarotSetup';
 
@@ -91,7 +91,5 @@ export function ReadingResult({nav,reading}:{nav:Nav;reading:Reading}){
   </PageSection><PageSection title="리딩의 메시지"><Panel tone={color.mint} style={{borderWidth:0}}><Copy kind="subtitle">{reading.summary}</Copy></Panel>
   </PageSection>{reading.cards.map((card,index)=><PageSection key={card.id} title={(index+1)+'번째 카드 해석'}><Panel><Copy kind="label" muted>{card.position}</Copy><Copy kind="subtitle" style={{marginTop:6,marginBottom:10}}>{card.name} · {card.keyword}</Copy><Copy>{card.message}</Copy></Panel></PageSection>)}
   <PageSection title="조언과 작은 행동"><Panel tone={color.sage}><Copy kind="subtitle">지금의 조언</Copy><Copy style={{marginTop:10}}>{reading.advice}</Copy></Panel><Panel tone={color.peach}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy style={{marginTop:10}}>{reading.action}</Copy></Panel>
-  </PageSection><PageSection title="저장·이어가기"><Button icon="edit" onPress={()=>nav.push({name:'journal',sourceReadingId:reading.id,initialText:reading.question+'\n\n오늘의 힌트: '+reading.summary+'\n작은 행동: '+reading.action+'\n\n지금 내 마음은 '})}>이 마음을 기록으로 남기기</Button><Button secondary onPress={()=>nav.tab('records')}>내 기록 보러 가기</Button>
-  {reading.id?<ResourceDelete kind="legacy-reading" id={reading.id} nav={nav}/>:null}<Copy kind="small" muted style={{textAlign:'center'}}>카드 해석은 선택을 돕는 참고로 만나 주세요.</Copy>
- </PageSection></View>;
+  </PageSection></View>;
 }

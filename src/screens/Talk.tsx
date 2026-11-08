@@ -16,7 +16,7 @@ import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {useStore,Counsel} from '../state/store';
 import {feedback} from '../services/feedback';
 import {Nav,Route} from '../navigation';
-import {AIConversationSubmit,ResourceDelete} from './P0Tarot';
+import {AIConversationSubmit} from './P0Tarot';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
 
 export function Talk({nav,route}:{nav:Nav;route?:Route}){
@@ -63,7 +63,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
 </>:null}
    {config.aiAvailable?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>:null}
    {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">대화하기</Button>}{voice?<Notice>{voice}</Notice>:null}
-  </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button icon="edit" secondary onPress={()=>nav.push({name:'journal',sourceTurnId:response.id,initialText:response.question+'\n\n지금의 조언: '+response.advice+'\n작은 행동: '+response.action+'\n\n내 마음은 '})}>마음기록으로 이어가기</Button><ResourceDelete kind="legacy-counsel" id={response.id} nav={nav}/><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');}}>새로운 이야기 시작</Button></>}
+  </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');}}>새로운 이야기 시작</Button></>}
   {error||draftError?<Notice error>{error||draftError}</Notice>:null}
  </View>;
 }
