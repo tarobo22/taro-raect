@@ -65,6 +65,7 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
  const hasCurrentReply=!processing&&!!(result||value?.acknowledgement||value?.clarification_question||value?.understanding);
  const earlierMessages=hasCurrentReply&&transcript.at(-1)?.role==='assistant'?transcript.slice(0,-1):transcript;
  const canSend=!busy&&!processing&&!pending&&!!text.trim();
+ const composerHint=result?'이어서 하고 싶은 말을 적어 주세요.':'지금 하고 싶은 말, 편하게 적어주세요.';
  return <View style={{flex:1,backgroundColor:theme.paper}}>
   <View style={{paddingHorizontal:20,paddingTop:6,paddingBottom:12,borderBottomWidth:1,borderColor:theme.line,backgroundColor:theme.paper}}>
    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:8}}><Copy kind="label" muted>{value?.phase==='support'?'지금은 안전이 먼저예요':value?.cards.length?'카드를 누르면 해석을 볼 수 있어요':count+'장 타로 · 이야기를 먼저 들을게요'}</Copy><Pressable accessibilityRole="button" onPress={()=>void openSettings()} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">대화 옵션</Copy></Pressable></View>
@@ -79,13 +80,34 @@ export function CounselingScreen({nav,route}:{nav:Nav;route:Route}){
    {(!processing||preparedAcknowledgement)&&value?.acknowledgement&&!result?<View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="listen" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{value.acknowledgement}</Copy></View></View>:null}
    {!processing&&value?.phase==='clarifying'?<Panel style={{padding:16}}><Copy style={{fontSize:17,lineHeight:28}}>{value.clarification_question}</Copy></Panel>:null}
    {!processing&&value?.phase==='confirmation'?<><Panel style={{padding:18,gap:10}}>{value.perspective?<Copy kind="label" muted>{value.perspective}의 입장에서</Copy>:null}<Copy style={{fontSize:17,lineHeight:28}}>{value.understanding}</Copy>{!/[?？]\s*$/.test(value.understanding||'')?<Copy muted>제가 이해한 내용이 맞을까요?</Copy>:null}</Panel>{value.response_mode!=='listen'&&!value.cards.length?<View style={{flexDirection:'row',gap:8}}><Chip selected={count===1} onPress={()=>setCount(1)}>1장</Chip><Chip selected={count===3} onPress={()=>setCount(3)}>3장</Chip><Chip selected={count===5} onPress={()=>setCount(5)}>5장</Chip></View>:null}<Button busy={busy} disabled={!caps?.available||!!pending} onPress={confirm}>{value.response_mode==='listen'?'맞아요, 이야기 이어갈게요':'맞아요, 함께 살펴봐요'}</Button><Button secondary onPress={()=>input.current?.focus()}>조금 달라요 · 이야기 보태기</Button></>:null}
-   {!processing&&result?<><View style={{flexDirection:'row',gap:10,alignItems:'center'}}><Character size={60} expression="encourage" reduced={store.reduced} framed={false}/><View style={{flex:1,gap:5}}><Copy kind="label" muted>{skins[skin.id].name}</Copy><Copy style={{fontSize:17,lineHeight:28}}>{result.empathy}</Copy></View></View><Panel style={{padding:18,gap:10}}><Copy style={{fontSize:17,lineHeight:28}}>{result.advice}</Copy></Panel>{result.actions.map((a,i)=><Panel key={i} tone={theme.warm} style={{padding:16,gap:8}}><Copy kind="label">오늘의 작은 행동 {result.actions.length>1?i+1:''}</Copy><Copy>{a}</Copy><Pressable accessibilityRole="button" onPress={()=>{setText('이 방법을 해봤어요. '+a+'\n해보니 ');input.current?.focus();}} style={{minHeight:44,justifyContent:'center'}}><Copy kind="small">해본 이야기 나누기 →</Copy></Pressable></Panel>)}<>{result.facts.length?<><Pressable accessibilityRole="button" onPress={()=>setReferences(!references)} style={{minHeight:44,justifyContent:"center"}}><Copy kind="small" muted>{references?"참고한 내용 접기":"이야기에 참고한 내용"}</Copy></Pressable>{references?result.facts.map((f,i)=><Panel key={i} style={{padding:16,gap:7}}><Copy>{f.text}</Copy>{f.source_ids.map(id=>{const source=value?.sources.find(s=>s.id===id);return source?<SourceLink key={id} source={source}/>:null;})}</Panel>):null}</>:null}</>{result.follow_up_question?<Copy>{result.follow_up_question}</Copy>:null}<Button secondary onPress={()=>input.current?.focus()}>이어서 이야기하기</Button><Copy kind="small" muted>타로는 마음을 돌아보는 관점이에요. 선택은 내가 정해요.</Copy></>:null}
+   {!processing&&result?<>
+    <View style={{flexDirection:'row',gap:10,alignItems:'center'}}>
+     <Character size={60} expression="encourage" reduced={store.reduced} framed={false}/>
+     <Copy kind="label" muted>{skins[skin.id].name}</Copy>
+    </View>
+    <Panel style={{padding:18,gap:8}}>
+     <Copy>{result.empathy}</Copy>
+     <Copy>{result.advice}</Copy>
+     {result.actions.map((action,index)=><Copy key={index}>{action}</Copy>)}
+     {result.follow_up_question?<Copy>{result.follow_up_question}</Copy>:null}
+    </Panel>
+    {result.facts.length?<>
+     <Pressable accessibilityRole="button" accessibilityState={{expanded:references}} onPress={()=>setReferences(!references)} style={{minHeight:44,justifyContent:'center'}}>
+      <Copy kind="small" muted>{references?'참고한 내용 접기':'이야기에 참고한 내용'}</Copy>
+     </Pressable>
+     {references?result.facts.map((fact,index)=><Panel key={index} style={{padding:16,gap:7}}>
+      <Copy>{fact.text}</Copy>
+      {fact.source_ids.map(id=>{const source=value?.sources.find(item=>item.id===id);return source?<SourceLink key={id} source={source}/>:null;})}
+     </Panel>):null}
+    </>:null}
+    <Copy kind="small" muted>타로는 마음을 돌아보는 관점이에요. 선택은 내가 정해요.</Copy>
+   </>:null}
    {value?.job?.state==='failed'?<Notice error>{fail(value.job.error_code)}</Notice>:null}
    {sendError?<View accessibilityLiveRegion="polite"><Copy kind="small" muted>{sendError}</Copy></View>:null}
    {error?<><Notice error>{error}</Notice>{pending?<Button secondary busy={busy} onPress={()=>{void controller.retry();}}>같은 요청으로 상태 확인</Button>:<Button secondary onPress={()=>void refresh()}>상태 다시 확인</Button>}</>:null}
   </ScrollView>
   <View style={{paddingHorizontal:16,paddingTop:10,paddingBottom:16,gap:8,borderTopWidth:1,borderColor:theme.line,backgroundColor:theme.surface}}>
-   <TextInput ref={input} accessibilityLabel="여운 상담 이야기 입력" multiline maxLength={2000} editable={!busy&&!processing} value={text} onChangeText={setText} placeholder={value?.phase==='clarifying'?'편하게 더 들려주세요.':'지금 하고 싶은 말, 편하게 적어주세요.'} placeholderTextColor={theme.muted} style={[s.input,{minHeight:58,maxHeight:120,padding:12,fontSize:16,lineHeight:25}]}/>
+   <TextInput ref={input} accessibilityLabel="여운 상담 이야기 입력" multiline maxLength={2000} editable={!busy&&!processing} value={text} onChangeText={setText} placeholder={value?.phase==='clarifying'?'편하게 더 들려주세요.':composerHint} placeholderTextColor={theme.muted} style={[s.input,{minHeight:58,maxHeight:120,padding:12,fontSize:16,lineHeight:25}]}/>
    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:8}}><VoiceButton value={text} onText={setText} onStatus={setVoice} onCloud={()=>{draftMemory.write(value?.id||'new',{text,sessionId:value?.id});nav.push({name:'cloud-voice',cloudTarget:'counseling',counselingSessionId:value?.id});}}/><Button busy={busy} disabled={!canSend} onPress={()=>void send()} style={{minWidth:112}}>이야기 보내기</Button></View>{voice?<Copy kind="small" muted>{voice}</Copy>:null}
   </View>
   <Modal visible={settings} transparent animationType={store.reduced?'none':'fade'} onRequestClose={()=>setSettings(false)}><View style={{flex:1,backgroundColor:'rgba(32,44,36,.3)',justifyContent:'center',padding:20}}><Panel style={{height:'88%',padding:18,gap:10}}><View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="subtitle">내 사전과 대화</Copy><Button secondary onPress={()=>setSettings(false)}>닫기</Button></View><PageFlow title="내 사전과 대화" style={{flex:1}} contentContainerStyle={{gap:14,padding:0}}>

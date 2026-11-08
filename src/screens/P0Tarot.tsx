@@ -25,6 +25,7 @@ import {color} from '../design/tokens';
 import {useSkinTheme} from '../features/skins/useSkinTheme';
 import {journalMoodLabel} from '../features/journal/moodMapping';
 import {useScreenDraft} from '../features/screenDraft/useScreenDraft';
+import {cardMeaningLine} from '../domain/cardMeaning';
 
 export function topicCode(value:string):Topic{return topics.find(([code,label])=>code===value||label===value)?.[0]||'self';}
 export function DeckChoice({nav,compact=false}:{nav:Nav;compact?:boolean}){
@@ -40,18 +41,27 @@ export function DrawV2({nav,route}:{nav:Nav;route:Route}){const store=useStore()
 
 export function ReadingV2({route,nav}:{route:Route;nav:Nav}){
  const theme=useSkinTheme();
- const data=useP0Read(async()=>{const reading=await p0Repository.reading(route.readingId!);const basic=reading.selected_cards.length?await p0Repository.basic(reading.id):null;return {reading,basic};},[route.readingId]);
+ const data=useP0Read(async()=>{
+  const reading=await p0Repository.reading(route.readingId!);
+  const basic=reading.selected_cards.length>1?await p0Repository.basic(reading.id):null;
+  return {reading,basic};
+ },[route.readingId]);
  const reading=data.value?.reading,basic=data.value?.basic,result=reading?.result;
+ const singleCard=reading?.selected_cards.length===1?reading.selected_cards[0]:undefined;
  return <View style={{gap:20}}><LoadState {...data} reload={data.reload}/>{reading?<>
   <View style={{gap:16}}><Copy kind="label" muted>{reading.local_day||topics.find(v=>v[0]===reading.topic)?.[1]} · {reading.selected_cards.length}장의 카드</Copy>
-   <Copy kind="hero">{reading.question.trim()||(reading.kind==='daily'?'오늘 나에게 필요한 조언은 무엇일까요?':'지금 내 마음을 함께 살펴봐요.')}</Copy>
+   <Copy kind="hero">{singleCard?.card.name_ko||reading.question.trim()||'지금 내 마음을 함께 살펴봐요.'}</Copy>
    {!reading.selected_cards.length?<><Notice>아직 카드를 고르지 않았어요.</Notice><Button onPress={()=>nav.replace({name:'draw',readingV2:reading})}>카드 고르기</Button></>:null}
-   <View style={{flexDirection:'row',justifyContent:'center',gap:14}}>{reading.selected_cards.map(card=><Pressable key={card.position} accessibilityRole="button" accessibilityLabel={card.card.name_ko+' 카드 해석 보기'} onPress={()=>{const insight=result?.card_insights.find(item=>item.position===card.position);nav.push({name:'card',deckId:reading.deck_version_id,cardId:card.card_id,cardData:card.card,cardMeaning:insight?.meaning,cardReflection:insight?.reflection,positionLabel:card.position_label,orientation:card.orientation});}} style={{alignItems:'center',gap:7,flexShrink:1}}><RevealingAssetImage asset={card.card.image_asset} label={card.card.name_ko} width={82} eventKey={reading.id+':'+card.position+':'+card.card_id} delay={(card.position-1)*170}/><Copy kind="label">{card.card.name_ko}</Copy><Copy kind="small" muted style={{fontSize:12}}>{card.position_label}</Copy></Pressable>)}</View>
+   <View style={{flexDirection:'row',justifyContent:'center',gap:14}}>{reading.selected_cards.map(card=><Pressable key={card.position} accessibilityRole="button" accessibilityLabel={card.card.name_ko+' 카드 해석 보기'} onPress={()=>{const insight=result?.card_insights.find(item=>item.position===card.position);nav.push({name:'card',deckId:reading.deck_version_id,cardId:card.card_id,cardData:card.card,cardMeaning:insight?.meaning,cardReflection:insight?.reflection,positionLabel:card.position_label,orientation:card.orientation});}} style={{alignItems:'center',gap:7,flexShrink:1}}><RevealingAssetImage asset={card.card.image_asset} label={card.card.name_ko} width={82} eventKey={reading.id+':'+card.position+':'+card.card_id} delay={(card.position-1)*170}/>{singleCard?null:<Copy kind="label">{card.card.name_ko}</Copy>}<Copy kind="small" muted style={{fontSize:12}}>{card.position_label}</Copy></Pressable>)}</View>
+   {singleCard?<Panel style={{gap:8}}>
+    <Copy kind="label" muted>카드의 뜻</Copy>
+    <Copy>{cardMeaningLine(singleCard.card_id,singleCard.card.basic_meaning)}</Copy>
+   </Panel>:null}
    {reading.selected_cards.length?<Copy kind="small" muted style={{textAlign:'center'}}>카드를 누르면 자세한 해석을 볼 수 있어요.</Copy>:null}
   </View>
   {reading.selected_cards.length?<>
    {reading.question.trim()?<Panel tone={theme.tint} style={{alignSelf:'flex-end',maxWidth:'92%',padding:16,borderBottomRightRadius:6}}><Copy kind="label" muted>나</Copy><ReadingText text={reading.question}/></Panel>:null}
-   <View style={{gap:8}}><Copy kind="label" muted>{result?'여운':'여운 · 기본 카드 안내'}</Copy><Panel style={{gap:14,padding:18,borderTopLeftRadius:6}}>{result?.empathy?<ReadingText text={result.empathy}/>:null}<ReadingText text={result?.advice||basic?.advice||'카드를 보며 지금 마음에 걸리는 이야기를 편하게 들려주세요.'}/>{(result?.actions||[basic?.action||'']).filter(Boolean).map((text,index)=><ReadingText key={index} text={text}/>)}</Panel></View>
+   {!singleCard||result?<View style={{gap:8}}><Copy kind="label" muted>{result?'여운':'여운 · 기본 카드 안내'}</Copy><Panel style={{gap:14,padding:18,borderTopLeftRadius:6}}>{result?.empathy?<ReadingText text={result.empathy}/>:null}<ReadingText text={result?.advice||basic?.advice||'카드를 보며 지금 마음에 걸리는 이야기를 편하게 들려주세요.'}/>{(result?.actions||[basic?.action||'']).filter(Boolean).map((text,index)=><ReadingText key={index} text={text}/>)}</Panel></View>:null}
    <Button onPress={()=>nav.push({name:'counseling',topic:reading.topic,sourceReadingId:reading.id,cardCount:reading.selected_cards.length as 1|3})}>이 카드로 이어 대화하기</Button>
   </>:null}
  </>:null}</View>;

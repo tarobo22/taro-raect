@@ -7,6 +7,7 @@ import {TarotArt,FlippingCard} from '../components/TarotArt';
 import {SelectionDial} from '../components/SelectionDial';
 import {VoiceButton} from '../components/VoiceButton';
 import {localDay} from '../domain/content';
+import {cardMeaningLine} from '../domain/cardMeaning';
 import {color} from '../design/tokens';
 import {useStore,Reading} from '../state/store';
 import {submitReading,submitDaily,readingRetries} from '../composition';
@@ -85,9 +86,17 @@ export function Daily({nav}:{nav:Nav}){
 
 export function ReadingResult({nav,reading}:{nav:Nav;reading:Reading}){
  const store=useStore();
- return <View style={s.stack}><PageSection title="카드 확인"><Copy kind="label" muted>{reading.day?'오늘의 한 장':reading.topic+' · '+reading.cards.length+'장의 리딩'}</Copy><Copy kind="hero">{reading.cards[0].keyword},{'\n'}지금의 나를 위한 힌트.</Copy>
-  {reading.question?<Panel><Copy kind="label" muted>나의 질문</Copy><Copy style={{marginTop:6}}>{reading.question}</Copy></Panel>:null}
-  <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:14,paddingVertical:10}}>{reading.cards.map((card,i)=><View key={card.id} style={{alignItems:'center',gap:8}}><FlippingCard card={card} owner={store.bootstrap?.user.id||'local'} eventKey={reading.id?reading.id+':'+i+':'+card.id:undefined} width={reading.cards.length>3?86:100} delay={i*130} reduced={store.reduced}/><Copy kind="label" muted style={{textAlign:'center',maxWidth:100}}>{card.position}</Copy></View>)}</View>
+ const singleCard=reading.cards.length===1?reading.cards[0]:undefined;
+ const question=reading.question?<Panel><Copy kind="label" muted>나의 질문</Copy><Copy style={{marginTop:6}}>{reading.question}</Copy></Panel>:null;
+ return <View style={s.stack}><PageSection title="카드 확인"><Copy kind="label" muted>{reading.day?'오늘의 한 장':reading.topic+' · '+reading.cards.length+'장의 리딩'}</Copy>
+  <Copy kind="hero">{singleCard?singleCard.name:reading.cards[0].keyword+',\n지금의 나를 위한 힌트.'}</Copy>
+  {singleCard?null:question}
+  <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:14,paddingVertical:10}}>{reading.cards.map((card,i)=><View key={card.id} style={{alignItems:'center',gap:8}}><FlippingCard card={card} owner={store.bootstrap?.user.id||'local'} eventKey={reading.id?reading.id+':'+i+':'+card.id:undefined} width={reading.cards.length>3?86:100} delay={i*130} reduced={store.reduced}/><Copy kind="label" muted style={{textAlign:'center',maxWidth:singleCard?200:100}}>{card.position}</Copy></View>)}</View>
+  {singleCard?<Panel style={{gap:8}}>
+   <Copy kind="label" muted>카드의 뜻</Copy>
+   <Copy>{cardMeaningLine(singleCard.id,singleCard.message)}</Copy>
+  </Panel>:null}
+  {singleCard?question:null}
   </PageSection><PageSection title="리딩의 메시지"><Panel tone={color.mint} style={{borderWidth:0}}><Copy kind="subtitle">{reading.summary}</Copy></Panel>
   </PageSection>{reading.cards.map((card,index)=><PageSection key={card.id} title={(index+1)+'번째 카드 해석'}><Panel><Copy kind="label" muted>{card.position}</Copy><Copy kind="subtitle" style={{marginTop:6,marginBottom:10}}>{card.name} · {card.keyword}</Copy><Copy>{card.message}</Copy></Panel></PageSection>)}
   <PageSection title="조언과 작은 행동"><Panel tone={color.sage}><Copy kind="subtitle">지금의 조언</Copy><Copy style={{marginTop:10}}>{reading.advice}</Copy></Panel><Panel tone={color.peach}><Copy kind="subtitle">오늘의 작은 행동</Copy><Copy style={{marginTop:10}}>{reading.action}</Copy></Panel>
