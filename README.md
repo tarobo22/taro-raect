@@ -1,52 +1,34 @@
-# taro-raect · 여운
+# 여운 · React 웹
 
-## 현재 구현 현황 - 2026-11-06
+타로 카드와 대화로 고민을 정리하는 여운의 웹입니다. React Native Web으로 모바일과 주요 화면을 공유합니다. [공개 데모](https://yeoun-43-201-209-249.sslip.io/) · [포트폴리오 자료실](https://app.notion.com/p/411b37c6fe72812b9723cf911343c5d1)
 
-기획 대비 남은 통계·달력·즐겨찾기·선택 기록 AI 요약·Android 기기 알림을 연결했다. [현재 구현 현황](docs/planning/implementation-status-20261106.md), [68개 요구사항 추적표](docs/planning/requirements-traceability-20261106.csv), [남은 결정안](docs/planning/remaining-decisions-20261106.md)을 기준으로 확인한다. RN/웹 1.3.0이며, 운영 배포·실제 GPT 품질·계정/관리/결제/스토리 정책은 구분한다.
+## 먼저 체험할 흐름
 
-React 웹·React Native Web 프레젠테이션. 저장소 이름은 사용자가 지정한 철자를 유지했다.
+- **오늘의 한 장**에서 카드를 열면 이름과 쉬운 해석 한 문장이 먼저 보입니다. 카드를 누르면 상세를 읽을 수 있습니다.
+- **고민 타로**에서 3장과 질문을 고르고 시작하면 입력한 질문을 바로 보냅니다. 세 장을 하나씩 풀이한 뒤 함께 읽은 결론과 해 볼 일 하나를 제안합니다.
+- **설정**에서 세 공간과 덱을 고를 수 있습니다. 캐릭터 표정 목록은 스크롤 중에도 상단에서 설정으로 돌아갈 수 있습니다.
 
-## 실행
+## 로컬 실행
 
-Node 24.22.2 / Python 3.12 / PostgreSQL 17 / RN 0.85.3 / React 19.2.3.
+Node 24.22.2 이상을 사용합니다. [FastAPI](https://github.com/tarobo22/taro-back)의 로컬 API를 먼저 시작하세요.
 
 ```powershell
 . ./tools/use-env.ps1
 npm ci
 npm run typecheck
 npm test
-npm run dev
-# production build: npm run build
+npm run build
+npm run preview
 ```
 
-웹: http://127.0.0.1:8807 · API: http://127.0.0.1:8808/docs.
-Android 에뮬레이터 API: 10.0.2.2:8808. 개발 OTA: 127.0.0.1:8806.
-제품 API는 FastAPI이며 Node는 빌드·OTA 도구에만 사용한다.
+웹은 `http://127.0.0.1:8807`에서 열립니다. Vite는 `/api`를 기본값 `http://127.0.0.1:8808`로 전달합니다. API 주소가 다르면 `VITE_API_PROXY`로 지정합니다.
 
-## 현재 기능
+## 배포·검증
 
-마음기록 CRUD·임시 글 보관, 1·3·5장 타로·일일 카드·78장 외부 에셋,
-좌 아니요/우 예·수동 전송·음성 입력·이어지는 대화, 다정/기가차드 모드,
-표정·카드 뒤집기·다이얼·효과음·배경음·지원 기기의 햅틱 설정을 연결했다.
-웹은 기존 화면을 React Native Web으로 렌더링한다.
+2026-11-08 기준 웹 소스 `73eb0b9`와 API 소스 `3646de3`을 공개 데모에서 확인했습니다. 웹 기존 테스트 170개와 타입 검사, 프로덕션 빌드가 통과했습니다. [웹 CI](https://github.com/tarobo22/taro-raect/actions/runs/42470984935) · [운영 버전](https://yeoun-43-201-209-249.sslip.io/deployment-status.json)
 
-GPT는 서버 전용 연결 코드와 계약 검사가 준비돼 있다. 실제 키·모델이 없으므로 기본 가이드를 사용한다.
-운영 HTTPS·앱 서명·운영 OTA·iOS 프로젝트·실기기 성능은 별도 작업이다.
-개발 APK는 배포용 운영 서명을 대신하지 않는다.
+공개 브라우저에서 빈 질문은 0회, 입력한 3장 질문은 1회 전송됐습니다. 카드 상세를 열었다 돌아와도 총 1회였고, 실제 응답에서 세 카드의 풀이와 종합 조언을 확인했습니다. [API 계약](docs/contracts/openapi.json) · [React Native 앱](https://github.com/tarobo22/taro)
 
-## Git와 검증
+## 설계 기록
 
-기존 이력은 로컬에 백업하고 원격이 비어 있을 때 main을 다시 구성했다.
-각 기능 commit 뒤 push와 원격 SHA를 대조했다. 이후 기능은 codex/ 브랜치에서 작업한다.
-검사 범위와 한계는 [TDD·테스트 평가](docs/quality/tdd-audit.md)에 명시했다.
-
-- [API 계약](docs/contracts/openapi.json)
-- [기획 PDF](docs/planning/타로기획1안.pdf)
-- [검사 기록](docs/quality/verification.json)
-- [기능별 커밋 기록](docs/quality/commits.json)
-
-GitHub Actions 자동 등록은 사용자의 추가 인증 중단 요청에 따라 보류했다. [CI 설정 템플릿](docs/ci/checks.yml)은 준비돼 있으며 실제 원격 CI가 실행됐다고 표시하지 않는다.
-
-## P0 구현 완료 기록
-
-[기능·TDD·검증 결과와 남은 범위](docs/quality/p0-completion.md)를 확인할 수 있다.
+[기획 PDF](docs/planning/타로기획1안.pdf) · [2026-11-06 구현 현황](docs/planning/implementation-status-20261106.md) · [요구사항 추적표](docs/planning/requirements-traceability-20261106.csv) · [남은 결정안](docs/planning/remaining-decisions-20261106.md) · [P0 완료 기록](docs/quality/p0-completion.md) · [TDD 평가](docs/quality/tdd-audit.md)
