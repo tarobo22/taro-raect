@@ -1,4 +1,4 @@
-import {PageView as View,PageFlow} from '../components/PageFlow';
+import {PageView as View} from '../components/PageFlow';
 import {ChoiceStage} from '../components/ChoiceStage';
 import {OptionRail} from '../components/OptionRail';
 import {StepProgress} from '../components/StepProgress';
@@ -28,7 +28,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
  const setAnswers=(value:React.SetStateAction<boolean[]>)=>{draftSession.changed();setAnswersState(value);};
  const [response,setResponse]=useState<Counsel|null>(null),[parentId,setParent]=useState<string|undefined>(),[followup,setFollowup]=useState(false);
  const [useAI,setUseAI]=useState(!!route?.conversationId),[aiConversationId,setAIConversation]=useState<string|undefined>(route?.conversationId),[inputSource,setInputSource]=useState<'text'|'voice'>('text'),[voice,setVoice]=useState(''),[preview,setPreview]=useState(0);
- const [hydrated,setHydrated]=useState(false),[writing,setWriting]=useState(false);
+ const [hydrated,setHydrated]=useState(false),[writing,setWriting]=useState(true);
  const {submit,busy,error,acknowledge}=useSubmit(submitCounsel,counselRetries);
  useEffect(()=>{let mounted=true;void draftSession.restore(()=>AsyncStorage.getItem('yeoun.talk.draft'),v=>{if(v&&mounted){const d=JSON.parse(v);if(typeof d.question==='string')setQuestionState(d.question);if(Array.isArray(d.answers)&&d.answers.every((x:unknown)=>typeof x==='boolean'))setAnswersState(d.answers);if(typeof d.topic==='string')setTopicState(d.topic);if(typeof d.aiConversationId==='string')setAIConversation(d.aiConversationId);if(d.useAI===true)setUseAI(true);if(d.inputSource==='voice')setInputSource('voice');if(typeof d.parentId==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(d.parentId)){setParent(d.parentId);setFollowup(true);}}}).catch(()=>{if(mounted)setDraftError('이전 이야기를 불러오지 못했어요. 지금 입력한 내용은 유지해요.');}).finally(()=>{if(mounted)setHydrated(true);});return()=>{mounted=false;draftSession.dispose();};},[]);
  useEffect(()=>{if(hydrated&&(!response||followup))void draftSession.write(()=>AsyncStorage.setItem('yeoun.talk.draft',JSON.stringify({question,answers,topic,parentId,aiConversationId,useAI,inputSource}))).catch(()=>setDraftError('이야기를 기기에 보관하지 못했어요. 입력한 내용은 이 화면에 남아 있어요.'));},[question,answers,topic,parentId,aiConversationId,useAI,inputSource,hydrated,response,followup]);
@@ -51,7 +51,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
   {!parentId?<OptionRail options={config.topics} value={currentTopic} onChange={setTopic} label="대화 주제"/>:null}
   {response?<><View style={{alignItems:'center'}}><Character expression={response.expression} giga={store.tone==='giga'} reduced={store.reduced} size={130} framed={false}/></View><Panel><Copy kind="small" muted>나의 이야기</Copy><Copy style={{marginTop:8}}>{response.question||'선택으로 전한 오늘의 마음'}</Copy></Panel><AdviceBlocks data={response}/></>:!parentId?<>
    <View><ChoiceStage disabled={!canChoose} reduced={store.reduced} onChoice={choose}>
-    <View style={{backgroundColor:theme.soft,borderRadius:24,padding:16,alignItems:'center',gap:6}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><View pointerEvents="none"><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={164} framed={false}/></View><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'준비되면 이야기를 보내 주세요.':config.questions[answers.length]}</Copy></View>
+    <View style={{backgroundColor:theme.soft,borderRadius:24,padding:16,alignItems:'center',gap:6}}><Copy kind="label" muted>{store.tone==='giga'?'단호하지만, 네 편에서':'오늘도 당신의 편에서'}</Copy><View pointerEvents="none"><Character expression={expression} giga={store.tone==='giga'} reduced={store.reduced} size={164} framed={false}/></View><Copy kind="subtitle" style={{textAlign:'center',fontSize:19,lineHeight:27}}>{choicesComplete?'질문에 모두 답했어요. 아래에서 대화를 시작해요.':config.questions[answers.length]}</Copy></View>
    </ChoiceStage></View>
    <View><StepProgress value={answers.length} total={config.questions.length} reduced={store.reduced} label="대화 선택"/></View>
    {answers.length?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small" muted>{answers.map((yes,i)=>(i+1)+'. '+(yes?'예':'아니요')).join(' · ')}</Copy><Pressable accessibilityRole="button" accessibilityLabel="마지막 선택 취소" onPress={()=>{feedback('back');setAnswers(v=>v.slice(0,-1));}} style={{minHeight:48,justifyContent:'center'}}><Copy kind="small">한 단계 전으로</Copy></Pressable></View>:null}
@@ -62,7 +62,7 @@ export function Talk({nav,route}:{nav:Nav;route?:Route}){
 
 </>:null}
    {config.aiAvailable?<View style={[s.row,{justifyContent:'space-between'}]}><Copy kind="small">GPT와 이야기하기</Copy><Switch accessibilityLabel="GPT 대화 방식 선택" disabled={!config.aiAvailable||busy} value={useAI} onValueChange={setUseAI} trackColor={{false:color.line,true:color.mintDeep}} thumbColor={color.surface}/></View>:null}
-   {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">내 이야기 보내기</Button>}{voice?<Notice>{voice}</Notice>:null}
+   {useAI?<AIConversationSubmit nav={nav} question={question} answers={answers} topic={currentTopic} conversationId={aiConversationId} onConversation={setAIConversation} inputSource={inputSource}/>:<Button disabled={!question.trim()&&!answers.length} busy={busy} onPress={ask} icon="send">대화하기</Button>}{voice?<Notice>{voice}</Notice>:null}
   </>:<><Button onPress={()=>{setParent(response.id);setQuestion('');setAnswers([]);setFollowup(true);}}>이 이야기 이어가기</Button><Button icon="edit" secondary onPress={()=>nav.push({name:'journal',sourceTurnId:response.id,initialText:response.question+'\n\n지금의 조언: '+response.advice+'\n작은 행동: '+response.action+'\n\n내 마음은 '})}>마음기록으로 이어가기</Button><ResourceDelete kind="legacy-counsel" id={response.id} nav={nav}/><Button secondary onPress={()=>{setAnswers([]);setResponse(null);setParent(undefined);setQuestion('');}}>새로운 이야기 시작</Button></>}
   {error||draftError?<Notice error>{error||draftError}</Notice>:null}
  </View>;
